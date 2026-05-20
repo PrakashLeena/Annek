@@ -1,0 +1,368 @@
+import { useState, useEffect } from "react";
+import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
+
+const API = "http://localhost:5000/api";
+// ── Set your admin email here ──
+const ADMIN_EMAILS = ["annek.websitebuild.official@gmail.com"]; // <-- replace with your email
+
+const STATUS_COLORS = {
+  pending:     { bg: "#fff3e8", color: "#c05621" },
+  "in-review": { bg: "#e8f0ff", color: "#3451b2" },
+  "in-progress":{ bg: "#e8f5f0", color: "#276749" },
+  completed:   { bg: "#f0fdf4", color: "#166534" },
+  cancelled:   { bg: "#fef2f2", color: "#991b1b" },
+};
+
+function Badge({ status }) {
+  const s = STATUS_COLORS[status] || { bg: "#f3f4f6", color: "#6b7280" };
+  return (
+    <span style={{ background: s.bg, color: s.color, padding: "3px 12px", borderRadius: 100, fontSize: 12, fontWeight: 700, textTransform: "capitalize" }}>
+      {status}
+    </span>
+  );
+}
+
+/* ─── Orders Tab ─── */
+function OrdersTab() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(null);
+  const [filter, setFilter] = useState("all");
+
+  useEffect(() => { fetchOrders(); }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/orders`);
+      setOrders(await r.json());
+    } catch { }
+    setLoading(false);
+  };
+
+  const updateStatus = async (id, status) => {
+    await fetch(`${API}/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+    setOrders(o => o.map(x => x._id === id ? { ...x, status } : x));
+  };
+
+  const deleteOrder = async (id) => {
+    if (!window.confirm("Delete this order?")) return;
+    await fetch(`${API}/orders/${id}`, { method: "DELETE" });
+    setOrders(o => o.filter(x => x._id !== id));
+  };
+
+  const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter);
+
+  const Field = ({ label, value }) => value ? (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 3 }}>{label}</div>
+      <div style={{ fontSize: 14, color: "#333", lineHeight: 1.6 }}>{value}</div>
+    </div>
+  ) : null;
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>Customer Orders <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({orders.length})</span></h2>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {["all", "pending", "in-review", "in-progress", "completed", "cancelled"].map(f => (
+            <button key={f} onClick={() => setFilter(f)} style={{
+              padding: "6px 16px", borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+              background: filter === f ? "#5c4ef8" : "#f3f4f6", color: filter === f ? "#fff" : "#555", border: "none", transition: "all 0.2s",
+            }}>{f === "all" ? "All" : f}</button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading orders…</div> :
+        filtered.length === 0 ? <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No orders found.</div> :
+        filtered.map(order => (
+          <div key={order._id} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 16, marginBottom: 12, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            {/* Header row */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "16px 20px", cursor: "pointer", flexWrap: "wrap" }}
+              onClick={() => setExpanded(expanded === order._id ? null : order._id)}>
+              <div style={{ flex: 1, minWidth: 160 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{order.name}</div>
+                <div style={{ fontSize: 13, color: "#888" }}>{order.email} {order.company ? `· ${order.company}` : ""}</div>
+              </div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                <Badge status={order.status} />
+                <select value={order.status} onClick={e => e.stopPropagation()}
+                  onChange={e => updateStatus(order._id, e.target.value)}
+                  style={{ fontSize: 13, padding: "4px 10px", borderRadius: 8, border: "1px solid #e5e5e5", background: "#fafafa", cursor: "pointer", fontFamily: "inherit" }}>
+                  {["pending","in-review","in-progress","completed","cancelled"].map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+              <div style={{ fontSize: 12, color: "#bbb" }}>{new Date(order.createdAt).toLocaleDateString()}</div>
+              <button onClick={e => { e.stopPropagation(); deleteOrder(order._id); }}
+                style={{ background: "#fef2f2", color: "#dc2626", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+                🗑 Delete
+              </button>
+              <span style={{ fontSize: 18, color: "#bbb" }}>{expanded === order._id ? "▲" : "▼"}</span>
+            </div>
+
+            {/* Expanded details */}
+            {expanded === order._id && (
+              <div style={{ borderTop: "1px solid #f0f0f0", padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+                <Field label="Pages Needed" value={[...(order.pages||[]), order.otherPages].filter(Boolean).join(", ")} />
+                <Field label="Design Colour" value={order.colour} />
+                <Field label="Design Style" value={order.designStyle?.join(", ")} />
+                <Field label="Theme" value={order.theme?.join(", ")} />
+                <Field label="Fonts" value={order.fonts} />
+                <Field label="Liked Sites" value={order.likedSites} />
+                <Field label="Features" value={[...(order.features||[]), order.otherFeatures].filter(Boolean).join(", ")} />
+                <Field label="Domain Purchase" value={order.buyDomain === true ? "Yes" : order.buyDomain === false ? "No (Free)" : null} />
+                <Field label="Has Domain" value={order.hasDomain === true ? "Yes" : order.hasDomain === false ? "No" : null} />
+                <Field label="Timeline" value={order.timeline} />
+                <Field label="Maintenance" value={order.maintenance?.join(", ")} />
+                <Field label="Text Content" value={order.textContent} />
+                <Field label="Product Details" value={order.productDetails} />
+                <Field label="Social Links" value={order.socialLinks} />
+                <Field label="Contact Info" value={order.contactInfo} />
+                {order.logoUrl && <div><div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", textTransform: "uppercase", marginBottom: 6 }}>Logo</div><a href={order.logoUrl} target="_blank" rel="noreferrer" style={{ color: "#5c4ef8", fontSize: 13 }}>View Logo ↗</a></div>}
+                {order.imageUrls?.length > 0 && <div><div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", textTransform: "uppercase", marginBottom: 6 }}>Images</div>{order.imageUrls.map((u,i) => <a key={i} href={u} target="_blank" rel="noreferrer" style={{ display: "block", color: "#5c4ef8", fontSize: 13 }}>Image {i+1} ↗</a>)}</div>}
+                {order.videoUrls?.length > 0 && <div><div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", textTransform: "uppercase", marginBottom: 6 }}>Videos</div>{order.videoUrls.map((u,i) => <a key={i} href={u} target="_blank" rel="noreferrer" style={{ display: "block", color: "#5c4ef8", fontSize: 13 }}>Video {i+1} ↗</a>)}</div>}
+              </div>
+            )}
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+/* ─── Portfolio Tab ─── */
+function PortfolioTab() {
+  const [items, setItems] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ title: "", category: "", desc: "", accent: "#5c4ef8", tags: "", visible: true });
+  const [imgFile, setImgFile] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { fetchPortfolio(); }, []);
+
+  const fetchPortfolio = async () => {
+    try { const r = await fetch(`${API}/portfolio`); setItems(await r.json()); } catch {}
+  };
+
+  const openNew = () => { setForm({ title:"", category:"", desc:"", accent:"#5c4ef8", tags:"", visible:true }); setImgFile(null); setEditing(null); setShowForm(true); };
+  const openEdit = (item) => {
+    setForm({ title:item.title, category:item.category, desc:item.desc, accent:item.accent, tags:item.tags?.join(", ")||"", visible:item.visible });
+    setImgFile(null); setEditing(item._id); setShowForm(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    const fd = new FormData();
+    fd.append("data", JSON.stringify({ ...form, tags: form.tags.split(",").map(t=>t.trim()).filter(Boolean) }));
+    if (imgFile) fd.append("image", imgFile);
+    const url = editing ? `${API}/portfolio/${editing}` : `${API}/portfolio`;
+    const method = editing ? "PUT" : "POST";
+    try {
+      const r = await fetch(url, { method, body: fd });
+      const item = await r.json();
+      if (editing) setItems(it => it.map(x => x._id === editing ? item : x));
+      else setItems(it => [item, ...it]);
+      setShowForm(false);
+    } catch {}
+    setSaving(false);
+  };
+
+  const remove = async (id) => {
+    if (!window.confirm("Delete this portfolio item?")) return;
+    await fetch(`${API}/portfolio/${id}`, { method: "DELETE" });
+    setItems(it => it.filter(x => x._id !== id));
+  };
+
+  const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>Portfolio <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({items.length} projects)</span></h2>
+        <button onClick={openNew} style={{ background: "#5c4ef8", color: "#fff", border: "none", borderRadius: 12, padding: "10px 22px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Add Project</button>
+      </div>
+
+      {/* Form */}
+      {showForm && (
+        <div style={{ background: "#f8f7ff", border: "1.5px solid #e0dcff", borderRadius: 16, padding: 24, marginBottom: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#0e0e0e" }}>{editing ? "Edit Project" : "New Project"}</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {[["title","Title *"],["category","Category *"],["desc","Description"],["tags","Tags (comma-separated)"]].map(([k,l]) => (
+              <div key={k} style={{ gridColumn: k === "desc" || k === "tags" ? "1/-1" : "auto" }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>{l}</label>
+                {k === "desc" ? <textarea style={{ ...inpStyle, minHeight: 72, resize: "vertical" }} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /> : <input style={inpStyle} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />}
+              </div>
+            ))}
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>Accent Colour</label>
+              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                <input type="color" value={form.accent} onChange={e => setForm(f=>({...f,accent:e.target.value}))} style={{ width: 44, height: 36, border: "none", borderRadius: 8, cursor: "pointer" }} />
+                <span style={{ fontSize: 13, color: "#555" }}>{form.accent}</span>
+              </div>
+            </div>
+            <div>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>Image</label>
+              <input type="file" accept="image/*" onChange={e => setImgFile(e.target.files[0])} style={{ fontSize: 13 }} />
+              {imgFile && <span style={{ fontSize: 12, color: "#5c4ef8" }}>{imgFile.name}</span>}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <input type="checkbox" id="vis" checked={form.visible} onChange={e => setForm(f=>({...f,visible:e.target.checked}))} style={{ accentColor: "#5c4ef8", width: 16, height: 16 }} />
+              <label htmlFor="vis" style={{ fontSize: 14, color: "#333", cursor: "pointer" }}>Visible on site</label>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+            <button onClick={save} disabled={saving} style={{ background: "#5c4ef8", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: saving?"not-allowed":"pointer", opacity: saving?0.7:1, fontFamily:"inherit" }}>
+              {saving ? "Saving…" : editing ? "Save Changes" : "Create"}
+            </button>
+            <button onClick={() => setShowForm(false)} style={{ background: "#f3f4f6", color: "#555", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 14, cursor: "pointer", fontFamily:"inherit" }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* Grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px,1fr))", gap: 16 }}>
+        {items.map(item => (
+          <div key={item._id} style={{ background: "#fff", borderRadius: 16, border: `2px solid ${item.visible ? "#eee" : "#ffdede"}`, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+            {item.imageUrl ? <img src={item.imageUrl} alt={item.title} style={{ width: "100%", height: 140, objectFit: "cover" }} /> : <div style={{ height: 140, background: `${item.accent}22`, display:"flex",alignItems:"center",justifyContent:"center",fontSize:32 }}>🖼️</div>}
+            <div style={{ padding: "16px 18px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: item.accent, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.category}</span>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e", marginTop: 2 }}>{item.title}</div>
+                </div>
+                {!item.visible && <span style={{ fontSize: 11, background: "#fef2f2", color: "#dc2626", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>Hidden</span>}
+              </div>
+              <p style={{ fontSize: 13, color: "#666", marginBottom: 12, lineHeight: 1.5 }}>{item.desc}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
+                {item.tags?.map(t => <span key={t} style={{ background: "#f3f4f6", borderRadius: 100, padding: "2px 10px", fontSize: 11, color: "#555" }}>{t}</span>)}
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => openEdit(item)} style={{ flex: 1, background: "#f0eeff", color: "#5c4ef8", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, cursor: "pointer", fontWeight: 600, fontFamily:"inherit" }}>✏️ Edit</button>
+                <button onClick={() => remove(item._id)} style={{ flex: 1, background: "#fef2f2", color: "#dc2626", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, cursor: "pointer", fontWeight: 600, fontFamily:"inherit" }}>🗑 Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Users Tab ─── */
+function UsersTab() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // For now show the current Firebase signed-in user; full user list requires firebase-admin on backend
+    const unsub = onAuthStateChanged(auth, u => {
+      if (u) setUsers([{ name: u.displayName, email: u.email, photo: u.photoURL, uid: u.uid, role: "Admin" }]);
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return (
+    <div>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Logged-in Users</h2>
+      {loading ? <div style={{ color: "#aaa", textAlign: "center", padding: 40 }}>Loading…</div> :
+        users.length === 0 ? <div style={{ color: "#aaa", textAlign: "center", padding: 40 }}>No users found.</div> :
+        users.map(u => (
+          <div key={u.uid} style={{ background: "#fff", borderRadius: 16, border: "1px solid #eee", padding: "18px 22px", display: "flex", alignItems: "center", gap: 16, marginBottom: 12 }}>
+            {u.photo ? <img src={u.photo} alt="" style={{ width: 48, height: 48, borderRadius: "50%", border: "2px solid #e0dcff" }} /> : <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#e0dcff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>👤</div>}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{u.name}</div>
+              <div style={{ fontSize: 13, color: "#888" }}>{u.email}</div>
+              <div style={{ fontSize: 11, color: "#bbb", marginTop: 2 }}>UID: {u.uid}</div>
+            </div>
+            <span style={{ background: "#e0dcff", color: "#5c4ef8", padding: "4px 14px", borderRadius: 100, fontSize: 12, fontWeight: 700 }}>{u.role}</span>
+          </div>
+        ))
+      }
+    </div>
+  );
+}
+
+/* ─── Main Admin Panel ─── */
+export default function Admin() {
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [tab, setTab] = useState("orders");
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, u => { setUser(u); setAuthLoading(false); });
+    return unsub;
+  }, []);
+
+  if (authLoading) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "DM Sans, sans-serif" }}>
+      <div style={{ color: "#888" }}>Loading…</div>
+    </div>
+  );
+
+  // Not logged in
+  if (!user) return (
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg,#f0eeff,#e8f0ff)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ background: "#fff", borderRadius: 24, padding: "48px 40px", textAlign: "center", boxShadow: "0 24px 64px rgba(0,0,0,0.1)", maxWidth: 400, width: "100%" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🔐</div>
+        <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0e0e0e", marginBottom: 8 }}>Admin Panel</h1>
+        <p style={{ fontSize: 14, color: "#888", marginBottom: 32 }}>Sign in with your admin Google account to continue.</p>
+        <button onClick={signInWithGoogle} style={{ width: "100%", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Sign in with Google
+        </button>
+      </div>
+    </div>
+  );
+
+  // Not admin
+  if (!ADMIN_EMAILS.includes(user.email)) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',sans-serif", flexDirection: "column", gap: 16 }}>
+      <div style={{ fontSize: 48 }}>🚫</div>
+      <h2 style={{ fontSize: 20, color: "#0e0e0e" }}>Access Denied</h2>
+      <p style={{ color: "#888", fontSize: 14 }}>Your account ({user.email}) is not an admin.</p>
+      <button onClick={logOut} style={{ background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", cursor: "pointer", fontFamily: "inherit", fontSize: 14 }}>Sign Out</button>
+    </div>
+  );
+
+  const tabs = [
+    { key: "orders", label: "📋 Orders" },
+    { key: "portfolio", label: "🖼️ Portfolio" },
+    { key: "users", label: "👥 Users" },
+  ];
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f7f7fb", fontFamily: "'DM Sans', sans-serif" }}>
+      <style>{"@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');"}</style>
+
+      {/* Topbar */}
+      <div style={{ background: "#1a1a1a", padding: "0 32px", display: "flex", alignItems: "center", height: 60, position: "sticky", top: 0, zIndex: 100 }}>
+        <a href="/" style={{ color: "#d4f74b", fontWeight: 700, fontSize: 18, textDecoration: "none", letterSpacing: "-0.5px", marginRight: 32 }}>⚙ Annek Admin</a>
+        <div style={{ display: "flex", gap: 4, flex: 1 }}>
+          {tabs.map(t => (
+            <button key={t.key} onClick={() => setTab(t.key)} style={{
+              background: tab === t.key ? "rgba(255,255,255,0.12)" : "transparent",
+              color: tab === t.key ? "#fff" : "rgba(255,255,255,0.5)",
+              border: "none", borderRadius: 8, padding: "8px 18px",
+              fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: "inherit", transition: "all 0.2s",
+            }}>{t.label}</button>
+          ))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.2)" }} />}
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{user.displayName?.split(" ")[0]}</span>
+          <button onClick={logOut} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Log Out</button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
+        {tab === "orders" && <OrdersTab />}
+        {tab === "portfolio" && <PortfolioTab />}
+        {tab === "users" && <UsersTab />}
+      </div>
+    </div>
+  );
+}
