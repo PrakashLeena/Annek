@@ -762,8 +762,8 @@ export default function App() {
 
   const displayStats = [
     {
-      value: liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-        ? liveStats.orderCount.toLocaleString()
+      value: portfolioProjects.length > 0
+        ? portfolioProjects.length.toLocaleString()
         : "0",
       label: "Websites delivered"
     },
