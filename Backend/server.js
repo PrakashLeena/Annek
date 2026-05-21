@@ -52,6 +52,16 @@ app.get("/api/stats", async (req, res) => {
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "OK", time: new Date() }));
 
+// Root welcome route
+app.get("/", (req, res) => {
+  res.json({
+    name: "Annek API Platform Backend",
+    status: "Online",
+    message: "Welcome to the Annek API. Access services via /api/health or other endpoints.",
+    version: "1.0.0"
+  });
+});
+
 // Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
