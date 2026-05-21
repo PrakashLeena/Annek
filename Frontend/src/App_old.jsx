@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+﻿import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import logoImg from "./images/logo.png";
 import businessImg from "./images/bussines.jpg";
@@ -7,12 +7,10 @@ import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-
-
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
-/* ─── Intersection Observer Hook ─── */
+/* ΓöÇΓöÇΓöÇ Intersection Observer Hook ΓöÇΓöÇΓöÇ */
 const useInView = (threshold = 0.15) => {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -40,15 +38,15 @@ const FadeUp = ({ children, delay = 0, className = "" }) => {
   );
 };
 
-/* ─── Nav Data ─── */
+/* ΓöÇΓöÇΓöÇ Nav Data ΓöÇΓöÇΓöÇ */
 const serviceDropdownItems = [
-  { label: "Portfolio Sites", icon: "🎨" },
-  { label: "E-Commerce", icon: "🛒" },
-  { label: "Online Store", icon: "🏪" },
-  { label: "Booking Site", icon: "📅" },
-  { label: "Education Websites", icon: "🎓" },
-  { label: "Associations", icon: "🤝" },
-  { label: "Clubs Sites", icon: "⭐" },
+  { label: "Portfolio Sites", icon: "≡ƒÄ¿" },
+  { label: "E-Commerce", icon: "≡ƒ¢Æ" },
+  { label: "Online Store", icon: "≡ƒÅ¬" },
+  { label: "Booking Site", icon: "≡ƒôà" },
+  { label: "Education Websites", icon: "≡ƒÄô" },
+  { label: "Associations", icon: "≡ƒñ¥" },
+  { label: "Clubs Sites", icon: "Γ¡É" },
 ];
 
 const navLinks = [
@@ -60,12 +58,12 @@ const navLinks = [
   { label: "Contact Us", href: "#contact" },
 ];
 
-/* ─── Site Data ─── */
+/* ΓöÇΓöÇΓöÇ Site Data ΓöÇΓöÇΓöÇ */
 const features = [
-  { icon: "✦", title: "Requirement-Based Order", desc: "Submit your website requirements and get a fully custom-built site tailored to your brand and goals.", bg: "#eef0ff" },
-  { icon: "◈", title: "Expert Designers & Devs", desc: "Our team of skilled professionals brings your vision to life with pixel-perfect precision.", bg: "#e8f5f0" },
-  { icon: "⬡", title: "100+ Premium Templates", desc: "Choose from a wide range of professionally crafted templates as your starting point.", bg: "#fff3e8" },
-  { icon: "◎", title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
+  { icon: "Γ£ª", title: "Requirement-Based Order", desc: "Submit your website requirements and get a fully custom-built site tailored to your brand and goals.", bg: "#eef0ff" },
+  { icon: "Γùê", title: "Expert Designers & Devs", desc: "Our team of skilled professionals brings your vision to life with pixel-perfect precision.", bg: "#e8f5f0" },
+  { icon: "Γ¼í", title: "100+ Premium Templates", desc: "Choose from a wide range of professionally crafted templates as your starting point.", bg: "#fff3e8" },
+  { icon: "ΓùÄ", title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
 ];
 
 
@@ -85,9 +83,9 @@ const faqs = [
 ];
 
 const faqAnswers = [
-  "Simply fill out our order form, describe your requirements in detail — industry, design preferences, features needed — and our team will get back to you within 24 hours with a quote and timeline.",
+  "Simply fill out our order form, describe your requirements in detail ΓÇö industry, design preferences, features needed ΓÇö and our team will get back to you within 24 hours with a quote and timeline.",
   "Absolutely. We can connect your existing domain or help you register a new one as part of the order process. Domain setup is included in all our packages.",
-  "Most standard websites are delivered within 72 hours. More complex projects such as e-commerce stores or custom web apps may take 5–10 business days. You'll receive a clear timeline with your quote.",
+  "Most standard websites are delivered within 72 hours. More complex projects such as e-commerce stores or custom web apps may take 5ΓÇô10 business days. You'll receive a clear timeline with your quote.",
   "We build all types: business websites, portfolios, e-commerce stores, landing pages, booking sites, blogs, and custom web applications. Just describe what you need!",
   "Yes. All websites are hosted on fast, secure servers. We also offer ongoing maintenance plans to keep your site updated, secure, and performing at its best.",
 ];
@@ -116,7 +114,7 @@ const categoryImageMap = {
   "Education": portfolioImg, "Club": portfolioImg,
 };
 
-/* ─── Order Form Data ─── */
+/* ΓöÇΓöÇΓöÇ Order Form Data ΓöÇΓöÇΓöÇ */
 const pageOptions = ["Home", "About", "Services", "Contact", "Gallery", "Blog", "FAQ"];
 const featureOptions = [
   "Contact Form", "WhatsApp Chat", "Booking System", "Payment Gateway",
@@ -125,7 +123,7 @@ const featureOptions = [
 ];
 const maintenanceOptions = ["Ongoing Support", "Monthly Updates", "Security Backups", "Content Changes"];
 
-/* ─── Shared Styles ─── */
+/* ΓöÇΓöÇΓöÇ Shared Styles ΓöÇΓöÇΓöÇ */
 const lbl = { display: "block", fontSize: 13, fontWeight: 600, color: "#333", marginBottom: 6 };
 const inp = {
   width: "100%", padding: "12px 14px", borderRadius: 12,
@@ -134,7 +132,7 @@ const inp = {
   transition: "border-color 0.2s", background: "#fafafa", boxSizing: "border-box",
 };
 
-/* ─── Checkbox Pill ─── */
+/* ΓöÇΓöÇΓöÇ Checkbox Pill ΓöÇΓöÇΓöÇ */
 function CheckPill({ label, checked, onChange }) {
   return (
     <label style={{
@@ -183,7 +181,7 @@ function YesNoBtn({ yes, no, val, setVal }) {
   );
 }
 
-/* ─── Upload Box ─── */
+/* ΓöÇΓöÇΓöÇ Upload Box ΓöÇΓöÇΓöÇ */
 function UploadBox({ label, id, accept, multiple, val, setter }) {
   return (
     <div>
@@ -195,7 +193,7 @@ function UploadBox({ label, id, accept, multiple, val, setter }) {
       }}>
         <input type="file" id={id} accept={accept} multiple={multiple} style={{ display: "none" }}
           onChange={e => setter(e.target.files)} />
-        <span style={{ fontSize: 22 }}>📁</span>
+        <span style={{ fontSize: 22 }}>≡ƒôü</span>
         <span style={{ fontSize: 13, color: val && val.length ? "#5c4ef8" : "#999" }}>
           {val && val.length ? `${val.length} file(s) selected` : "Click to browse"}
         </span>
@@ -205,7 +203,7 @@ function UploadBox({ label, id, accept, multiple, val, setter }) {
   );
 }
 
-/* ─── Pricing Note Banner ─── */
+/* ΓöÇΓöÇΓöÇ Pricing Note Banner ΓöÇΓöÇΓöÇ */
 function PricingNote() {
   return (
     <div style={{
@@ -213,13 +211,13 @@ function PricingNote() {
       fontSize: 13, color: "#92620a", border: "1px solid #ffe9a0",
       display: "flex", alignItems: "flex-start", gap: 8,
     }}>
-      <span>💰</span>
+      <span>≡ƒÆ░</span>
       <div><strong>Pricing note:</strong> Selections here may affect your final quote. We'll include a full breakdown when we respond.</div>
     </div>
   );
 }
 
-/* ─── Feedback Widget ─── */
+/* ΓöÇΓöÇΓöÇ Feedback Widget ΓöÇΓöÇΓöÇ */
 function FeedbackWidget() {
   const [open, setOpen] = useState(false);
   const [fb, setFb] = useState({ name: "", email: "", message: "" });
@@ -258,7 +256,7 @@ function FeedbackWidget() {
         onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
         onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
       >
-        {open ? "✕" : "💬"}
+        {open ? "Γ£ò" : "≡ƒÆ¼"}
       </button>
 
       {/* Feedback Panel */}
@@ -281,7 +279,7 @@ function FeedbackWidget() {
                   <span key={s} onClick={() => setRating(s)}
                     onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)}
                     style={{ fontSize: 26, cursor: "pointer", color: s <= (hover || rating) ? "#f59e0b" : "#ddd", transition: "color 0.15s" }}>
-                    ★
+                    Γÿà
                   </span>
                 ))}
               </div>
@@ -297,7 +295,7 @@ function FeedbackWidget() {
                 <textarea style={{ ...inp, fontSize: 13, minHeight: 80, resize: "none" }}
                   value={fb.message}
                   onChange={e => setFb(f => ({ ...f, message: e.target.value }))}
-                  placeholder="Your feedback…" />
+                  placeholder="Your feedbackΓÇª" />
               </div>
 
               {error && <p style={{ fontSize: 12, color: "#e53e3e", marginTop: 8 }}>{error}</p>}
@@ -309,12 +307,12 @@ function FeedbackWidget() {
                 fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
                 opacity: loading ? 0.7 : 1, fontFamily: "inherit", transition: "opacity 0.2s",
               }}>
-                {loading ? "Sending…" : "Send Feedback ✦"}
+                {loading ? "SendingΓÇª" : "Send Feedback Γ£ª"}
               </button>
             </>
           ) : (
             <div style={{ textAlign: "center", padding: "12px 0" }}>
-              <div style={{ fontSize: 40, marginBottom: 10 }}>🙏</div>
+              <div style={{ fontSize: 40, marginBottom: 10 }}>≡ƒÖÅ</div>
               <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 700, color: "#0e0e0e" }}>Thank you!</h3>
               <p style={{ fontSize: 14, color: "#666", margin: 0 }}>Your feedback has been received.</p>
               <button onClick={() => { setDone(false); setFb({ name:"",email:"",message:"" }); setRating(0); setOpen(false); }}
@@ -329,7 +327,7 @@ function FeedbackWidget() {
   );
 }
 
-/* ─── Order Modal ─── */
+/* ΓöÇΓöÇΓöÇ Order Modal ΓöÇΓöÇΓöÇ */
 function OrderModal({ onClose }) {
   const TOTAL = 7;
   const [step, setStep] = useState(1);
@@ -422,7 +420,7 @@ function OrderModal({ onClose }) {
           border: "none", borderRadius: "50%", width: 36, height: 36,
           fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center",
           justifyContent: "center", color: "#555", lineHeight: 1,
-        }}>×</button>
+        }}>├ù</button>
 
         {!submitted ? (
           <>
@@ -448,7 +446,7 @@ function OrderModal({ onClose }) {
               ))}
             </div>
 
-            {/* ── STEP 1: Contact ── */}
+            {/* ΓöÇΓöÇ STEP 1: Contact ΓöÇΓöÇ */}
             {step === 1 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div className="modal-grid-2col">
@@ -474,13 +472,13 @@ function OrderModal({ onClose }) {
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
                   <button className="btn-dark" style={{ padding: "12px 28px" }}
                     onClick={() => { if (contact.name && contact.email) setStep(2); }}>
-                    Next →
+                    Next ΓåÆ
                   </button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 2: Pages Needed ── */}
+            {/* ΓöÇΓöÇ STEP 2: Pages Needed ΓöÇΓöÇ */}
             {step === 2 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
@@ -499,17 +497,17 @@ function OrderModal({ onClose }) {
                     placeholder="e.g. Team, Events, Partners, Testimonials..." />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(1)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(3)}>Next →</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(1)}>ΓåÉ Back</button>
+                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(3)}>Next ΓåÆ</button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 3: Content Materials ── */}
+            {/* ΓöÇΓöÇ STEP 3: Content Materials ΓöÇΓöÇ */}
             {step === 3 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div style={{ background: "#f0f0ff", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#5c4ef8", border: "1px solid #ddd8ff" }}>
-                  📎 Upload your existing materials. You can skip anything you don't have yet.
+                  ≡ƒôÄ Upload your existing materials. You can skip anything you don't have yet.
                 </div>
                 <UploadBox label="Logo" id="up-logo" accept="image/*,.svg" val={logoFiles} setter={setLogoFiles} />
                 <UploadBox label="Images / Photos" id="up-img" accept="image/*" multiple val={imgFiles} setter={setImgFiles} />
@@ -527,13 +525,13 @@ function OrderModal({ onClose }) {
                   </div>
                 ))}
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(2)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(4)}>Next →</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(2)}>ΓåÉ Back</button>
+                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(4)}>Next ΓåÆ</button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 4: Design Preferences ── */}
+            {/* ΓöÇΓöÇ STEP 4: Design Preferences ΓöÇΓöÇ */}
             {step === 4 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
@@ -559,7 +557,7 @@ function OrderModal({ onClose }) {
                 <div>
                   <label style={lbl}>Theme Preference</label>
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-                    {["🌙 Dark Theme", "☀️ Light Theme"].map(t => (
+                    {["≡ƒîÖ Dark Theme", "ΓÿÇ∩╕Å Light Theme"].map(t => (
                       <CheckPill key={t} label={t}
                         checked={theme.includes(t)}
                         onChange={() => toggle(theme, setTheme, t)} />
@@ -573,13 +571,13 @@ function OrderModal({ onClose }) {
                     placeholder="Paste links or describe designs you love (e.g. apple.com, airbnb.com)..." />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(3)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(5)}>Next →</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(3)}>ΓåÉ Back</button>
+                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(5)}>Next ΓåÆ</button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 5: Features Required ── */}
+            {/* ΓöÇΓöÇ STEP 5: Features Required ΓöÇΓöÇ */}
             {step === 5 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <PricingNote />
@@ -599,13 +597,13 @@ function OrderModal({ onClose }) {
                     placeholder="Any other specific features or integrations you need..." />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(4)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(6)}>Next →</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(4)}>ΓåÉ Back</button>
+                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(6)}>Next ΓåÆ</button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 6: Domain & Hosting ── */}
+            {/* ΓöÇΓöÇ STEP 6: Domain & Hosting ΓöÇΓöÇ */}
             {step === 6 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div>
@@ -626,13 +624,13 @@ function OrderModal({ onClose }) {
                     placeholder="e.g. ASAP, within 2 weeks, by end of month, no rush..." />
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(5)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(7)}>Next →</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(5)}>ΓåÉ Back</button>
+                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(7)}>Next ΓåÆ</button>
                 </div>
               </div>
             )}
 
-            {/* ── STEP 7: Maintenance & Support ── */}
+            {/* ΓöÇΓöÇ STEP 7: Maintenance & Support ΓöÇΓöÇ */}
             {step === 7 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <PricingNote />
@@ -648,14 +646,14 @@ function OrderModal({ onClose }) {
                 </div>
                 {submitError && (
                   <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#c0392b" }}>
-                    ⚠️ {submitError}
+                    ΓÜá∩╕Å {submitError}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(6)}>← Back</button>
+                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(6)}>ΓåÉ Back</button>
                   <button className="btn-lime" style={{ padding: "12px 32px", fontSize: 15, opacity: loading ? 0.7 : 1 }}
                     onClick={handleSubmit} disabled={loading}>
-                    {loading ? "Submitting…" : "Submit Order ✦"}
+                    {loading ? "SubmittingΓÇª" : "Submit Order Γ£ª"}
                   </button>
                 </div>
               </div>
@@ -663,7 +661,7 @@ function OrderModal({ onClose }) {
           </>
         ) : (
           <div style={{ textAlign: "center", padding: "20px 0 10px" }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
+            <div style={{ fontSize: 56, marginBottom: 16 }}>≡ƒÄë</div>
             <h3 style={{ fontSize: 24, fontWeight: 600, color: "#0e0e0e", marginBottom: 12 }}>Order Received!</h3>
             <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 28px" }}>
               Thank you, <strong>{contact.name}</strong>! We've received your website order and will be in touch at{" "}
@@ -677,7 +675,7 @@ function OrderModal({ onClose }) {
   );
 }
 
-/* ─── Contact Form Component ─── */
+/* ΓöÇΓöÇΓöÇ Contact Form Component ΓöÇΓöÇΓöÇ */
 function ContactForm({ openOrder }) {
   const [cf, setCf] = useState({ name: "", email: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -713,7 +711,7 @@ function ContactForm({ openOrder }) {
 
   if (sent) return (
     <div style={{ textAlign: "center", padding: "48px 0" }}>
-      <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+      <div style={{ fontSize: 48, marginBottom: 12 }}>Γ£à</div>
       <div style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e" }}>Message sent!</div>
       <div style={{ fontSize: 14, color: "#888", marginTop: 6 }}>We'll get back to you within 24 hours.</div>
     </div>
@@ -750,7 +748,7 @@ function ContactForm({ openOrder }) {
   );
 }
 
-/* ─── Main App ─── */
+/* ΓöÇΓöÇΓöÇ Main App ΓöÇΓöÇΓöÇ */
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
@@ -823,218 +821,13 @@ export default function App() {
     return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
   }, []);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const openOrder = () => {
-    setShowOrder(true);
-    setServicesOpen(false);
-    setMenuOpen(false);
-  };
-
-  const toggleMenu = () => {
-    setMenuOpen(o => !o);
-  };
+  const openOrder = () => { setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false); };
 
   const scrollTo = (href) => {
-    setServicesOpen(false);
-    setMenuOpen(false);
+    setMobileMenuOpen(false); setServicesOpen(false);
     const el = document.querySelector(href);
-    if (el) {
-      setTimeout(() => {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  // (GSAP effects removed)
-      const erVal = easeReverse;
-      
-      // 1. Sliding sheets timeline
-      const tl = gsap.timeline({ paused: true });
-      menuTlRef.current = tl;
-
-      gsap.set(".menu-overlay", { visibility: "hidden", pointerEvents: "none" });
-      gsap.set(".nav-bg", { opacity: 0 });
-      gsap.set(".menu-link", { opacity: 0, x: -16 });
-      gsap.set(".nav-login-btn", { opacity: 0, y: 8 });
-
-      tl
-        .set(".menu-overlay", { visibility: "visible", pointerEvents: "auto" })
-        .to(".nav-bg", {
-          opacity: 1,
-          duration: 0.4,
-          ease: "power2.out",
-          easeReverse: erVal ? "power4.out" : false
-        }, 0)
-        .fromTo([".nav-top", ".nav-middle", ".nav-bottom"], 
-          { x: "115%", y: 0, rotation: 0 },
-          {
-            x: "0%",
-            y: 0,
-            duration: 0.65,
-            ease: "back.out(1.1)",
-            easeReverse: erVal ? "power3.in" : false,
-            stagger: 0.08
-          }, 0)
-        .fromTo(".menu-link",
-          { opacity: 0, x: -16 },
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power3.out",
-            easeReverse: erVal ? "power2.in" : false,
-            stagger: 0.03
-          }, 0.12)
-        .fromTo(".bar-top",
-          { attr: { x1: 2, y1: 5, x2: 14, y2: 5 }, stroke: "#bbbaa6" },
-          {
-            stroke: "#0e100f",
-            attr: { x1: 4, y1: 4, x2: 12, y2: 12 },
-            duration: 0.3,
-            ease: "back.out(1.2)",
-            easeReverse: erVal ? "power3.out" : false
-          }, 0.05)
-        .fromTo(".bar-bot",
-          { attr: { x1: 2, y1: 11, x2: 14, y2: 11 }, stroke: "#bbbaa6" },
-          {
-            stroke: "#0e100f",
-            attr: { x1: 12, y1: 4, x2: 4, y2: 12 },
-            duration: 0.3,
-            ease: "back.out(1.2)",
-            easeReverse: erVal ? "power3.out" : false
-          }, 0.05)
-        .to(".bar-mid", {
-          opacity: 0,
-          scaleX: 0,
-          duration: 0.2,
-          ease: "power2.in",
-          easeReverse: erVal ? "power3.out" : false
-        }, 0)
-        .to(".nav-login-btn", {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power3.out",
-          easeReverse: erVal ? "power4.out" : false
-        }, 0.3)
-        .addPause();
-
-      // Record the exact enterEndTime
-      tl.vars.enterEndTime = tl.duration();
-
-      tl
-        .to(".bar", { stroke: "#bbbaa6", duration: 0.2 })
-        .to(".bar-top", { attr: { x1: 2, y1: 5, x2: 14, y2: 5 }, duration: 0.2, ease: "power3.in" }, "<")
-        .to(".bar-bot", { attr: { x1: 2, y1: 11, x2: 14, y2: 11 }, duration: 0.2, ease: "power3.in" }, "<")
-        .to(".bar-mid", { opacity: 1, scaleX: 1, duration: 0.2, ease: "power3.in" }, "<")
-        .to([".nav-top", ".nav-middle", ".nav-bottom"], {
-          y: "115vh",
-          rotation: "random(-18, 18)",
-          duration: 0.85,
-          ease: "power3.in",
-          stagger: {
-            from: "end",
-            each: 0.04
-          }
-        }, "<")
-        .to(".nav-bg", {
-          opacity: 0,
-          duration: 0.3,
-          ease: "power2.in"
-        }, "<0.15")
-        .set(".menu-overlay", { visibility: "hidden", pointerEvents: "none" })
-        .set([".nav-top", ".nav-middle", ".nav-bottom"], { y: 0, rotation: 0, x: "115%" });
-
-      // 2. Island trigger timeline
-      const islandTl = gsap.timeline({ paused: true });
-      islandTlRef.current = islandTl;
-      
-      islandTl
-        .to(".island", {
-          width: () => Math.min(window.innerWidth * 0.9, 360),
-          duration: 0.65,
-          ease: "back.out(1.5)",
-          easeReverse: erVal ? "power2.out" : false
-        }, 0)
-        .to(".island-logo", {
-          opacity: 1,
-          rotation: 360,
-          x: 0,
-          duration: 0.45,
-          ease: "back.out(1.2)",
-          easeReverse: erVal ? "power3.out" : false
-        }, 0.08);
-
-      // 3. ScrollTrigger Card Stacking Section Deck
-      const sections = gsap.utils.toArray(".slides-wrapper > .section");
-      if (sections.length > 0) {
-        const panelsToAnimate = sections.slice(0, -1);
-
-        onRefreshInit = () => {
-          panelsToAnimate.forEach((panel) => {
-            const inner = panel.querySelector(".section-inner");
-            if (!inner) return;
-            panel.style.marginBottom = "";
-            const diff = inner.offsetHeight - window.innerHeight;
-            if (diff > 0) {
-              panel.style.marginBottom = `${diff}px`;
-            }
-          });
-        };
-        ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
-
-        panelsToAnimate.forEach((panel, i) => {
-          const inner = panel.querySelector(".section-inner");
-          if (!inner) return;
-
-          const stackingTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: panel,
-              start: "top top",
-              end: () => {
-                const diff = inner.offsetHeight - window.innerHeight;
-                return diff > 0 ? `+=${diff + window.innerHeight}` : `+=${window.innerHeight}`;
-              },
-              pin: true,
-              pinSpacing: false,
-              scrub: true,
-              invalidateOnRefresh: true,
-            }
-          });
-
-          // Scroll inner content if taller
-          stackingTl.to(inner, {
-            y: () => {
-              const diff = inner.offsetHeight - window.innerHeight;
-              return diff > 0 ? -diff : 0;
-            },
-            ease: "none",
-            duration: () => {
-              const diff = inner.offsetHeight - window.innerHeight;
-              return diff > 0 ? diff : 0.001;
-            }
-          });
-
-          // Shrink card as it exits
-          stackingTl.to(panel, {
-            scale: 0.8,
-            opacity: 0.55,
-            ease: "power1.inOut",
-            duration: () => window.innerHeight
-          });
-        });
-      }
-    });
-
-    return () => {
-      ctx.revert();
-      if (onRefreshInit) {
-        ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
-      }
-    };
-  }, [easeReverse]);
-
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', Arial, sans-serif", color: "#1a1a1a", overflowX: "hidden" }}>
@@ -1226,361 +1019,40 @@ export default function App() {
           .nav-username { display: none !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
         }
-
-
-
-        /* Floating Island Burger Pill */
-        .island {
-          position: fixed;
-          top: 16px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 6px 6px 6px 14px;
-          background: rgba(26, 26, 26, 0.88);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1.5px solid rgba(255, 255, 255, 0.15);
-          border-radius: 99px;
-          box-shadow: 0 12px 36px rgba(0,0,0,0.28);
-          width: 52px;
-          overflow: hidden;
-          height: 48px;
-        }
-
-        .menu-btn {
-          width: 36px;
-          height: 36px;
-          margin: 0;
-          padding: 0;
-          background: #ffffff;
-          border-radius: 50%;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .menu-btn:focus-visible {
-          outline: 2px solid #0ae448;
-          outline-offset: 3px;
-        }
-
-        .button-cont {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .menu-btn svg {
-          overflow: visible;
-          display: block;
-        }
-
-        .bar {
-          transition: none !important;
-        }
-
-        /* Sliding Tiered Sheet Navigation */
-        .menu-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 900;
-          pointer-events: none;
-          visibility: hidden;
-          opacity: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-          padding: 16px;
-          padding-top: 80px;
-          overflow: hidden;
-          transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .menu-overlay.open {
-          visibility: visible;
-          opacity: 1;
-          pointer-events: auto;
-        }
-        .menu-overlay.open .nav-top,
-        .menu-overlay.open .nav-middle,
-        .menu-overlay.open .nav-bottom {
-          transform: translateX(0);
-        }
-        .nav-top, .nav-middle, .nav-bottom {
-          transform: translateX(115%);
-          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .nav-middle { transition-delay: 0.05s; }
-        .nav-bottom { transition-delay: 0.10s; }
-
-        .nav-bg {
-          position: absolute;
-          inset: 0;
-          background: rgba(14, 16, 15, 0.76);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          opacity: 0;
-          z-index: 1;
-        }
-
-        .nav-border {
-          border: 1.5px solid #2e2e2c;
-          border-radius: 20px;
-        }
-
-        .nav-panel {
-          width: 100%;
-          max-width: 480px;
-          position: relative;
-          box-sizing: border-box;
-        }
-
-        /* TOP SHEET - WHITE */
-        .nav-top {
-          flex: 1.3;
-          background: #ffffff;
-          color: #0e100f;
-          border-color: rgba(0,0,0,0.15);
-          display: flex;
-          flex-direction: column;
-          padding: 24px;
-          overflow-y: auto;
-          z-index: 3;
-        }
-
-        .nav-top .menu-link {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px 14px;
-          color: #2c2c2a;
-          text-decoration: none;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 500;
-          font-size: 1.15rem;
-          border-radius: 12px;
-          transition: background 0.2s, color 0.2s;
-          cursor: pointer;
-          background: transparent;
-          border: none;
-          width: 100%;
-          text-align: left;
-        }
-        .nav-top .menu-link:hover {
-          background: rgba(92, 78, 248, 0.08);
-          color: #5c4ef8;
-        }
-        .nav-top .menu-link + .menu-link {
-          border-top: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: 0;
-        }
-        .nav-top .menu-link:first-of-type {
-          border-radius: 12px 12px 0 0;
-        }
-        .nav-top .menu-link:last-of-type {
-          border-radius: 0 0 12px 12px;
-        }
-
-        .link-num {
-          font-family: monospace;
-          font-size: 0.8rem;
-          color: #7c7c6f;
-        }
-
-        .nav-login-btn {
-          margin-top: auto;
-          padding-top: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          border-top: 1px dashed rgba(0, 0, 0, 0.1);
-        }
-
-        /* MIDDLE SHEET - MATCHA */
-        .nav-middle {
-          flex: 0.7;
-          background: linear-gradient(135deg, #0ae448 0%, #abff84 40%, #6fdd8b 70%, #0ae448 100%);
-          color: #0e100f;
-          padding: 18px 24px;
-          z-index: 2;
-          border-color: #065a1e;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          min-height: 100px;
-        }
-        .nav-middle-header {
-          font-family: monospace;
-          font-size: 0.65rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          opacity: 0.6;
-          margin-bottom: 6px;
-        }
-        .nav-middle-card {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        .nav-middle-badge {
-          flex-shrink: 0;
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.08);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-        }
-        .nav-middle-info {
-          display: flex;
-          flex-direction: column;
-        }
-        .nav-middle-title {
-          font-weight: 700;
-          font-size: 1.05rem;
-          line-height: 1.2;
-        }
-        .nav-middle-desc {
-          font-size: 0.78rem;
-          opacity: 0.75;
-        }
-
-        /* BOTTOM SHEET - BLACK */
-        .nav-bottom {
-          height: 80px;
-          background: #0e100f;
-          color: #bbbaa6;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 14px 24px;
-          z-index: 1;
-          border-color: #2a2a2a;
-        }
-        .nav-socials {
-          list-style: none;
-          display: flex;
-          gap: 16px;
-        }
-        .nav-socials a {
-          font-family: monospace;
-          font-size: 0.8rem;
-          color: #7c7c6f;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .nav-socials a:hover {
-          color: #0ae448;
-        }
-        .nav-asset img {
-          height: 44px;
-          width: auto;
-          opacity: 0.8;
-        }
-
-
       `}</style>
 
-
-
-      {/* ── ORDER MODAL ── */}
+      {/* ΓöÇΓöÇ ORDER MODAL ΓöÇΓöÇ */}
       {showOrder && <OrderModal onClose={() => setShowOrder(false)} />}
 
-      {/* ── FLOATING ISLAND ── */}
-      <div className="island">
-        <button className="menu-btn" onClick={toggleMenu} aria-expanded={menuOpen} aria-label="Open navigation menu">
-          <div className="button-cont">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <line x1="2" y1="5" x2="14" y2="5" stroke={menuOpen ? "#0e100f" : "#BBBAA6"} strokeWidth="1.5" strokeLinecap="round"
-                style={{ transform: menuOpen ? "rotate(45deg) translate(3px, 3px)" : "none", transformOrigin: "center", transition: "transform 0.3s, stroke 0.3s" }} />
-              <line x1="2" y1="8" x2="14" y2="8" stroke="#BBBAA6" strokeWidth="1.5" strokeLinecap="round"
-                style={{ opacity: menuOpen ? 0 : 1, transition: "opacity 0.3s" }} />
-              <line x1="2" y1="11" x2="14" y2="11" stroke={menuOpen ? "#0e100f" : "#BBBAA6"} strokeWidth="1.5" strokeLinecap="round"
-                style={{ transform: menuOpen ? "rotate(-45deg) translate(3px, -3px)" : "none", transformOrigin: "center", transition: "transform 0.3s, stroke 0.3s" }} />
-            </svg>
-          </div>
+      {/* ΓöÇΓöÇ MOBILE MENU ΓöÇΓöÇ */}
+      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#aaa", padding: "8px 12px", textTransform: "uppercase", letterSpacing: "0.07em" }}>Services</div>
+          {serviceDropdownItems.map(({ label, icon }) => (
+            <button key={label} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%",
+              background: "none", border: "none", padding: "10px 12px",
+              fontSize: 16, color: "#333", cursor: "pointer", fontFamily: "inherit",
+              borderRadius: 10, textAlign: "left",
+            }} onClick={() => { setMobileMenuOpen(false); openOrder(); }}>
+              <span style={{ fontSize: 18 }}>{icon}</span> {label}
+            </button>
+          ))}
+        </div>
+        <div style={{ height: 1, background: "#eee", margin: "4px 0 8px" }} />
+        {navLinks.filter(l => !l.hasDropdown).map(l => (
+          <button key={l.label} className="nav-link"
+            style={{ fontSize: 18, padding: "13px 12px", justifyContent: "flex-start" }}
+            onClick={() => scrollTo(l.href)}>
+            {l.label}
+          </button>
+        ))}
+        <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
+          Order Now
         </button>
       </div>
 
-      {/* ── MULTI-PANEL SLIDING OVERLAY MENU ── */}
-      <div className={`menu-overlay${menuOpen ? " open" : ""}`}>
-        <div className="nav-bg" onClick={toggleMenu}></div>
-
-        {/* 1. TOP PANEL: White Page Navigation */}
-        <div className="nav-top nav-border nav-panel">
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#999", padding: "4px 14px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Navigation</div>
-            {navLinks.filter(l => !l.hasDropdown).map((l, index) => (
-              <button key={l.label} className="menu-link" onClick={() => scrollTo(l.href)}>
-                <span>{l.label}</span>
-                <span className="link-num">0{index + 1}</span>
-              </button>
-            ))}
-          </div>
-          <div className="nav-login-btn">
-            {user ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 14px" }}>
-                  {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%" }} />}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{user.displayName}</span>
-                </div>
-                {ADMIN_EMAILS.includes(user.email) && (
-                  <a href="/admin" style={{ display: "block", textDecoration: "none", color: "#5c4ef8", fontSize: 13, fontWeight: 600, padding: "4px 14px" }}>⚙ Go to Admin Panel</a>
-                )}
-                <button className="btn-dark" style={{ width: "100%", padding: "10px 18px", fontSize: 14 }} onClick={logOut}>Log Out</button>
-              </div>
-            ) : (
-              <button className="btn-dark" style={{ width: "100%", padding: "12px 18px", fontSize: 14 }} onClick={signInWithGoogle}>Log In with Google</button>
-            )}
-            <button className="btn-lime" style={{ width: "100%", padding: "12px 18px", fontSize: 14, color: "#1a1a1a" }} onClick={openOrder}>Order Custom Site ✦</button>
-          </div>
-        </div>
-
-        {/* 2. MIDDLE PANEL: Matcha Stats Card */}
-        <div className="nav-middle nav-border nav-panel">
-          <div className="nav-middle-header">Live Network Status</div>
-          <div className="nav-middle-card">
-            <div className="nav-middle-badge">🟢</div>
-            <div className="nav-middle-info">
-              <div className="nav-middle-title">
-                {liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-                  ? `${liveStats.orderCount} Sites Delivered`
-                  : "Active Commissions"}
-              </div>
-              <div className="nav-middle-desc">
-                {liveStats?.avgRating
-                  ? `Annek Network · ${(Number(liveStats.avgRating) * 20).toFixed(0)}% Client Satisfaction`
-                  : "Fully Custom Development · 24hr Support"}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. BOTTOM PANEL: Black Social Coordinates */}
-        <div className="nav-bottom nav-border nav-panel">
-          <ul className="nav-socials">
-            <li><a href="https://github.com/PrakashLeena/Annek" target="_blank" rel="noreferrer">GitHub</a></li>
-            <li><a href="https://wa.me/94701269689" target="_blank" rel="noreferrer">WhatsApp</a></li>
-            <li><a href="mailto:contact@annek.com">Email</a></li>
-          </ul>
-          <div className="nav-asset">
-            <img src={logoImg} alt="" />
-          </div>
-        </div>
-      </div>
-
-      {/* ── NAV ── */}
+      {/* ΓöÇΓöÇ NAV ΓöÇΓöÇ */}
       <nav style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
         background: scrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.9)",
@@ -1602,7 +1074,7 @@ export default function App() {
               onMouseEnter={() => setServicesOpen(true)}
               onMouseLeave={() => setServicesOpen(false)}>
               <button className="nav-link" onClick={() => scrollTo("#services")}>
-                Services <span style={{ fontSize: 11, opacity: 0.45 }}>▾</span>
+                Services <span style={{ fontSize: 11, opacity: 0.45 }}>Γû╛</span>
               </button>
               {servicesOpen && (
                 <div className="services-dropdown">
@@ -1637,7 +1109,7 @@ export default function App() {
                     onMouseEnter={e => e.currentTarget.style.background = "#333"}
                     onMouseLeave={e => e.currentTarget.style.background = "#1a1a1a"}
                   >
-                    ⚙ Admin Panel
+                    ΓÜÖ Admin Panel
                   </a>
                 )}
                 {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 30, height: 30, borderRadius: "50%", border: "2px solid #5c4ef8" }} />}
@@ -1654,16 +1126,16 @@ export default function App() {
             <button className="hamburger" style={{
               display: "none", flexDirection: "column", gap: 5,
               background: "none", border: "none", cursor: "pointer", padding: 6,
-            }} onClick={toggleMenu}>
+            }} onClick={() => setMobileMenuOpen(o => !o)}>
               {[0, 1, 2].map(i => (
                 <span key={i} style={{
                   width: 22, height: 2, background: "#1a1a1a", borderRadius: 2, display: "block",
-                  transform: menuOpen
+                  transform: mobileMenuOpen
                     ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
                     : i === 2 ? "rotate(-45deg) translate(5px, -5px)" : "scaleX(0)"
                     : "none",
                   transition: "transform 0.3s, opacity 0.3s",
-                  opacity: menuOpen && i === 1 ? 0 : 1,
+                  opacity: mobileMenuOpen && i === 1 ? 0 : 1,
                 }} />
               ))}
             </button>
@@ -1671,17 +1143,14 @@ export default function App() {
         </div>
       </nav>
 
-
-      {/* ─── PAGE SECTIONS ─── */}
-      <div>
-              {/* ── HERO ── */}
-              <section id="services" style={{
-                background: "linear-gradient(160deg, #f0eeff 0%, #e8f0ff 40%, #f5f0ff 100%)",
-                minHeight: "100vh", display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-                paddingTop: 100, paddingBottom: 60, paddingLeft: 24, paddingRight: 24,
-                textAlign: "center", position: "relative", overflow: "hidden",
-              }}>
+      {/* ΓöÇΓöÇ HERO ΓöÇΓöÇ */}
+      <section id="services" style={{
+        background: "linear-gradient(160deg, #f0eeff 0%, #e8f0ff 40%, #f5f0ff 100%)",
+        minHeight: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        paddingTop: 100, paddingBottom: 60, paddingLeft: 24, paddingRight: 24,
+        textAlign: "center", position: "relative", overflow: "hidden",
+      }}>
         <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, background: "radial-gradient(circle, rgba(120,100,255,0.13) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, background: "radial-gradient(circle, rgba(100,180,255,0.1) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
 
@@ -1692,7 +1161,7 @@ export default function App() {
             borderRadius: 100, padding: "6px 18px", marginBottom: 32,
             fontSize: 13, color: "#5c4ef8", fontWeight: 600,
           }}>
-            <span>✦</span> Custom websites built to your exact requirements
+            <span>Γ£ª</span> Custom websites built to your exact requirements
           </div>
         </div>
 
@@ -1710,7 +1179,7 @@ export default function App() {
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(24px)",
           transition: "opacity 0.8s ease 0.35s, transform 0.8s ease 0.35s",
         }}>
-          Tell us your vision, requirements, and budget — Annek's expert team will design and
+          Tell us your vision, requirements, and budget ΓÇö Annek's expert team will design and
           deliver a stunning, high-performance website crafted just for you.
         </p>
 
@@ -1753,14 +1222,14 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── TICKER ── */}
+      {/* ΓöÇΓöÇ TICKER ΓöÇΓöÇ */}
       <div style={{ background: "#1a1a1a", padding: "14px 0", overflow: "hidden" }}>
         <div className="ticker-track">
           {[...Array(2)].map((_, ri) => (
             <div key={ri} style={{ display: "flex", gap: 48 }}>
               {["Portfolio Sites", "E-Commerce", "Booking Sites", "Education Websites", "Online Stores", "Business Sites", "Club Websites", "Associations", "SEO Optimised", "72hr Delivery"].map((t, i) => (
                 <span key={i} style={{ color: "#fff", fontSize: 14, fontWeight: 400, opacity: 0.8, letterSpacing: "0.05em" }}>
-                  {t} <span style={{ color: "#d4f74b", margin: "0 12px" }}>✦</span>
+                  {t} <span style={{ color: "#d4f74b", margin: "0 12px" }}>Γ£ª</span>
                 </span>
               ))}
             </div>
@@ -1768,7 +1237,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* ── STATS ── */}
+      {/* ΓöÇΓöÇ STATS ΓöÇΓöÇ */}
       <section style={{ padding: "80px 24px", background: "#fff" }}>
         <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
           {displayStats.map((s, i) => (
@@ -1780,17 +1249,10 @@ export default function App() {
             </FadeUp>
           ))}
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 2: HOW IT WORKS & FEATURES ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── HOW IT WORKS ── */}
-              <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
+      {/* ΓöÇΓöÇ HOW IT WORKS ΓöÇΓöÇ */}
+      <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
             <FadeUp>
@@ -1800,16 +1262,16 @@ export default function App() {
             </FadeUp>
             <FadeUp delay={0.2}>
               <p style={{ fontSize: 17, color: "#555", lineHeight: 1.65, marginBottom: 28 }}>
-                Describe your requirements once. Our experts handle design, development, and delivery — so you can focus on your business.
+                Describe your requirements once. Our experts handle design, development, and delivery ΓÇö so you can focus on your business.
               </p>
               <button className="btn-dark" onClick={openOrder}>Place Your Order</button>
             </FadeUp>
           </div>
           <div className="steps-grid" style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { step: "01", title: "Submit Requirements", desc: "Fill our simple order form with your business details, design preferences, and features needed.", icon: "📋" },
-              { step: "02", title: "We Design & Build", desc: "Our team crafts your website with care, keeping you updated throughout the process.", icon: "⚙️" },
-              { step: "03", title: "Review & Launch", desc: "Approve your site, request any revisions, and go live — all within your agreed timeline.", icon: "🚀" },
+              { step: "01", title: "Submit Requirements", desc: "Fill our simple order form with your business details, design preferences, and features needed.", icon: "≡ƒôï" },
+              { step: "02", title: "We Design & Build", desc: "Our team crafts your website with care, keeping you updated throughout the process.", icon: "ΓÜÖ∩╕Å" },
+              { step: "03", title: "Review & Launch", desc: "Approve your site, request any revisions, and go live ΓÇö all within your agreed timeline.", icon: "≡ƒÜÇ" },
             ].map((s, i) => (
               <FadeUp key={i} delay={i * 0.15}>
                 <div className="card-hover" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "32px 28px", border: "1px solid rgba(255,255,255,0.9)" }}>
@@ -1824,7 +1286,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
+      {/* ΓöÇΓöÇ FEATURES ΓöÇΓöÇ */}
       <section style={{ padding: "80px 24px", background: "#fff" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
@@ -1846,32 +1308,25 @@ export default function App() {
             ))}
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 3: PORTFOLIO & SOLUTIONS ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── PORTFOLIO ── */}
-              <section id="portfolio" style={{ padding: "80px 24px", background: "#fafafa" }}>
+      {/* ΓöÇΓöÇ PORTFOLIO ΓöÇΓöÇ */}
+      <section id="portfolio" style={{ padding: "80px 24px", background: "#fafafa" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 52, flexWrap: "wrap", gap: 20 }}>
               <div>
-                <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>✦ Our Work</div>
+                <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>Γ£ª Our Work</div>
                 <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e", lineHeight: 1.1 }}>
                   Sites we've <em style={{ fontStyle: "italic" }}>built & shipped</em>
                 </h2>
               </div>
-              <button className="btn-outline" onClick={openOrder}>Start Your Project →</button>
+              <button className="btn-outline" onClick={openOrder}>Start Your Project ΓåÆ</button>
             </div>
           </FadeUp>
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {portfolioProjects.length === 0 ? (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#bbb", padding: 40, fontSize: 15 }}>Loading portfolio…</div>
+              <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#bbb", padding: 40, fontSize: 15 }}>Loading portfolioΓÇª</div>
             ) : portfolioProjects.map((p, i) => (
               <FadeUp key={p._id || i} delay={i * 0.08}>
                 <div className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
@@ -1882,7 +1337,7 @@ export default function App() {
                       onMouseLeave={e => e.target.style.transform = "scale(1)"} />
                   </div>
                   <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
-                    <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
+                    <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar Γ£ª</div>
                   </div>
                   <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
                     <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
@@ -1901,7 +1356,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── SOLUTIONS ── */}
+      {/* ΓöÇΓöÇ SOLUTIONS ΓöÇΓöÇ */}
       <section style={{ background: "#e8f5f0", borderRadius: 32, margin: "0 16px", padding: "80px 48px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
@@ -1928,21 +1383,14 @@ export default function App() {
             </div>
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 4: PRICING, TESTIMONIALS & FAQ ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── PRICING ── */}
-              <section id="pricing" style={{ padding: "100px 24px", background: "#fff" }}>
+      {/* ΓöÇΓöÇ PRICING ΓöÇΓöÇ */}
+      <section id="pricing" style={{ padding: "100px 24px", background: "#fff" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ textAlign: "center", marginBottom: 64 }}>
-              <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12 }}>✦ Transparent Pricing</div>
+              <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12 }}>Γ£ª Transparent Pricing</div>
               <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 58px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e", marginBottom: 16 }}>
                 Simple, <em style={{ fontStyle: "italic" }}>honest pricing</em>
               </h2>
@@ -1968,13 +1416,13 @@ export default function App() {
                   <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
                     {plan.features.map((f, fi) => (
                       <div key={fi} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                        <span style={{ fontSize: 13, color: plan.highlight ? "#d4f74b" : "#5c4ef8", flexShrink: 0, marginTop: 1 }}>✓</span>
+                        <span style={{ fontSize: 13, color: plan.highlight ? "#d4f74b" : "#5c4ef8", flexShrink: 0, marginTop: 1 }}>Γ£ô</span>
                         <span style={{ fontSize: 14, color: plan.highlight ? "rgba(255,255,255,0.8)" : "#555", lineHeight: 1.4 }}>{f}</span>
                       </div>
                     ))}
                   </div>
                   <button className={plan.highlight ? "btn-lime" : "btn-dark"} style={{ width: "100%", padding: "14px", fontSize: 15 }} onClick={openOrder}>
-                    Get Started →
+                    Get Started ΓåÆ
                   </button>
                 </div>
               </FadeUp>
@@ -1994,7 +1442,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ── */}
+      {/* ΓöÇΓöÇ TESTIMONIALS ΓöÇΓöÇ */}
       <section style={{ padding: "80px 0", background: "#fff", overflow: "hidden" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
           <FadeUp>
@@ -2033,7 +1481,7 @@ export default function App() {
                     {t.rating && (
                       <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
                         {[...Array(5)].map((_, starIdx) => (
-                          <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>★</span>
+                          <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>Γÿà</span>
                         ))}
                       </div>
                     )}
@@ -2057,7 +1505,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── FAQ ── */}
+      {/* ΓöÇΓöÇ FAQ ΓöÇΓöÇ */}
       <section style={{ background: "#fff", padding: "40px 24px 80px" }}>
         <div style={{ maxWidth: 900, margin: "0 auto" }}>
           <FadeUp>
@@ -2079,17 +1527,10 @@ export default function App() {
             </FadeUp>
           ))}
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 5: ABOUT US ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── ABOUT US ── */}
-              <section id="about" style={{ background: "#f9f9fb", padding: "100px 24px" }}>
+      {/* ΓöÇΓöÇ ABOUT US ΓöÇΓöÇ */}
+      <section id="about" style={{ background: "#f9f9fb", padding: "100px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
             <FadeUp>
@@ -2099,10 +1540,10 @@ export default function App() {
                   We build websites that <em style={{ fontStyle: "italic" }}>work for you</em>
                 </h2>
                 <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 20 }}>
-                  Annek is a website-ordering platform where businesses and individuals commission fully custom-built websites — without the hassle of hiring freelancers or navigating complex agency contracts.
+                  Annek is a website-ordering platform where businesses and individuals commission fully custom-built websites ΓÇö without the hassle of hiring freelancers or navigating complex agency contracts.
                 </p>
                 <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 32 }}>
-                  Founded with a simple mission — make professional web design accessible to everyone — our team of expert designers and developers has delivered over 1,200 websites across 40+ industries worldwide.
+                  Founded with a simple mission ΓÇö make professional web design accessible to everyone ΓÇö our team of expert designers and developers has delivered over 1,200 websites across 40+ industries worldwide.
                 </p>
                 <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                   {[
@@ -2142,9 +1583,9 @@ export default function App() {
             <FadeUp delay={0.2}>
               <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 {[
-                  { icon: "🎯", title: "Our Mission", desc: "To make professional web design accessible to every business — regardless of size or technical know-how." },
-                  { icon: "💡", title: "Our Approach", desc: "We listen first. Every site we build starts with a thorough understanding of your goals, your audience, and your brand." },
-                  { icon: "🚀", title: "Our Promise", desc: "Fast delivery, unlimited revisions, and ongoing support. We're not done until you're thrilled with the result." },
+                  { icon: "≡ƒÄ»", title: "Our Mission", desc: "To make professional web design accessible to every business ΓÇö regardless of size or technical know-how." },
+                  { icon: "≡ƒÆí", title: "Our Approach", desc: "We listen first. Every site we build starts with a thorough understanding of your goals, your audience, and your brand." },
+                  { icon: "≡ƒÜÇ", title: "Our Promise", desc: "Fast delivery, unlimited revisions, and ongoing support. We're not done until you're thrilled with the result." },
                 ].map((v, i) => (
                   <div key={i} className="card-hover" style={{ background: "#fff", borderRadius: 20, padding: "24px 28px", border: "1px solid #eee", display: "flex", gap: 16, alignItems: "flex-start" }}>
                     <span style={{ fontSize: 28, flexShrink: 0 }}>{v.icon}</span>
@@ -2158,17 +1599,10 @@ export default function App() {
             </FadeUp>
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 6: CONTACT, CTA & FOOTER ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── CONTACT US ── */}
-              <section id="contact" style={{ background: "#fff", padding: "100px 24px" }}>
+      {/* ΓöÇΓöÇ CONTACT US ΓöÇΓöÇ */}
+      <section id="contact" style={{ background: "#fff", padding: "100px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ textAlign: "center", marginBottom: 64 }}>
@@ -2205,7 +1639,7 @@ export default function App() {
                     ),
                     label: "WhatsApp",
                     value: "+94701269689",
-                    sub: "Mon–Fri, 9am – 6pm",
+                    sub: "MonΓÇôFri, 9am ΓÇô 6pm",
                     href: "https://wa.me/94701269689"
                   },
                   {
@@ -2264,7 +1698,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* ── CTA ── */}
+      {/* ΓöÇΓöÇ CTA ΓöÇΓöÇ */}
       <section style={{ background: "#1a5c44", padding: "100px 24px", marginTop: 0, textAlign: "center" }}>
         <FadeUp>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16, fontWeight: 600 }}>
@@ -2274,11 +1708,11 @@ export default function App() {
             Order your website today
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>
-            Unlimited revisions · Expert support
+            Unlimited revisions ┬╖ Expert support
           </p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn-lime" style={{ fontSize: 17, padding: "18px 48px" }} onClick={openOrder}>
-              Start Your Order ✦
+              Start Your Order Γ£ª
             </button>
             <button className="btn-white" style={{ fontSize: 16 }} onClick={() => scrollTo("#pricing")}>
               View Pricing
@@ -2287,7 +1721,7 @@ export default function App() {
         </FadeUp>
       </section>
 
-      {/* ── FOOTER ── */}
+      {/* ΓöÇΓöÇ FOOTER ΓöÇΓöÇ */}
       <footer style={{ background: "#111", padding: "56px 32px 40px", color: "#888" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 48 }}>
@@ -2316,7 +1750,7 @@ export default function App() {
           </div>
           <div style={{ height: 1, background: "#222", marginBottom: 28 }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ fontSize: 13 }}>© 2026 Annek. All rights reserved.</div>
+            <div style={{ fontSize: 13 }}>┬⌐ 2026 Annek. All rights reserved.</div>
             <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
               {["Privacy", "Terms", "Contact"].map(l => (
                 <a key={l} style={{ color: "#555", textDecoration: "none", cursor: "pointer", transition: "color 0.2s" }}
@@ -2326,13 +1760,9 @@ export default function App() {
             </div>
           </div>
         </div>
-              </footer>
-            </div>
-          </div>
-        </div>
-      </div>
+      </footer>
 
-      {/* ── ADMIN SHORTCUT (only for admin) ── */}
+      {/* ΓöÇΓöÇ ADMIN SHORTCUT (only for admin) ΓöÇΓöÇ */}
       {user && ADMIN_EMAILS.includes(user.email) && (
         <a href="/admin" title="Go to Admin Panel" style={{
           position: "fixed", bottom: 28, left: 28, zIndex: 998,
@@ -2346,11 +1776,11 @@ export default function App() {
           onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.35)"; }}
           onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.25)"; }}
         >
-          ⚙ Admin Panel
+          ΓÜÖ Admin Panel
         </a>
       )}
 
-      {/* ── WHATSAPP BUTTON ── */}
+      {/* ΓöÇΓöÇ WHATSAPP BUTTON ΓöÇΓöÇ */}
       <a href="https://wa.me/94701269689" target="_blank" rel="noopener noreferrer"
         title="Chat on WhatsApp"
         style={{
@@ -2371,7 +1801,7 @@ export default function App() {
         </svg>
       </a>
 
-      {/* ── FEEDBACK WIDGET ── */}
+      {/* ΓöÇΓöÇ FEEDBACK WIDGET ΓöÇΓöÇ */}
       <FeedbackWidget />
     </div>
   );
