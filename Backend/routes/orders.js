@@ -123,7 +123,7 @@ function customerEmailHtml(name) {
       <a href="mailto:${process.env.EMAIL_USER}" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:15px;font-weight:600">Contact Us Anytime</a>
     </div>
     <div style="background:#f9f9f9;padding:20px 32px;text-align:center">
-      <p style="margin:0;font-size:13px;color:#aaa">© 2026 Annek · www.annek.io</p>
+      <p style="margin:0;font-size:13px;color:#aaa">© 2026 Annek · www.annek.tech</p>
     </div>
   </div>
   </body></html>`;

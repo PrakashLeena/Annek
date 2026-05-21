@@ -1470,18 +1470,72 @@ export default function App() {
             <FadeUp>
               <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
                 {[
-                  { icon: "📧", label: "Email", value: "hello@annek.io", sub: "We reply within 24 hours" },
-                  { icon: "📱", label: "WhatsApp", value: "+1 (555) 000-0000", sub: "Mon–Fri, 9am – 6pm" },
-                  { icon: "🌐", label: "Website", value: "www.annek.io", sub: "Browse our full portfolio" },
-                  { icon: "📍", label: "Location", value: "Global Remote Team", sub: "Serving clients worldwide" },
+                  {
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="4" width="20" height="16" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                    ),
+                    label: "Email",
+                    value: "annek.websitebuild.official@gmail.com",
+                    sub: "We reply within 24 hours",
+                    href: "mailto:annek.websitebuild.official@gmail.com"
+                  },
+                  {
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#5c4ef8">
+                        <path d="M12.031 0C5.393 0 .012 5.382.012 12.018c0 2.12.553 4.183 1.602 5.992L0 24l6.135-1.61c1.748.953 3.714 1.458 5.89 1.458 6.637 0 12.018-5.383 12.018-12.02C24.043 5.382 18.667 0 12.031 0zm0 22.006c-1.8 0-3.56-.48-5.112-1.392l-.367-.218-3.799.995.995-3.69-.239-.379a9.986 9.986 0 0 1-1.529-5.3c0-5.503 4.48-9.983 9.99-9.983 2.668 0 5.176 1.04 7.059 2.925a9.92 9.92 0 0 1 2.924 7.064c.005 5.508-4.475 9.98-9.97 9.98zm5.289-7.212c-.29-.145-1.716-.848-1.983-.945-.266-.097-.46-.145-.653.145-.193.29-.747.945-.916 1.138-.169.193-.338.217-.628.072-.29-.145-1.226-.452-2.336-1.442-.864-.77-1.448-1.72-1.617-2.01-.169-.29-.018-.447.127-.591.13-.13.29-.338.435-.507.145-.169.193-.29.29-.483.097-.193.048-.362-.024-.507-.072-.145-.653-1.573-.895-2.153-.235-.565-.473-.488-.65-.497-.168-.008-.362-.008-.555-.008-.193 0-.507.072-.773.362-.266.29-.723 1.014-.723 2.472s1.05 2.872 1.196 3.065c.145.193 2.062 3.148 4.996 4.413.698.302 1.243.482 1.668.617.702.222 1.341.19 1.846.115.56-.084 1.716-.7 1.958-1.376.242-.676.242-1.255.169-1.376-.073-.12-.266-.193-.556-.338z" />
+                      </svg>
+                    ),
+                    label: "WhatsApp",
+                    value: "+94701269689",
+                    sub: "Mon–Fri, 9am – 6pm",
+                    href: "https://wa.me/94701269689"
+                  },
+                  {
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                    ),
+                    label: "Website",
+                    value: "www.annek.tech",
+                    sub: "Browse our full portfolio",
+                    href: "https://www.annek.tech"
+                  },
+                  {
+                    icon: (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                    ),
+                    label: "Location",
+                    value: "Global Remote Team",
+                    sub: "Serving clients worldwide"
+                  }
                 ].map((c, i) => (
                   <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       {c.icon}
                     </div>
                     <div>
                       <div style={{ fontSize: 11, color: "#bbb", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{c.label}</div>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e", marginBottom: 2 }}>{c.value}</div>
+                      <div style={{ marginBottom: 2 }}>
+                        {c.href ? (
+                          <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
+                            style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e", textDecoration: "none", transition: "color 0.2s", display: "inline-block" }}
+                            onMouseEnter={e => e.target.style.color = "#5c4ef8"}
+                            onMouseLeave={e => e.target.style.color = "#0e0e0e"}>
+                            {c.value}
+                          </a>
+                        ) : (
+                          <span style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e" }}>{c.value}</span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 13, color: "#999" }}>{c.sub}</div>
                     </div>
                   </div>
