@@ -20,7 +20,7 @@ const useInView = (threshold = 0.15) => {
     );
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
-  }, []);
+  }, [threshold]);
   return [ref, inView];
 };
 
@@ -65,11 +65,7 @@ const features = [
   { icon: "◎", title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
 ];
 
-const stats = [
-  { value: "1,200+", label: "Websites delivered" },
-  { value: "98%", label: "Client satisfaction" },
-  { value: "24/7", label: "Support & revisions" },
-];
+
 
 const testimonials = [
   { quote: "Annek built our studio website exactly as we imagined it. The process was seamless from requirement to delivery.", name: "Mirella Chen", role: "Ceramic Studio Owner", initials: "MC", color: "#ff6b35", rating: 5 },

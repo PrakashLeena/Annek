@@ -28,16 +28,21 @@ function OrdersTab() {
   const [expanded, setExpanded] = useState(null);
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => { fetchOrders(); }, []);
-
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const r = await fetch(`${API}/orders`);
       setOrders(await r.json());
-    } catch { }
+    } catch (err) {
+      console.error(err);
+    }
     setLoading(false);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchOrders();
+  }, []);
 
   const updateStatus = async (id, status) => {
     await fetch(`${API}/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
@@ -139,11 +144,19 @@ function PortfolioTab() {
   const [imgFile, setImgFile] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchPortfolio(); }, []);
-
   const fetchPortfolio = async () => {
-    try { const r = await fetch(`${API}/portfolio`); setItems(await r.json()); } catch {}
+    try {
+      const r = await fetch(`${API}/portfolio`);
+      setItems(await r.json());
+    } catch (err) {
+      console.error(err);
+    }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchPortfolio();
+  }, []);
 
   const openNew = () => { setForm({ title:"", category:"", desc:"", accent:"#5c4ef8", tags:"", visible:true }); setImgFile(null); setEditing(null); setShowForm(true); };
   const openEdit = (item) => {
@@ -164,7 +177,9 @@ function PortfolioTab() {
       if (editing) setItems(it => it.map(x => x._id === editing ? item : x));
       else setItems(it => [item, ...it]);
       setShowForm(false);
-    } catch {}
+    } catch (err) {
+      console.error(err);
+    }
     setSaving(false);
   };
 
