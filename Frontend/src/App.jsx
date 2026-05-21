@@ -413,11 +413,7 @@ function OrderModal({ onClose }) {
       background: "rgba(10,10,20,0.65)", backdropFilter: "blur(8px)",
       display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
     }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{
-        background: "#fff", borderRadius: 28, width: "100%", maxWidth: 640,
-        maxHeight: "92vh", overflowY: "auto", padding: "40px 40px 36px",
-        boxShadow: "0 32px 80px rgba(0,0,0,0.22)", position: "relative",
-      }}>
+      <div onClick={e => e.stopPropagation()} className="order-modal-content">
         {/* Close */}
         <button onClick={onClose} style={{
           position: "absolute", top: 20, right: 20, background: "#f5f5f5",
@@ -453,7 +449,7 @@ function OrderModal({ onClose }) {
             {/* ── STEP 1: Contact ── */}
             {step === 1 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div className="modal-grid-2col">
                   <div>
                     <label style={lbl}>Full Name *</label>
                     <input style={inp} value={contact.name}
@@ -722,7 +718,7 @@ function ContactForm({ openOrder }) {
   );
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="modal-grid-2col">
         <div>
           <label style={lbl}>Name</label>
           <input style={inp} value={cf.name} onChange={e => setCf(c => ({ ...c, name: e.target.value }))} placeholder="Your name" disabled={submitting} />
@@ -980,6 +976,24 @@ export default function App() {
         }
         .mobile-menu.open { display: flex; }
 
+        .modal-grid-2col {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+
+        .order-modal-content {
+          background: #fff;
+          border-radius: 28px;
+          width: 100%;
+          max-width: 640px;
+          max-height: 92vh;
+          overflow-y: auto;
+          padding: 40px 40px 36px;
+          box-shadow: 0 32px 80px rgba(0,0,0,0.22);
+          position: relative;
+        }
+
         @media (max-width: 900px) {
           .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .features-grid { grid-template-columns: 1fr !important; }
@@ -993,7 +1007,16 @@ export default function App() {
           .hamburger { display: flex !important; }
           .footer-grid { grid-template-columns: 1fr 1fr !important; }
         }
+        @media (max-width: 768px) {
+          .nav-admin-btn { display: none !important; }
+        }
+        @media (max-width: 600px) {
+          .modal-grid-2col { grid-template-columns: 1fr !important; }
+          .order-modal-content { padding: 28px 24px 24px !important; max-height: 96vh !important; border-radius: 20px !important; }
+          .nav-order-btn { display: none !important; }
+        }
         @media (max-width: 480px) {
+          .nav-username { display: none !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
@@ -1024,15 +1047,6 @@ export default function App() {
             {l.label}
           </button>
         ))}
-        <div style={{ height: 1, background: "#eee", margin: "8px 0" }} />
-        <Link to="/signup" style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-          background: "#d4f74b", color: "#1a1a1a", border: "none",
-          padding: "14px 28px", borderRadius: 100, fontSize: 16, fontWeight: 700,
-          textDecoration: "none", width: "100%", boxSizing: "border-box"
-        }} onClick={() => setMobileMenuOpen(false)}>
-          🎁 Free Report
-        </Link>
         <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
           Order Now
         </button>
@@ -1085,7 +1099,7 @@ export default function App() {
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {ADMIN_EMAILS.includes(user.email) && (
-                  <a href="/admin" style={{
+                  <a href="/admin" className="nav-admin-btn" style={{
                     display: "flex", alignItems: "center", gap: 6,
                     background: "#1a1a1a", color: "#d4f74b",
                     padding: "7px 16px", borderRadius: 100,
@@ -1099,24 +1113,13 @@ export default function App() {
                   </a>
                 )}
                 {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 30, height: 30, borderRadius: "50%", border: "2px solid #5c4ef8" }} />}
-                <span style={{ fontSize: 14, fontWeight: 500, color: "#333" }}>{user.displayName?.split(" ")[0]}</span>
+                <span className="nav-username" style={{ fontSize: 14, fontWeight: 500, color: "#333" }}>{user.displayName?.split(" ")[0]}</span>
                 <button className="nav-link" style={{ fontWeight: 500, fontSize: 14 }} onClick={logOut}>Log Out</button>
               </div>
             ) : (
               <button className="nav-link" style={{ fontWeight: 500 }} onClick={signInWithGoogle}>Log In</button>
             )}
-            <Link to="/signup" style={{
-              background: "#d4f74b", color: "#1a1a1a", border: "none",
-              padding: "10px 20px", borderRadius: 100, fontSize: 14, fontWeight: 700,
-              textDecoration: "none", transition: "transform 0.2s, box-shadow 0.2s",
-              display: "inline-flex", alignItems: "center", gap: "6px"
-            }}
-              onMouseEnter={e => e.currentTarget.style.transform = "scale(1.03)"}
-              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-            >
-              🎁 Free Report
-            </Link>
-            <button className="btn-dark" style={{ padding: "10px 24px", fontSize: 15 }} onClick={openOrder}>
+            <button className="btn-dark nav-order-btn" style={{ padding: "10px 24px", fontSize: 15 }} onClick={openOrder}>
               Order Now
             </button>
             {/* Hamburger */}

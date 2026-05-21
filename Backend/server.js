@@ -7,7 +7,6 @@ const feedbackRouter = require("./routes/feedback");
 const portfolioRouter = require("./routes/portfolio");
 const contactRouter = require("./routes/contact");
 const settingsRouter = require("./routes/settings");
-const signupRouter = require("./routes/signup");
 
 const app = express();
 connectDB();
@@ -37,7 +36,6 @@ app.use("/api/feedback", feedbackRouter);
 app.use("/api/portfolio", portfolioRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/settings", settingsRouter);
-app.use("/api/signup", signupRouter);
 
 // Live stats endpoint
 app.get("/api/stats", async (req, res) => {

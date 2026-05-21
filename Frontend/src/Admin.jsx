@@ -202,7 +202,7 @@ function PortfolioTab() {
       {showForm && (
         <div style={{ background: "#f8f7ff", border: "1.5px solid #e0dcff", borderRadius: 16, padding: 24, marginBottom: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#0e0e0e" }}>{editing ? "Edit Project" : "New Project"}</h3>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="admin-form-grid">
             {[["title","Title *"],["category","Category *"],["desc","Description"],["tags","Tags (comma-separated)"]].map(([k,l]) => (
               <div key={k} style={{ gridColumn: k === "desc" || k === "tags" ? "1/-1" : "auto" }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>{l}</label>
@@ -349,7 +349,7 @@ function SettingsTab() {
   const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
 
   return (
-    <div style={{ maxWidth: 600, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+    <div className="admin-settings-card" style={{ maxWidth: 600, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
       <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Platform Settings</h2>
       {loading ? (
         <div style={{ textAlign: "center", color: "#aaa", padding: 20 }}>Loading settings…</div>
@@ -456,7 +456,7 @@ function ReviewsTab() {
       ) : reviews.length === 0 ? (
         <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No reviews found.</div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
           {reviews.map(r => (
             <div key={r._id} style={{
               background: "#fff",
@@ -556,7 +556,7 @@ function CommentsTab() {
       ) : comments.length === 0 ? (
         <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No messages found.</div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16 }}>
           {comments.map(c => (
             <div key={c._id} style={{
               background: "#fff",
@@ -609,105 +609,7 @@ function CommentsTab() {
   );
 }
 
-/* ─── Signups Tab ─── */
-function SignupsTab() {
-  const [signups, setSignups] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  const fetchSignups = async () => {
-    setLoading(true);
-    try {
-      const r = await fetch(`${API}/signup`);
-      setSignups(await r.json());
-    } catch (err) {
-      console.error(err);
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchSignups();
-  }, []);
-
-  const deleteSignup = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this signup?")) return;
-    try {
-      const r = await fetch(`${API}/signup/${id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error("Failed to delete signup");
-      setSignups(prev => prev.filter(x => x._id !== id));
-    } catch (err) {
-      console.error(err);
-      alert("Failed to delete signup.");
-    }
-  };
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>
-          Free Report Signups <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({signups.length})</span>
-        </h2>
-      </div>
-
-      {loading ? (
-        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading signups…</div>
-      ) : signups.length === 0 ? (
-        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No signups found.</div>
-      ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
-          {signups.map(s => (
-            <div key={s._id} style={{
-              background: "#fff",
-              borderRadius: 16,
-              border: "1px solid #eee",
-              padding: 24,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between"
-            }}>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{s.firstName} {s.lastName}</div>
-                    <div style={{ fontSize: 13, color: "#888", marginTop: 2 }}>
-                      <a href={`mailto:${s.email}`} style={{ color: "#5c4ef8", textDecoration: "none" }}>{s.email}</a>
-                    </div>
-                  </div>
-                </div>
-                <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6, marginBottom: 16 }}>
-                  <div style={{ marginBottom: 4 }}><strong>Company:</strong> {s.company}</div>
-                  <div><strong>Job Title:</strong> {s.jobTitle}</div>
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f9f9f9", paddingTop: 14 }}>
-                <span style={{ fontSize: 12, color: "#bbb" }}>{new Date(s.createdAt).toLocaleString()}</span>
-                <button
-                  onClick={() => deleteSignup(s._id)}
-                  style={{
-                    background: "#fef2f2",
-                    color: "#dc2626",
-                    border: "none",
-                    borderRadius: 8,
-                    padding: "6px 12px",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    fontFamily: "inherit",
-                    transition: "background 0.2s"
-                  }}
-                >
-                  🗑 Delete
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
@@ -756,19 +658,124 @@ export default function Admin() {
     { key: "portfolio", label: "🖼️ Portfolio" },
     { key: "reviews", label: "💬 Reviews" },
     { key: "comments", label: "✉️ Comments" },
-    { key: "signups", label: "🎁 Signups" },
     { key: "users", label: "👥 Users" },
     { key: "settings", label: "⚙️ Settings" },
   ];
 
   return (
     <div style={{ minHeight: "100vh", background: "#f7f7fb", fontFamily: "'DM Sans', sans-serif" }}>
-      <style>{"@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');"}</style>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+        /* Topbar Wrapper */
+        .admin-topbar {
+          background: #1a1a1a;
+          padding: 0 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          height: 60px;
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          box-sizing: border-box;
+        }
+
+        /* Brand logo + user details row on mobile */
+        .admin-topbar-brand-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-right: 32px;
+        }
+
+        /* Tabs container style */
+        .admin-tabs-container {
+          display: flex;
+          gap: 4px;
+          flex: 1;
+        }
+
+        /* Tab button wrapping */
+        .admin-tabs-container button {
+          white-space: nowrap;
+        }
+
+        /* User profile details layout */
+        .admin-user-details-desktop {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .admin-user-details-mobile {
+          display: none;
+        }
+
+        /* Admin Grid for forms */
+        .admin-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+
+        /* Responsive Rules */
+        @media (max-width: 900px) {
+          .admin-topbar {
+            height: auto;
+            flex-direction: column;
+            padding: 12px 16px;
+            align-items: stretch;
+            gap: 12px;
+          }
+          .admin-topbar-brand-row {
+            width: 100%;
+            margin-right: 0;
+          }
+          .admin-tabs-container {
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin: 0;
+            -webkit-overflow-scrolling: touch;
+          }
+          .admin-tabs-container::-webkit-scrollbar {
+            height: 4px;
+          }
+          .admin-tabs-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+          }
+          .admin-user-details-desktop {
+            display: none;
+          }
+          .admin-user-details-mobile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .admin-form-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .admin-settings-card {
+            padding: 20px !important;
+          }
+        }
+      `}</style>
 
       {/* Topbar */}
-      <div style={{ background: "#1a1a1a", padding: "0 32px", display: "flex", alignItems: "center", height: 60, position: "sticky", top: 0, zIndex: 100 }}>
-        <a href="/" style={{ color: "#d4f74b", fontWeight: 700, fontSize: 18, textDecoration: "none", letterSpacing: "-0.5px", marginRight: 32 }}>⚙ Annek Admin</a>
-        <div style={{ display: "flex", gap: 4, flex: 1 }}>
+      <div className="admin-topbar">
+        <div className="admin-topbar-brand-row">
+          <a href="/" style={{ color: "#d4f74b", fontWeight: 700, fontSize: 18, textDecoration: "none", letterSpacing: "-0.5px" }}>⚙ Annek Admin</a>
+          <div className="admin-user-details-mobile">
+            {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 30, height: 30, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.2)" }} />}
+            <button onClick={logOut} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Log Out</button>
+          </div>
+        </div>
+
+        <div className="admin-tabs-container">
           {tabs.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)} style={{
               background: tab === t.key ? "rgba(255,255,255,0.12)" : "transparent",
@@ -778,7 +785,8 @@ export default function Admin() {
             }}>{t.label}</button>
           ))}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+
+        <div className="admin-user-details-desktop">
           {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 32, height: 32, borderRadius: "50%", border: "2px solid rgba(255,255,255,0.2)" }} />}
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.7)" }}>{user.displayName?.split(" ")[0]}</span>
           <button onClick={logOut} style={{ background: "rgba(255,255,255,0.1)", color: "#fff", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>Log Out</button>
@@ -791,7 +799,6 @@ export default function Admin() {
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "reviews" && <ReviewsTab />}
         {tab === "comments" && <CommentsTab />}
-        {tab === "signups" && <SignupsTab />}
         {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
