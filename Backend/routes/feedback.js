@@ -45,12 +45,16 @@ router.post("/", async (req, res) => {
     await feedback.save();
 
     // Send email notification
-    await transporter.sendMail({
-      from: `"Annek Feedback" <${process.env.EMAIL_USER}>`,
-      to: process.env.ADMIN_EMAIL,
-      subject: `💬 New Feedback — ${rating}/5 stars from ${name || "Anonymous"}`,
-      html: feedbackEmailHtml({ name, email, rating: Number(rating), message }),
-    });
+    try {
+      await transporter.sendMail({
+        from: `"Annek Feedback" <${process.env.EMAIL_USER}>`,
+        to: process.env.ADMIN_EMAIL,
+        subject: `💬 New Feedback — ${rating}/5 stars from ${name || "Anonymous"}`,
+        html: feedbackEmailHtml({ name, email, rating: Number(rating), message }),
+      });
+    } catch (emailErr) {
+      console.error("⚠️ Failed to send feedback notification email:", emailErr.message || emailErr);
+    }
 
     res.json({ success: true, feedback });
   } catch (error) {

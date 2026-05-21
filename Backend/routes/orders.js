@@ -139,15 +139,15 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      // Parse JSON form data
+      console.log("Order submission: Parsing JSON data...");
       const data = JSON.parse(req.body.data);
 
-      // ── Upload files to Cloudinary ──
       let logoUrl = "";
       let imageUrls = [];
       let videoUrls = [];
 
       if (req.files?.logo?.[0]) {
+        console.log("Order submission: Uploading logo to Cloudinary...");
         const result = await uploadBuffer(req.files.logo[0].buffer, {
           folder: "annek/logos",
           resource_type: "image",
@@ -156,6 +156,7 @@ router.post(
       }
 
       if (req.files?.images) {
+        console.log("Order submission: Uploading images to Cloudinary...");
         for (const file of req.files.images) {
           const result = await uploadBuffer(file.buffer, {
             folder: "annek/images",
@@ -166,6 +167,7 @@ router.post(
       }
 
       if (req.files?.videos) {
+        console.log("Order submission: Uploading videos to Cloudinary...");
         for (const file of req.files.videos) {
           const result = await uploadBuffer(file.buffer, {
             folder: "annek/videos",
@@ -175,25 +177,37 @@ router.post(
         }
       }
 
-      // ── Save order to MongoDB ──
+      console.log("Order submission: Creating mongoose order document...");
       const order = new Order({ ...data, logoUrl, imageUrls, videoUrls });
+      console.log("Order submission: Saving order to MongoDB...");
       await order.save();
+      console.log("Order submission: Order saved successfully to database!");
 
       // ── Send admin notification email ──
-      await transporter.sendMail({
-        from: `"Annek Platform" <${process.env.EMAIL_USER}>`,
-        to: process.env.ADMIN_EMAIL,
-        subject: `🌐 New Website Order — ${data.name} ${data.company ? `(${data.company})` : ""}`,
-        html: adminEmailHtml({ ...data, logoUrl, imageUrls, videoUrls }),
-      });
+      try {
+        await transporter.sendMail({
+          from: `"Annek Platform" <${process.env.EMAIL_USER}>`,
+          to: process.env.ADMIN_EMAIL,
+          subject: `🌐 New Website Order — ${data.name} ${data.company ? `(${data.company})` : ""}`,
+          html: adminEmailHtml({ ...data, logoUrl, imageUrls, videoUrls }),
+        });
+      } catch (emailErr) {
+        console.error("⚠️ Failed to send admin notification email:", emailErr.message || emailErr);
+      }
 
       // ── Send customer confirmation email ──
-      await transporter.sendMail({
-        from: `"Annek" <${process.env.EMAIL_USER}>`,
-        to: data.email,
-        subject: "🎉 Your Annek Website Order Has Been Received!",
-        html: customerEmailHtml(data.name),
-      });
+      if (data.email) {
+        try {
+          await transporter.sendMail({
+            from: `"Annek" <${process.env.EMAIL_USER}>`,
+            to: data.email,
+            subject: "🎉 Your Annek Website Order Has Been Received!",
+            html: customerEmailHtml(data.name),
+          });
+        } catch (emailErr) {
+          console.error("⚠️ Failed to send customer confirmation email:", emailErr.message || emailErr);
+        }
+      }
 
       res.json({ success: true, orderId: order._id });
     } catch (error) {
