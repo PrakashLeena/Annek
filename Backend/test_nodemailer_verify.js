@@ -24,6 +24,15 @@ async function testConfig(config, label) {
 }
 
 async function run() {
+  // Test Service: "gmail"
+  await testConfig({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: passNoSpaces
+    }
+  }, "service: 'gmail'");
+
   // Test Port 587 (STARTTLS)
   await testConfig({
     host: "smtp.gmail.com",
