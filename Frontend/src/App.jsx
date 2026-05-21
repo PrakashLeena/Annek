@@ -761,7 +761,7 @@ export default function App() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [portfolioProjects, setPortfolioProjects] = useState([]);
-  const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null });
+  const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null, industryCount: null });
   const [liveReviews, setLiveReviews] = useState([]);
   const [settings, setSettings] = useState({ testimonialsTitle: "Trusted by hundreds of businesses" });
 
@@ -1524,9 +1524,30 @@ export default function App() {
                 </p>
                 <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
                   {[
-                    { val: "1,200+", lab: "Sites Delivered", bg: "#eef0ff", col: "#5c4ef8" },
-                    { val: "40+", lab: "Industries Served", bg: "#e8f5f0", col: "#2a9d8f" },
-                    { val: "98%", lab: "Client Satisfaction", bg: "#fff3e8", col: "#f57f17" },
+                    {
+                      val: liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
+                        ? liveStats.orderCount.toLocaleString() + "+"
+                        : "1,200+",
+                      lab: "Sites Delivered",
+                      bg: "#eef0ff",
+                      col: "#5c4ef8"
+                    },
+                    {
+                      val: liveStats?.industryCount !== null && liveStats?.industryCount !== undefined
+                        ? (liveStats.industryCount || 40) + "+"
+                        : "40+",
+                      lab: "Industries Served",
+                      bg: "#e8f5f0",
+                      col: "#2a9d8f"
+                    },
+                    {
+                      val: liveStats?.avgRating !== null && liveStats?.avgRating !== undefined
+                        ? (Number(liveStats.avgRating) * 20).toFixed(0) + "%"
+                        : "98%",
+                      lab: "Client Satisfaction",
+                      bg: "#fff3e8",
+                      col: "#f57f17"
+                    },
                   ].map(({ val, lab, bg, col }) => (
                     <div key={lab} style={{ background: bg, borderRadius: 16, padding: "16px 24px", textAlign: "center" }}>
                       <div style={{ fontSize: 28, fontWeight: 300, letterSpacing: "-1px", color: col }}>{val}</div>

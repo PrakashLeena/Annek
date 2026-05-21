@@ -42,12 +42,15 @@ app.get("/api/stats", async (req, res) => {
   try {
     const Order = require("./models/Order");
     const Feedback = require("./models/Feedback");
+    const Portfolio = require("./models/Portfolio");
     const orderCount = await Order.countDocuments();
     const feedbacks = await Feedback.find({ visible: true });
     const avgRating = feedbacks.length
       ? (feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length).toFixed(1)
       : null;
-    res.json({ orderCount, avgRating, reviewCount: feedbacks.length });
+    const portfolioCategories = await Portfolio.distinct("category");
+    const industryCount = portfolioCategories.length;
+    res.json({ orderCount, avgRating, reviewCount: feedbacks.length, industryCount });
   } catch (e) {
     res.status(500).json({ error: "Failed to fetch stats." });
   }

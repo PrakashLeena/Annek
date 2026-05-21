@@ -4,8 +4,11 @@ const nodemailer = require("nodemailer");
 const Contact = require("../models/Contact");
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+  tls: { rejectUnauthorized: false },
 });
 
 function contactEmailHtml(data) {
@@ -23,6 +26,29 @@ function contactEmailHtml(data) {
     </div>
   </div></body></html>`;
 }
+
+// GET /api/contact — return all contact messages for admin panel
+router.get("/", async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.json(contacts);
+  } catch (error) {
+    console.error("Fetch contacts error:", error);
+    res.status(500).json({ error: "Failed to fetch contact messages." });
+  }
+});
+
+// DELETE /api/contact/:id — delete a contact message by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Contact.findByIdAndDelete(id);
+    res.json({ success: true, message: "Contact message deleted successfully." });
+  } catch (error) {
+    console.error("Delete contact error:", error);
+    res.status(500).json({ error: "Failed to delete contact message." });
+  }
+});
 
 // POST /api/contact — save message + send email
 router.post("/", async (req, res) => {

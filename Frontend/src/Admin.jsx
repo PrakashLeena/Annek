@@ -510,6 +510,105 @@ function ReviewsTab() {
   );
 }
 
+/* ─── Comments Tab ─── */
+function CommentsTab() {
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchComments = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/contact`);
+      setComments(await r.json());
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchComments();
+  }, []);
+
+  const deleteComment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this message?")) return;
+    try {
+      const r = await fetch(`${API}/contact/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed to delete message");
+      setComments(prev => prev.filter(x => x._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete message.");
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>
+          Contact Messages <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({comments.length})</span>
+        </h2>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading messages…</div>
+      ) : comments.length === 0 ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No messages found.</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+          {comments.map(c => (
+            <div key={c._id} style={{
+              background: "#fff",
+              borderRadius: 16,
+              border: "1px solid #eee",
+              padding: 24,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between"
+            }}>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{c.name}</div>
+                    <div style={{ fontSize: 13, color: "#888" }}>
+                      <a href={`mailto:${c.email}`} style={{ color: "#5c4ef8", textDecoration: "none" }}>{c.email}</a>
+                    </div>
+                  </div>
+                </div>
+                <p style={{ fontSize: 14, color: "#555", lineHeight: 1.6, marginBottom: 16, whiteSpace: "pre-wrap" }}>
+                  {c.message}
+                </p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f9f9f9", paddingTop: 14 }}>
+                <span style={{ fontSize: 12, color: "#bbb" }}>{new Date(c.createdAt).toLocaleString()}</span>
+                <button
+                  onClick={() => deleteComment(c._id)}
+                  style={{
+                    background: "#fef2f2",
+                    color: "#dc2626",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "background 0.2s"
+                  }}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
   const [user, setUser] = useState(null);
@@ -556,6 +655,7 @@ export default function Admin() {
     { key: "orders", label: "📋 Orders" },
     { key: "portfolio", label: "🖼️ Portfolio" },
     { key: "reviews", label: "💬 Reviews" },
+    { key: "comments", label: "✉️ Comments" },
     { key: "users", label: "👥 Users" },
     { key: "settings", label: "⚙️ Settings" },
   ];
@@ -589,6 +689,7 @@ export default function Admin() {
         {tab === "orders" && <OrdersTab />}
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "reviews" && <ReviewsTab />}
+        {tab === "comments" && <CommentsTab />}
         {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab />}
       </div>
