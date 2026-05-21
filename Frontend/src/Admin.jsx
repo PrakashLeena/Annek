@@ -299,6 +299,119 @@ function UsersTab() {
   );
 }
 
+/* ─── Settings Tab ─── */
+function SettingsTab() {
+  const [settings, setSettings] = useState({ testimonialsTitle: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const fetchSettings = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/settings`);
+      const data = await r.json();
+      setSettings(data);
+    } catch (err) {
+      console.error(err);
+      setStatus({ type: "error", message: "Failed to fetch settings." });
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSettings();
+  }, []);
+
+  const saveSettings = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    setStatus(null);
+    try {
+      const r = await fetch(`${API}/settings`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings)
+      });
+      if (!r.ok) throw new Error("Failed to save settings");
+      const data = await r.json();
+      setSettings(data);
+      setStatus({ type: "success", message: "Settings saved successfully!" });
+      setTimeout(() => setStatus(null), 3000);
+    } catch (err) {
+      console.error(err);
+      setStatus({ type: "error", message: "Failed to save settings." });
+    }
+    setSaving(false);
+  };
+
+  const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
+
+  return (
+    <div style={{ maxWidth: 600, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Platform Settings</h2>
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 20 }}>Loading settings…</div>
+      ) : (
+        <form onSubmit={saveSettings}>
+          {status && (
+            <div style={{
+              padding: "12px 16px",
+              borderRadius: 8,
+              fontSize: 14,
+              marginBottom: 20,
+              background: status.type === "success" ? "#e8f5f0" : "#fef2f2",
+              color: status.type === "success" ? "#276749" : "#991b1b",
+              border: `1.5px solid ${status.type === "success" ? "#a3e635" : "#fee2e2"}`
+            }}>
+              {status.type === "success" ? "✅ " : "❌ "}
+              {status.message}
+            </div>
+          )}
+          
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: "#555", marginBottom: 8, display: "block" }}>
+              Testimonials Header Title
+            </label>
+            <input
+              style={inpStyle}
+              type="text"
+              value={settings.testimonialsTitle || ""}
+              onChange={e => setSettings(s => ({ ...s, testimonialsTitle: e.target.value }))}
+              placeholder="e.g. Trusted by hundreds of businesses"
+              required
+            />
+            <span style={{ fontSize: 12, color: "#888", marginTop: 6, display: "block" }}>
+              This title will be displayed in the testimonials/reviews section on the landing page.
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            disabled={saving}
+            style={{
+              background: "#5c4ef8",
+              color: "#fff",
+              border: "none",
+              borderRadius: 10,
+              padding: "12px 24px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: saving ? "not-allowed" : "pointer",
+              opacity: saving ? 0.7 : 1,
+              fontFamily: "inherit",
+              transition: "opacity 0.2s"
+            }}
+          >
+            {saving ? "Saving…" : "Save Settings"}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
   const [user, setUser] = useState(null);
@@ -345,6 +458,7 @@ export default function Admin() {
     { key: "orders", label: "📋 Orders" },
     { key: "portfolio", label: "🖼️ Portfolio" },
     { key: "users", label: "👥 Users" },
+    { key: "settings", label: "⚙️ Settings" },
   ];
 
   return (
@@ -376,6 +490,7 @@ export default function Admin() {
         {tab === "orders" && <OrdersTab />}
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "users" && <UsersTab />}
+        {tab === "settings" && <SettingsTab />}
       </div>
     </div>
   );

@@ -681,7 +681,37 @@ function OrderModal({ onClose }) {
 /* ─── Contact Form Component ─── */
 function ContactForm({ openOrder }) {
   const [cf, setCf] = useState({ name: "", email: "", message: "" });
+  const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async () => {
+    if (!cf.name || !cf.email || !cf.message) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setError("");
+    setSubmitting(true);
+    try {
+      const response = await fetch(`${API}/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cf),
+      });
+      if (response.ok) {
+        setSent(true);
+      } else {
+        const errData = await response.json();
+        setError(errData.error || "Failed to send message.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Failed to connect to the server. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (sent) return (
     <div style={{ textAlign: "center", padding: "48px 0" }}>
       <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
@@ -694,25 +724,26 @@ function ContactForm({ openOrder }) {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div>
           <label style={lbl}>Name</label>
-          <input style={inp} value={cf.name} onChange={e => setCf(c => ({ ...c, name: e.target.value }))} placeholder="Your name" />
+          <input style={inp} value={cf.name} onChange={e => setCf(c => ({ ...c, name: e.target.value }))} placeholder="Your name" disabled={submitting} />
         </div>
         <div>
           <label style={lbl}>Email</label>
-          <input style={inp} type="email" value={cf.email} onChange={e => setCf(c => ({ ...c, email: e.target.value }))} placeholder="you@email.com" />
+          <input style={inp} type="email" value={cf.email} onChange={e => setCf(c => ({ ...c, email: e.target.value }))} placeholder="you@email.com" disabled={submitting} />
         </div>
       </div>
       <div>
         <label style={lbl}>Message</label>
         <textarea style={{ ...inp, minHeight: 120, resize: "vertical" }}
           value={cf.message} onChange={e => setCf(c => ({ ...c, message: e.target.value }))}
-          placeholder="How can we help you?" />
+          placeholder="How can we help you?" disabled={submitting} />
       </div>
+      {error && <div style={{ color: "#dc2626", fontSize: 14 }}>{error}</div>}
       <div style={{ display: "flex", gap: 12 }}>
-        <button className="btn-dark" style={{ flex: 1 }}
-          onClick={() => { if (cf.name && cf.email && cf.message) setSent(true); }}>
-          Send Message
+        <button className="btn-dark" style={{ flex: 1, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
+          onClick={handleSubmit} disabled={submitting}>
+          {submitting ? "Sending..." : "Send Message"}
         </button>
-        <button className="btn-outline" style={{ flex: 1 }} onClick={openOrder}>
+        <button className="btn-outline" style={{ flex: 1 }} onClick={openOrder} disabled={submitting}>
           Place an Order
         </button>
       </div>
@@ -732,12 +763,13 @@ export default function App() {
   const [portfolioProjects, setPortfolioProjects] = useState([]);
   const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null });
   const [liveReviews, setLiveReviews] = useState([]);
+  const [settings, setSettings] = useState({ testimonialsTitle: "Trusted by hundreds of businesses" });
 
   const displayStats = [
     {
       value: liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-        ? (1200 + Number(liveStats.orderCount)).toLocaleString() + "+"
-        : "1,200+",
+        ? liveStats.orderCount.toLocaleString()
+        : "0",
       label: "Websites delivered"
     },
     {
@@ -780,6 +812,14 @@ export default function App() {
     fetch(`${API}/feedback`)
       .then(r => r.json())
       .then(data => setLiveReviews(data))
+      .catch(() => {});
+    fetch(`${API}/settings`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.testimonialsTitle) {
+          setSettings(data);
+        }
+      })
       .catch(() => {});
     return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
   }, []);
@@ -849,6 +889,44 @@ export default function App() {
 
         .ticker-track { display: flex; gap: 48px; animation: ticker 28s linear infinite; white-space: nowrap; }
         @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+        .reviews-marquee-container {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+          padding: 16px 0 24px;
+        }
+        .reviews-marquee-container::before,
+        .reviews-marquee-container::after {
+          background: linear-gradient(to right, #fff, transparent);
+          content: "";
+          height: 100%;
+          position: absolute;
+          width: 120px;
+          z-index: 2;
+          pointer-events: none;
+          top: 0;
+        }
+        .reviews-marquee-container::before {
+          left: 0;
+        }
+        .reviews-marquee-container::after {
+          right: 0;
+          transform: rotateZ(180deg);
+        }
+        .reviews-marquee-track {
+          display: flex;
+          gap: 24px;
+          width: max-content;
+          animation: marquee-scroll 50s linear infinite;
+        }
+        .reviews-marquee-track:hover {
+          animation-play-state: paused;
+        }
+        @keyframes marquee-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
 
         input:focus, textarea:focus, select:focus {
           border-color: #5c4ef8 !important; outline: none;
@@ -1342,17 +1420,29 @@ export default function App() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section style={{ padding: "80px 24px", background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+      <section style={{ padding: "80px 0", background: "#fff", overflow: "hidden" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
           <FadeUp>
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", textAlign: "center", marginBottom: 52, color: "#0e0e0e" }}>
-              Trusted by hundreds of businesses
+              {settings.testimonialsTitle || "Trusted by hundreds of businesses"}
             </h2>
           </FadeUp>
-          <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {displayReviews.map((t, i) => (
-              <FadeUp key={i} delay={i * 0.15}>
-                <div className="card-hover" style={{ background: "#fafafa", border: "1px solid #eee", borderRadius: 24, padding: "32px 28px", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", boxSizing: "border-box" }}>
+        </div>
+        <div className="reviews-marquee-container">
+          <div className="reviews-marquee-track">
+            {(() => {
+              let marqueeReviews = [...displayReviews];
+              while (marqueeReviews.length > 0 && marqueeReviews.length < 12) {
+                marqueeReviews = [...marqueeReviews, ...displayReviews];
+              }
+              const finalMarquee = [...marqueeReviews, ...marqueeReviews];
+              return finalMarquee.map((t, i) => (
+                <div key={i} className="card-hover" style={{
+                  background: "#fafafa", border: "1px solid #eee", borderRadius: 24,
+                  padding: "32px 28px", display: "flex", flexDirection: "column",
+                  justifyContent: "space-between", height: 220, width: 350, boxSizing: "border-box",
+                  flexShrink: 0
+                }}>
                   <div>
                     {t.rating && (
                       <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
@@ -1361,18 +1451,22 @@ export default function App() {
                         ))}
                       </div>
                     )}
-                    <p style={{ fontSize: 15, lineHeight: 1.7, color: "#333", marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
+                    <p style={{ fontSize: 14, lineHeight: 1.6, color: "#333", marginBottom: 20, fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                      "{t.quote}"
+                    </p>
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
-                    <div style={{ width: 40, height: 40, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#fff", fontWeight: 700, flexShrink: 0 }}>{t.initials}</div>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", fontWeight: 700, flexShrink: 0 }}>
+                      {t.initials}
+                    </div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>
-                      <div style={{ fontSize: 12, color: "#888" }}>{t.role}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>
+                      <div style={{ fontSize: 11, color: "#888" }}>{t.role}</div>
                     </div>
                   </div>
                 </div>
-              </FadeUp>
-            ))}
+              ));
+            })()}
           </div>
         </div>
       </section>
@@ -1559,7 +1653,7 @@ export default function App() {
             Order your website today
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>
-            Delivery within 72 hours · Unlimited revisions · Expert support
+            Unlimited revisions · Expert support
           </p>
           <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
             <button className="btn-lime" style={{ fontSize: 17, padding: "18px 48px" }} onClick={openOrder}>

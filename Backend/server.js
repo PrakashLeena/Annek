@@ -5,6 +5,8 @@ const connectDB = require("./config/db");
 const ordersRouter = require("./routes/orders");
 const feedbackRouter = require("./routes/feedback");
 const portfolioRouter = require("./routes/portfolio");
+const contactRouter = require("./routes/contact");
+const settingsRouter = require("./routes/settings");
 
 const app = express();
 connectDB();
@@ -32,6 +34,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/orders", ordersRouter);
 app.use("/api/feedback", feedbackRouter);
 app.use("/api/portfolio", portfolioRouter);
+app.use("/api/contact", contactRouter);
+app.use("/api/settings", settingsRouter);
 
 // Live stats endpoint
 app.get("/api/stats", async (req, res) => {
