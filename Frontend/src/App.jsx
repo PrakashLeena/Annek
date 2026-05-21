@@ -6,7 +6,8 @@ import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-const ADMIN_EMAILS = ["annek.websitebuild.official@gmail.com"]; // ← replace with your email
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 /* ─── Intersection Observer Hook ─── */
 const useInView = (threshold = 0.15) => {
@@ -71,9 +72,9 @@ const stats = [
 ];
 
 const testimonials = [
-  { quote: "Annek built our studio website exactly as we imagined it. The process was seamless from requirement to delivery.", name: "Mirella Chen", role: "Ceramic Studio Owner", initials: "MC", color: "#ff6b35" },
-  { quote: "We doubled our online bookings within a month. The integrated booking features are incredibly powerful.", name: "James Okafor", role: "Pilates & Yoga Studio", initials: "JO", color: "#5c6ef8" },
-  { quote: "Finally a service that doesn't feel limiting. I described my vision and Annek made it a reality.", name: "Sara Mancal", role: "Hair Studio Founder", initials: "SM", color: "#2a9d8f" },
+  { quote: "Annek built our studio website exactly as we imagined it. The process was seamless from requirement to delivery.", name: "Mirella Chen", role: "Ceramic Studio Owner", initials: "MC", color: "#ff6b35", rating: 5 },
+  { quote: "We doubled our online bookings within a month. The integrated booking features are incredibly powerful.", name: "James Okafor", role: "Pilates & Yoga Studio", initials: "JO", color: "#5c6ef8", rating: 5 },
+  { quote: "Finally a service that doesn't feel limiting. I described my vision and Annek made it a reality.", name: "Sara Mancal", role: "Hair Studio Founder", initials: "SM", color: "#2a9d8f", rating: 5 },
 ];
 
 const faqs = [
@@ -233,7 +234,7 @@ function FeedbackWidget() {
     if (!fb.message || !rating) { setError("Please add a rating and message."); return; }
     setLoading(true); setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/feedback", {
+      const res = await fetch(`${API}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: fb.name, email: fb.email, rating, message: fb.message }),
@@ -389,7 +390,7 @@ function OrderModal({ onClose }) {
       if (imgFiles) Array.from(imgFiles).forEach(f => formData.append("images", f));
       if (vidFiles) Array.from(vidFiles).forEach(f => formData.append("videos", f));
 
-      const res = await fetch("http://localhost:5000/api/orders", {
+      const res = await fetch(`${API}/orders`, {
         method: "POST",
         body: formData,
       });
@@ -733,15 +734,56 @@ export default function App() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [portfolioProjects, setPortfolioProjects] = useState([]);
+  const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null });
+  const [liveReviews, setLiveReviews] = useState([]);
+
+  const displayStats = [
+    {
+      value: liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
+        ? (1200 + Number(liveStats.orderCount)).toLocaleString() + "+"
+        : "1,200+",
+      label: "Websites delivered"
+    },
+    {
+      value: liveStats?.avgRating !== null && liveStats?.avgRating !== undefined
+        ? (Number(liveStats.avgRating) * 20).toFixed(0) + "%"
+        : "98%",
+      label: "Client satisfaction"
+    },
+    {
+      value: "24/7",
+      label: "Support & revisions"
+    }
+  ];
+
+  const displayReviews = [
+    ...(liveReviews || []).map(r => ({
+      quote: r.message,
+      name: r.name || "Anonymous Client",
+      role: "Verified Client",
+      initials: (r.name || "Anonymous").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
+      color: ["#ff6b35", "#5c6ef8", "#2a9d8f", "#e76f51", "#264653", "#e9c46a"][(r.name || "Anonymous").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 6],
+      rating: r.rating || 5
+    })),
+    ...testimonials
+  ].slice(0, 6);
 
   useEffect(() => {
     setTimeout(() => setHeroVisible(true), 100);
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     const unsubAuth = onAuthStateChanged(auth, setUser);
-    fetch("http://localhost:5000/api/portfolio")
+    fetch(`${API}/portfolio`)
       .then(r => r.json())
       .then(data => setPortfolioProjects(data.filter(p => p.visible)))
+      .catch(() => {});
+    fetch(`${API}/stats`)
+      .then(r => r.json())
+      .then(data => setLiveStats(data))
+      .catch(() => {});
+    fetch(`${API}/feedback`)
+      .then(r => r.json())
+      .then(data => setLiveReviews(data))
       .catch(() => {});
     return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
   }, []);
@@ -1032,7 +1074,7 @@ export default function App() {
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(32px)",
           transition: "opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s", color: "#0e0e0e",
         }}>
-          Your website,{" "}<em style={{ fontStyle: "italic", fontWeight: 300 }}>built for you</em>
+          Your website,{" "}<em style={{ fontStyle: "normal", fontWeight: 300 }}>built for you</em>
         </h1>
 
         <p style={{
@@ -1101,7 +1143,7 @@ export default function App() {
       {/* ── STATS ── */}
       <section style={{ padding: "80px 24px", background: "#fff" }}>
         <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
-          {stats.map((s, i) => (
+          {displayStats.map((s, i) => (
             <FadeUp key={i} delay={i * 0.1}>
               <div style={{ textAlign: "center" }}>
                 <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 48, fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e" }}>{s.value}</div>
@@ -1312,11 +1354,20 @@ export default function App() {
             </h2>
           </FadeUp>
           <div className="testimonials-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {testimonials.map((t, i) => (
+            {displayReviews.map((t, i) => (
               <FadeUp key={i} delay={i * 0.15}>
-                <div className="card-hover" style={{ background: "#fafafa", border: "1px solid #eee", borderRadius: 24, padding: "32px 28px" }}>
-                  <p style={{ fontSize: 15, lineHeight: 1.7, color: "#333", marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <div className="card-hover" style={{ background: "#fafafa", border: "1px solid #eee", borderRadius: 24, padding: "32px 28px", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%", boxSizing: "border-box" }}>
+                  <div>
+                    {t.rating && (
+                      <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+                        {[...Array(5)].map((_, starIdx) => (
+                          <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>★</span>
+                        ))}
+                      </div>
+                    )}
+                    <p style={{ fontSize: 15, lineHeight: 1.7, color: "#333", marginBottom: 24, fontStyle: "italic" }}>"{t.quote}"</p>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
                     <div style={{ width: 40, height: 40, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, color: "#fff", fontWeight: 700, flexShrink: 0 }}>{t.initials}</div>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>

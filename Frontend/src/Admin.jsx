@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-const API = "http://localhost:5000/api";
-// ── Set your admin email here ──
-const ADMIN_EMAILS = ["annek.websitebuild.official@gmail.com"]; // <-- replace with your email
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 const STATUS_COLORS = {
   pending:     { bg: "#fff3e8", color: "#c05621" },
