@@ -609,6 +609,106 @@ function CommentsTab() {
   );
 }
 
+/* ─── Signups Tab ─── */
+function SignupsTab() {
+  const [signups, setSignups] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchSignups = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/signup`);
+      setSignups(await r.json());
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchSignups();
+  }, []);
+
+  const deleteSignup = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this signup?")) return;
+    try {
+      const r = await fetch(`${API}/signup/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed to delete signup");
+      setSignups(prev => prev.filter(x => x._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete signup.");
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>
+          Free Report Signups <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({signups.length})</span>
+        </h2>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading signups…</div>
+      ) : signups.length === 0 ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No signups found.</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+          {signups.map(s => (
+            <div key={s._id} style={{
+              background: "#fff",
+              borderRadius: 16,
+              border: "1px solid #eee",
+              padding: 24,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between"
+            }}>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{s.firstName} {s.lastName}</div>
+                    <div style={{ fontSize: 13, color: "#888", marginTop: 2 }}>
+                      <a href={`mailto:${s.email}`} style={{ color: "#5c4ef8", textDecoration: "none" }}>{s.email}</a>
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: 14, color: "#555", lineHeight: 1.6, marginBottom: 16 }}>
+                  <div style={{ marginBottom: 4 }}><strong>Company:</strong> {s.company}</div>
+                  <div><strong>Job Title:</strong> {s.jobTitle}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f9f9f9", paddingTop: 14 }}>
+                <span style={{ fontSize: 12, color: "#bbb" }}>{new Date(s.createdAt).toLocaleString()}</span>
+                <button
+                  onClick={() => deleteSignup(s._id)}
+                  style={{
+                    background: "#fef2f2",
+                    color: "#dc2626",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "background 0.2s"
+                  }}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
   const [user, setUser] = useState(null);
@@ -633,7 +733,7 @@ export default function Admin() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔐</div>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0e0e0e", marginBottom: 8 }}>Admin Panel</h1>
         <p style={{ fontSize: 14, color: "#888", marginBottom: 32 }}>Sign in with your admin Google account to continue.</p>
-        <button onClick={signInWithGoogle} style={{ width: "100%", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
+        <button onClick={signInWithGoogle} style={{ width: "100%", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifycontent: "center", gap: 12 }}>
           <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign in with Google
         </button>
@@ -656,6 +756,7 @@ export default function Admin() {
     { key: "portfolio", label: "🖼️ Portfolio" },
     { key: "reviews", label: "💬 Reviews" },
     { key: "comments", label: "✉️ Comments" },
+    { key: "signups", label: "🎁 Signups" },
     { key: "users", label: "👥 Users" },
     { key: "settings", label: "⚙️ Settings" },
   ];
@@ -690,6 +791,7 @@ export default function Admin() {
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "reviews" && <ReviewsTab />}
         {tab === "comments" && <CommentsTab />}
+        {tab === "signups" && <SignupsTab />}
         {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab />}
       </div>

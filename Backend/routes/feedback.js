@@ -1,15 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 const Feedback = require("../models/Feedback");
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
-  tls: { rejectUnauthorized: false },
-});
+const transporter = require("../config/nodemailer");
 
 function feedbackEmailHtml(data) {
   const stars = "★".repeat(data.rating) + "☆".repeat(5 - data.rating);

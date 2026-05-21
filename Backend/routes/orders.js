@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const nodemailer = require("nodemailer");
 const cloudinary = require("../config/cloudinary");
 const Order = require("../models/Order");
+const transporter = require("../config/nodemailer");
 
 // Multer — store files in memory before Cloudinary upload
 const upload = multer({
@@ -20,20 +20,6 @@ const uploadBuffer = (buffer, options) =>
     });
     stream.end(buffer);
   });
-
-// Nodemailer transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
 
 // ── Email Templates ──────────────────────────────────────────
 function adminEmailHtml(data) {

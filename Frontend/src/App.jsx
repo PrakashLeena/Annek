@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import logoImg from "./images/logo.png";
 import businessImg from "./images/bussines.jpg";
 import ecommerceImg from "./images/ecommerce.jpg";
@@ -1024,6 +1025,14 @@ export default function App() {
           </button>
         ))}
         <div style={{ height: 1, background: "#eee", margin: "8px 0" }} />
+        <Link to="/signup" style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+          background: "#d4f74b", color: "#1a1a1a", border: "none",
+          padding: "14px 28px", borderRadius: 100, fontSize: 16, fontWeight: 700,
+          textDecoration: "none", width: "100%", boxSizing: "border-box"
+        }} onClick={() => setMobileMenuOpen(false)}>
+          🎁 Free Report
+        </Link>
         <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
           Order Now
         </button>
@@ -1096,6 +1105,17 @@ export default function App() {
             ) : (
               <button className="nav-link" style={{ fontWeight: 500 }} onClick={signInWithGoogle}>Log In</button>
             )}
+            <Link to="/signup" style={{
+              background: "#d4f74b", color: "#1a1a1a", border: "none",
+              padding: "10px 20px", borderRadius: 100, fontSize: 14, fontWeight: 700,
+              textDecoration: "none", transition: "transform 0.2s, box-shadow 0.2s",
+              display: "inline-flex", alignItems: "center", gap: "6px"
+            }}
+              onMouseEnter={e => e.currentTarget.style.transform = "scale(1.03)"}
+              onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
+            >
+              🎁 Free Report
+            </Link>
             <button className="btn-dark" style={{ padding: "10px 24px", fontSize: 15 }} onClick={openOrder}>
               Order Now
             </button>
