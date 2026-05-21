@@ -68,11 +68,7 @@ const features = [
 
 
 
-const testimonials = [
-  { quote: "Annek built our studio website exactly as we imagined it. The process was seamless from requirement to delivery.", name: "Mirella Chen", role: "Ceramic Studio Owner", initials: "MC", color: "#ff6b35", rating: 5 },
-  { quote: "We doubled our online bookings within a month. The integrated booking features are incredibly powerful.", name: "James Okafor", role: "Pilates & Yoga Studio", initials: "JO", color: "#5c6ef8", rating: 5 },
-  { quote: "Finally a service that doesn't feel limiting. I described my vision and Annek made it a reality.", name: "Sara Mancal", role: "Hair Studio Founder", initials: "SM", color: "#2a9d8f", rating: 5 },
-];
+const testimonials = [];
 
 const faqs = [
   "How do I place a website order with Annek?",
@@ -1447,67 +1443,69 @@ export default function App() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section style={{ padding: "80px 0", background: "#fff", overflow: "hidden" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
-          <FadeUp>
-            <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", textAlign: "center", marginBottom: 52, color: "#0e0e0e" }}>
-              {(() => {
-                const rawTitle = settings.testimonialsTitle || "Trusted by hundreds of businesses";
-                const realCount = liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-                  ? liveStats.orderCount
-                  : 0;
-                if (rawTitle.includes("{count}")) {
-                  return rawTitle.replace("{count}", realCount.toLocaleString());
-                }
-                return rawTitle
-                  .replace("500+", realCount.toLocaleString())
-                  .replace("hundreds", realCount.toLocaleString());
-              })()}
-            </h2>
-          </FadeUp>
-        </div>
-        <div className="reviews-marquee-container">
-          <div className="reviews-marquee-track">
-            {(() => {
-              let marqueeReviews = [...displayReviews];
-              while (marqueeReviews.length > 0 && marqueeReviews.length < 12) {
-                marqueeReviews = [...marqueeReviews, ...displayReviews];
-              }
-              const finalMarquee = [...marqueeReviews, ...marqueeReviews];
-              return finalMarquee.map((t, i) => (
-                <div key={i} className="card-hover" style={{
-                  background: "#fafafa", border: "1px solid #eee", borderRadius: 24,
-                  padding: "32px 28px", display: "flex", flexDirection: "column",
-                  justifyContent: "space-between", height: 220, width: 350, boxSizing: "border-box",
-                  flexShrink: 0
-                }}>
-                  <div>
-                    {t.rating && (
-                      <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-                        {[...Array(5)].map((_, starIdx) => (
-                          <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>★</span>
-                        ))}
-                      </div>
-                    )}
-                    <p style={{ fontSize: 14, lineHeight: 1.6, color: "#333", marginBottom: 20, fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                      "{t.quote}"
-                    </p>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", fontWeight: 700, flexShrink: 0 }}>
-                      {t.initials}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>
-                      <div style={{ fontSize: 11, color: "#888" }}>{t.role}</div>
-                    </div>
-                  </div>
-                </div>
-              ));
-            })()}
+      {displayReviews.length > 0 && (
+        <section style={{ padding: "80px 0", background: "#fff", overflow: "hidden" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
+            <FadeUp>
+              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", textAlign: "center", marginBottom: 52, color: "#0e0e0e" }}>
+                {(() => {
+                  const rawTitle = settings.testimonialsTitle || "Trusted by hundreds of businesses";
+                  const realCount = liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
+                    ? liveStats.orderCount
+                    : 0;
+                  if (rawTitle.includes("{count}")) {
+                    return rawTitle.replace("{count}", realCount.toLocaleString());
+                  }
+                  return rawTitle
+                    .replace("500+", realCount.toLocaleString())
+                    .replace("hundreds", realCount.toLocaleString());
+                })()}
+              </h2>
+            </FadeUp>
           </div>
-        </div>
-      </section>
+          <div className="reviews-marquee-container">
+            <div className="reviews-marquee-track">
+              {(() => {
+                let marqueeReviews = [...displayReviews];
+                while (marqueeReviews.length > 0 && marqueeReviews.length < 12) {
+                  marqueeReviews = [...marqueeReviews, ...displayReviews];
+                }
+                const finalMarquee = [...marqueeReviews, ...marqueeReviews];
+                return finalMarquee.map((t, i) => (
+                  <div key={i} className="card-hover" style={{
+                    background: "#fafafa", border: "1px solid #eee", borderRadius: 24,
+                    padding: "32px 28px", display: "flex", flexDirection: "column",
+                    justifyContent: "space-between", height: 220, width: 350, boxSizing: "border-box",
+                    flexShrink: 0
+                  }}>
+                    <div>
+                      {t.rating && (
+                        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+                          {[...Array(5)].map((_, starIdx) => (
+                            <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>★</span>
+                          ))}
+                        </div>
+                      )}
+                      <p style={{ fontSize: 14, lineHeight: 1.6, color: "#333", marginBottom: 20, fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        "{t.quote}"
+                      </p>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
+                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", fontWeight: 700, flexShrink: 0 }}>
+                        {t.initials}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>
+                        <div style={{ fontSize: 11, color: "#888" }}>{t.role}</div>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ── FAQ ── */}
       <section style={{ background: "#fff", padding: "40px 24px 80px" }}>
