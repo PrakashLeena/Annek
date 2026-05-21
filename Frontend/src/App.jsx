@@ -92,21 +92,22 @@ const faqAnswers = [
 
 const plans = [
   {
-    name: "Starter", price: "$499", period: "one-time",
+    name: "Starter", price: "$75 - $80", period: "one-time",
     tagline: "Perfect for small businesses getting online.", highlight: false,
-    features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions", "7-day delivery"],
+    features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions"],
   },
   {
-    name: "Growth", price: "$1,199", period: "one-time",
+    name: "Growth", price: "$100 - $120", period: "one-time",
     tagline: "For businesses that need more power.", highlight: true, badge: "Most Popular",
-    features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "5-day delivery", "1 month free support"],
+    features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "1 month free support"],
   },
   {
-    name: "Premium", price: "$2,999", period: "one-time",
+    name: "Premium", price: "$150 - $170", period: "one-time",
     tagline: "Full-featured sites with custom functionality.", highlight: false,
-    features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "Priority 72-hr delivery", "3 months free support"],
+    features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "3 months free support"],
   },
 ];
+
 
 const categoryImageMap = {
   "Booking Site": bookingImg, "E-Commerce": ecommerceImg, "Portfolio": portfolioImg,
@@ -735,7 +736,7 @@ function ContactForm({ openOrder }) {
           placeholder="How can we help you?" disabled={submitting} />
       </div>
       {error && <div style={{ color: "#dc2626", fontSize: 14 }}>{error}</div>}
-      <div style={{ display: "flex", gap: 12 }}>
+      <div className="contact-btn-group" style={{ display: "flex", gap: 12 }}>
         <button className="btn-dark" style={{ flex: 1, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
           onClick={handleSubmit} disabled={submitting}>
           {submitting ? "Sending..." : "Send Message"}
@@ -744,6 +745,7 @@ function ContactForm({ openOrder }) {
           Place an Order
         </button>
       </div>
+
     </div>
   );
 }
@@ -1018,6 +1020,8 @@ export default function App() {
         @media (max-width: 480px) {
           .nav-username { display: none !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
+          .contact-btn-group { flex-direction: column !important; gap: 8px !important; }
+          .contact-btn-group button { width: 100% !important; }
         }
       `}</style>
 
@@ -1671,18 +1675,18 @@ export default function App() {
                     <div style={{ width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       {c.icon}
                     </div>
-                    <div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontSize: 11, color: "#bbb", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{c.label}</div>
                       <div style={{ marginBottom: 2 }}>
                         {c.href ? (
                           <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                            style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e", textDecoration: "none", transition: "color 0.2s", display: "inline-block" }}
+                            style={{ fontSize: "clamp(14px, 4vw, 16px)", fontWeight: 600, color: "#0e0e0e", textDecoration: "none", transition: "color 0.2s", display: "inline-block", wordBreak: "break-word", overflowWrap: "anywhere" }}
                             onMouseEnter={e => e.target.style.color = "#5c4ef8"}
                             onMouseLeave={e => e.target.style.color = "#0e0e0e"}>
                             {c.value}
                           </a>
                         ) : (
-                          <span style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e" }}>{c.value}</span>
+                          <span style={{ fontSize: "clamp(14px, 4vw, 16px)", fontWeight: 600, color: "#0e0e0e", wordBreak: "break-word", overflowWrap: "anywhere" }}>{c.value}</span>
                         )}
                       </div>
                       <div style={{ fontSize: 13, color: "#999" }}>{c.sub}</div>

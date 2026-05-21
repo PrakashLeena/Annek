@@ -572,7 +572,7 @@ function CommentsTab() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                   <div>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{c.name}</div>
-                    <div style={{ fontSize: 13, color: "#888" }}>
+                    <div style={{ fontSize: 13, color: "#888", wordBreak: "break-all", overflowWrap: "anywhere" }}>
                       <a href={`mailto:${c.email}`} style={{ color: "#5c4ef8", textDecoration: "none" }}>{c.email}</a>
                     </div>
                   </div>
