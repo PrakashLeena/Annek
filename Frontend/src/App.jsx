@@ -1424,7 +1424,18 @@ export default function App() {
         <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
           <FadeUp>
             <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", textAlign: "center", marginBottom: 52, color: "#0e0e0e" }}>
-              {settings.testimonialsTitle || "Trusted by hundreds of businesses"}
+              {(() => {
+                const rawTitle = settings.testimonialsTitle || "Trusted by hundreds of businesses";
+                const realCount = liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
+                  ? liveStats.orderCount
+                  : 0;
+                if (rawTitle.includes("{count}")) {
+                  return rawTitle.replace("{count}", realCount.toLocaleString());
+                }
+                return rawTitle
+                  .replace("500+", realCount.toLocaleString())
+                  .replace("hundreds", realCount.toLocaleString());
+              })()}
             </h2>
           </FadeUp>
         </div>

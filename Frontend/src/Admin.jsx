@@ -412,6 +412,104 @@ function SettingsTab() {
   );
 }
 
+/* ─── Reviews Tab ─── */
+function ReviewsTab() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchReviews = async () => {
+    setLoading(true);
+    try {
+      const r = await fetch(`${API}/feedback/all`);
+      setReviews(await r.json());
+    } catch (err) {
+      console.error(err);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchReviews();
+  }, []);
+
+  const deleteReview = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) return;
+    try {
+      const r = await fetch(`${API}/feedback/${id}`, { method: "DELETE" });
+      if (!r.ok) throw new Error("Failed to delete review");
+      setReviews(prev => prev.filter(x => x._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete review.");
+    }
+  };
+
+  return (
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>Client Reviews <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({reviews.length})</span></h2>
+      </div>
+
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading reviews…</div>
+      ) : reviews.length === 0 ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>No reviews found.</div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+          {reviews.map(r => (
+            <div key={r._id} style={{
+              background: "#fff",
+              borderRadius: 16,
+              border: "1px solid #eee",
+              padding: 24,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between"
+            }}>
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0e0e0e" }}>{r.name || "Anonymous Client"}</div>
+                    <div style={{ fontSize: 13, color: "#888" }}>{r.email || "No email provided"}</div>
+                  </div>
+                  <div style={{ color: "#f59e0b", fontSize: 16, fontWeight: 700 }}>
+                    {"★".repeat(r.rating) + "☆".repeat(5 - r.rating)}
+                  </div>
+                </div>
+                <p style={{ fontSize: 14, color: "#555", lineHeight: 1.6, marginBottom: 16, fontStyle: "italic" }}>
+                  "{r.message}"
+                </p>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f9f9f9", paddingTop: 14 }}>
+                <span style={{ fontSize: 12, color: "#bbb" }}>{new Date(r.createdAt).toLocaleDateString()}</span>
+                <button
+                  onClick={() => deleteReview(r._id)}
+                  style={{
+                    background: "#fef2f2",
+                    color: "#dc2626",
+                    border: "none",
+                    borderRadius: 8,
+                    padding: "6px 12px",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontFamily: "inherit",
+                    transition: "background 0.2s"
+                  }}
+                >
+                  🗑 Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
   const [user, setUser] = useState(null);
@@ -457,6 +555,7 @@ export default function Admin() {
   const tabs = [
     { key: "orders", label: "📋 Orders" },
     { key: "portfolio", label: "🖼️ Portfolio" },
+    { key: "reviews", label: "💬 Reviews" },
     { key: "users", label: "👥 Users" },
     { key: "settings", label: "⚙️ Settings" },
   ];
@@ -489,6 +588,7 @@ export default function Admin() {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
         {tab === "orders" && <OrdersTab />}
         {tab === "portfolio" && <PortfolioTab />}
+        {tab === "reviews" && <ReviewsTab />}
         {tab === "users" && <UsersTab />}
         {tab === "settings" && <SettingsTab />}
       </div>

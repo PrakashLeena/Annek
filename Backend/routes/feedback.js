@@ -34,6 +34,23 @@ router.get("/", async (req, res) => {
   } catch { res.status(500).json({ error: "Failed to fetch reviews." }); }
 });
 
+// GET /api/feedback/all — return all reviews for admin panel
+router.get("/all", async (req, res) => {
+  try {
+    const reviews = await Feedback.find().sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch { res.status(500).json({ error: "Failed to fetch all reviews." }); }
+});
+
+// DELETE /api/feedback/:id — delete a review by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Feedback.findByIdAndDelete(id);
+    res.json({ success: true, message: "Review deleted successfully." });
+  } catch { res.status(500).json({ error: "Failed to delete review." }); }
+});
+
 // POST /api/feedback — save review + send email
 router.post("/", async (req, res) => {
   try {
