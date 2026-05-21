@@ -7,8 +7,6 @@ import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-
-
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
@@ -823,218 +821,13 @@ export default function App() {
     return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
   }, []);
 
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const openOrder = () => {
-    setShowOrder(true);
-    setServicesOpen(false);
-    setMenuOpen(false);
-  };
-
-  const toggleMenu = () => {
-    setMenuOpen(o => !o);
-  };
+  const openOrder = () => { setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false); };
 
   const scrollTo = (href) => {
-    setServicesOpen(false);
-    setMenuOpen(false);
+    setMobileMenuOpen(false); setServicesOpen(false);
     const el = document.querySelector(href);
-    if (el) {
-      setTimeout(() => {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 80);
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
-
-  // (GSAP effects removed)
-      const erVal = easeReverse;
-      
-      // 1. Sliding sheets timeline
-      const tl = gsap.timeline({ paused: true });
-      menuTlRef.current = tl;
-
-      gsap.set(".menu-overlay", { visibility: "hidden", pointerEvents: "none" });
-      gsap.set(".nav-bg", { opacity: 0 });
-      gsap.set(".menu-link", { opacity: 0, x: -16 });
-      gsap.set(".nav-login-btn", { opacity: 0, y: 8 });
-
-      tl
-        .set(".menu-overlay", { visibility: "visible", pointerEvents: "auto" })
-        .to(".nav-bg", {
-          opacity: 1,
-          duration: 0.4,
-          ease: "power2.out",
-          easeReverse: erVal ? "power4.out" : false
-        }, 0)
-        .fromTo([".nav-top", ".nav-middle", ".nav-bottom"], 
-          { x: "115%", y: 0, rotation: 0 },
-          {
-            x: "0%",
-            y: 0,
-            duration: 0.65,
-            ease: "back.out(1.1)",
-            easeReverse: erVal ? "power3.in" : false,
-            stagger: 0.08
-          }, 0)
-        .fromTo(".menu-link",
-          { opacity: 0, x: -16 },
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.5,
-            ease: "power3.out",
-            easeReverse: erVal ? "power2.in" : false,
-            stagger: 0.03
-          }, 0.12)
-        .fromTo(".bar-top",
-          { attr: { x1: 2, y1: 5, x2: 14, y2: 5 }, stroke: "#bbbaa6" },
-          {
-            stroke: "#0e100f",
-            attr: { x1: 4, y1: 4, x2: 12, y2: 12 },
-            duration: 0.3,
-            ease: "back.out(1.2)",
-            easeReverse: erVal ? "power3.out" : false
-          }, 0.05)
-        .fromTo(".bar-bot",
-          { attr: { x1: 2, y1: 11, x2: 14, y2: 11 }, stroke: "#bbbaa6" },
-          {
-            stroke: "#0e100f",
-            attr: { x1: 12, y1: 4, x2: 4, y2: 12 },
-            duration: 0.3,
-            ease: "back.out(1.2)",
-            easeReverse: erVal ? "power3.out" : false
-          }, 0.05)
-        .to(".bar-mid", {
-          opacity: 0,
-          scaleX: 0,
-          duration: 0.2,
-          ease: "power2.in",
-          easeReverse: erVal ? "power3.out" : false
-        }, 0)
-        .to(".nav-login-btn", {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power3.out",
-          easeReverse: erVal ? "power4.out" : false
-        }, 0.3)
-        .addPause();
-
-      // Record the exact enterEndTime
-      tl.vars.enterEndTime = tl.duration();
-
-      tl
-        .to(".bar", { stroke: "#bbbaa6", duration: 0.2 })
-        .to(".bar-top", { attr: { x1: 2, y1: 5, x2: 14, y2: 5 }, duration: 0.2, ease: "power3.in" }, "<")
-        .to(".bar-bot", { attr: { x1: 2, y1: 11, x2: 14, y2: 11 }, duration: 0.2, ease: "power3.in" }, "<")
-        .to(".bar-mid", { opacity: 1, scaleX: 1, duration: 0.2, ease: "power3.in" }, "<")
-        .to([".nav-top", ".nav-middle", ".nav-bottom"], {
-          y: "115vh",
-          rotation: "random(-18, 18)",
-          duration: 0.85,
-          ease: "power3.in",
-          stagger: {
-            from: "end",
-            each: 0.04
-          }
-        }, "<")
-        .to(".nav-bg", {
-          opacity: 0,
-          duration: 0.3,
-          ease: "power2.in"
-        }, "<0.15")
-        .set(".menu-overlay", { visibility: "hidden", pointerEvents: "none" })
-        .set([".nav-top", ".nav-middle", ".nav-bottom"], { y: 0, rotation: 0, x: "115%" });
-
-      // 2. Island trigger timeline
-      const islandTl = gsap.timeline({ paused: true });
-      islandTlRef.current = islandTl;
-      
-      islandTl
-        .to(".island", {
-          width: () => Math.min(window.innerWidth * 0.9, 360),
-          duration: 0.65,
-          ease: "back.out(1.5)",
-          easeReverse: erVal ? "power2.out" : false
-        }, 0)
-        .to(".island-logo", {
-          opacity: 1,
-          rotation: 360,
-          x: 0,
-          duration: 0.45,
-          ease: "back.out(1.2)",
-          easeReverse: erVal ? "power3.out" : false
-        }, 0.08);
-
-      // 3. ScrollTrigger Card Stacking Section Deck
-      const sections = gsap.utils.toArray(".slides-wrapper > .section");
-      if (sections.length > 0) {
-        const panelsToAnimate = sections.slice(0, -1);
-
-        onRefreshInit = () => {
-          panelsToAnimate.forEach((panel) => {
-            const inner = panel.querySelector(".section-inner");
-            if (!inner) return;
-            panel.style.marginBottom = "";
-            const diff = inner.offsetHeight - window.innerHeight;
-            if (diff > 0) {
-              panel.style.marginBottom = `${diff}px`;
-            }
-          });
-        };
-        ScrollTrigger.addEventListener("refreshInit", onRefreshInit);
-
-        panelsToAnimate.forEach((panel, i) => {
-          const inner = panel.querySelector(".section-inner");
-          if (!inner) return;
-
-          const stackingTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: panel,
-              start: "top top",
-              end: () => {
-                const diff = inner.offsetHeight - window.innerHeight;
-                return diff > 0 ? `+=${diff + window.innerHeight}` : `+=${window.innerHeight}`;
-              },
-              pin: true,
-              pinSpacing: false,
-              scrub: true,
-              invalidateOnRefresh: true,
-            }
-          });
-
-          // Scroll inner content if taller
-          stackingTl.to(inner, {
-            y: () => {
-              const diff = inner.offsetHeight - window.innerHeight;
-              return diff > 0 ? -diff : 0;
-            },
-            ease: "none",
-            duration: () => {
-              const diff = inner.offsetHeight - window.innerHeight;
-              return diff > 0 ? diff : 0.001;
-            }
-          });
-
-          // Shrink card as it exits
-          stackingTl.to(panel, {
-            scale: 0.8,
-            opacity: 0.55,
-            ease: "power1.inOut",
-            duration: () => window.innerHeight
-          });
-        });
-      }
-    });
-
-    return () => {
-      ctx.revert();
-      if (onRefreshInit) {
-        ScrollTrigger.removeEventListener("refreshInit", onRefreshInit);
-      }
-    };
-  }, [easeReverse]);
-
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', Arial, sans-serif", color: "#1a1a1a", overflowX: "hidden" }}>
@@ -1226,358 +1019,37 @@ export default function App() {
           .nav-username { display: none !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
         }
-
-
-
-        /* Floating Island Burger Pill */
-        .island {
-          position: fixed;
-          top: 16px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 6px 6px 6px 14px;
-          background: rgba(26, 26, 26, 0.88);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1.5px solid rgba(255, 255, 255, 0.15);
-          border-radius: 99px;
-          box-shadow: 0 12px 36px rgba(0,0,0,0.28);
-          width: 52px;
-          overflow: hidden;
-          height: 48px;
-        }
-
-        .menu-btn {
-          width: 36px;
-          height: 36px;
-          margin: 0;
-          padding: 0;
-          background: #ffffff;
-          border-radius: 50%;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .menu-btn:focus-visible {
-          outline: 2px solid #0ae448;
-          outline-offset: 3px;
-        }
-
-        .button-cont {
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .menu-btn svg {
-          overflow: visible;
-          display: block;
-        }
-
-        .bar {
-          transition: none !important;
-        }
-
-        /* Sliding Tiered Sheet Navigation */
-        .menu-overlay {
-          position: fixed;
-          inset: 0;
-          z-index: 900;
-          pointer-events: none;
-          visibility: hidden;
-          opacity: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-          padding: 16px;
-          padding-top: 80px;
-          overflow: hidden;
-          transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .menu-overlay.open {
-          visibility: visible;
-          opacity: 1;
-          pointer-events: auto;
-        }
-        .menu-overlay.open .nav-top,
-        .menu-overlay.open .nav-middle,
-        .menu-overlay.open .nav-bottom {
-          transform: translateX(0);
-        }
-        .nav-top, .nav-middle, .nav-bottom {
-          transform: translateX(115%);
-          transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .nav-middle { transition-delay: 0.05s; }
-        .nav-bottom { transition-delay: 0.10s; }
-
-        .nav-bg {
-          position: absolute;
-          inset: 0;
-          background: rgba(14, 16, 15, 0.76);
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          opacity: 0;
-          z-index: 1;
-        }
-
-        .nav-border {
-          border: 1.5px solid #2e2e2c;
-          border-radius: 20px;
-        }
-
-        .nav-panel {
-          width: 100%;
-          max-width: 480px;
-          position: relative;
-          box-sizing: border-box;
-        }
-
-        /* TOP SHEET - WHITE */
-        .nav-top {
-          flex: 1.3;
-          background: #ffffff;
-          color: #0e100f;
-          border-color: rgba(0,0,0,0.15);
-          display: flex;
-          flex-direction: column;
-          padding: 24px;
-          overflow-y: auto;
-          z-index: 3;
-        }
-
-        .nav-top .menu-link {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px 14px;
-          color: #2c2c2a;
-          text-decoration: none;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 500;
-          font-size: 1.15rem;
-          border-radius: 12px;
-          transition: background 0.2s, color 0.2s;
-          cursor: pointer;
-          background: transparent;
-          border: none;
-          width: 100%;
-          text-align: left;
-        }
-        .nav-top .menu-link:hover {
-          background: rgba(92, 78, 248, 0.08);
-          color: #5c4ef8;
-        }
-        .nav-top .menu-link + .menu-link {
-          border-top: 1px solid rgba(0, 0, 0, 0.05);
-          border-radius: 0;
-        }
-        .nav-top .menu-link:first-of-type {
-          border-radius: 12px 12px 0 0;
-        }
-        .nav-top .menu-link:last-of-type {
-          border-radius: 0 0 12px 12px;
-        }
-
-        .link-num {
-          font-family: monospace;
-          font-size: 0.8rem;
-          color: #7c7c6f;
-        }
-
-        .nav-login-btn {
-          margin-top: auto;
-          padding-top: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          border-top: 1px dashed rgba(0, 0, 0, 0.1);
-        }
-
-        /* MIDDLE SHEET - MATCHA */
-        .nav-middle {
-          flex: 0.7;
-          background: linear-gradient(135deg, #0ae448 0%, #abff84 40%, #6fdd8b 70%, #0ae448 100%);
-          color: #0e100f;
-          padding: 18px 24px;
-          z-index: 2;
-          border-color: #065a1e;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          min-height: 100px;
-        }
-        .nav-middle-header {
-          font-family: monospace;
-          font-size: 0.65rem;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          opacity: 0.6;
-          margin-bottom: 6px;
-        }
-        .nav-middle-card {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        .nav-middle-badge {
-          flex-shrink: 0;
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          background: rgba(0, 0, 0, 0.08);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.2rem;
-        }
-        .nav-middle-info {
-          display: flex;
-          flex-direction: column;
-        }
-        .nav-middle-title {
-          font-weight: 700;
-          font-size: 1.05rem;
-          line-height: 1.2;
-        }
-        .nav-middle-desc {
-          font-size: 0.78rem;
-          opacity: 0.75;
-        }
-
-        /* BOTTOM SHEET - BLACK */
-        .nav-bottom {
-          height: 80px;
-          background: #0e100f;
-          color: #bbbaa6;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 14px 24px;
-          z-index: 1;
-          border-color: #2a2a2a;
-        }
-        .nav-socials {
-          list-style: none;
-          display: flex;
-          gap: 16px;
-        }
-        .nav-socials a {
-          font-family: monospace;
-          font-size: 0.8rem;
-          color: #7c7c6f;
-          text-decoration: none;
-          transition: color 0.2s;
-        }
-        .nav-socials a:hover {
-          color: #0ae448;
-        }
-        .nav-asset img {
-          height: 44px;
-          width: auto;
-          opacity: 0.8;
-        }
-
-
       `}</style>
-
-
 
       {/* ── ORDER MODAL ── */}
       {showOrder && <OrderModal onClose={() => setShowOrder(false)} />}
 
-      {/* ── FLOATING ISLAND ── */}
-      <div className="island">
-        <button className="menu-btn" onClick={toggleMenu} aria-expanded={menuOpen} aria-label="Open navigation menu">
-          <div className="button-cont">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <line x1="2" y1="5" x2="14" y2="5" stroke={menuOpen ? "#0e100f" : "#BBBAA6"} strokeWidth="1.5" strokeLinecap="round"
-                style={{ transform: menuOpen ? "rotate(45deg) translate(3px, 3px)" : "none", transformOrigin: "center", transition: "transform 0.3s, stroke 0.3s" }} />
-              <line x1="2" y1="8" x2="14" y2="8" stroke="#BBBAA6" strokeWidth="1.5" strokeLinecap="round"
-                style={{ opacity: menuOpen ? 0 : 1, transition: "opacity 0.3s" }} />
-              <line x1="2" y1="11" x2="14" y2="11" stroke={menuOpen ? "#0e100f" : "#BBBAA6"} strokeWidth="1.5" strokeLinecap="round"
-                style={{ transform: menuOpen ? "rotate(-45deg) translate(3px, -3px)" : "none", transformOrigin: "center", transition: "transform 0.3s, stroke 0.3s" }} />
-            </svg>
-          </div>
+      {/* ── MOBILE MENU ── */}
+      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#aaa", padding: "8px 12px", textTransform: "uppercase", letterSpacing: "0.07em" }}>Services</div>
+          {serviceDropdownItems.map(({ label, icon }) => (
+            <button key={label} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%",
+              background: "none", border: "none", padding: "10px 12px",
+              fontSize: 16, color: "#333", cursor: "pointer", fontFamily: "inherit",
+              borderRadius: 10, textAlign: "left",
+            }} onClick={() => { setMobileMenuOpen(false); openOrder(); }}>
+              <span style={{ fontSize: 18 }}>{icon}</span> {label}
+            </button>
+          ))}
+        </div>
+        <div style={{ height: 1, background: "#eee", margin: "4px 0 8px" }} />
+        {navLinks.filter(l => !l.hasDropdown).map(l => (
+          <button key={l.label} className="nav-link"
+            style={{ fontSize: 18, padding: "13px 12px", justifyContent: "flex-start" }}
+            onClick={() => scrollTo(l.href)}>
+            {l.label}
+          </button>
+        ))}
+        <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
+          Order Now
         </button>
-      </div>
-
-      {/* ── MULTI-PANEL SLIDING OVERLAY MENU ── */}
-      <div className={`menu-overlay${menuOpen ? " open" : ""}`}>
-        <div className="nav-bg" onClick={toggleMenu}></div>
-
-        {/* 1. TOP PANEL: White Page Navigation */}
-        <div className="nav-top nav-border nav-panel">
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#999", padding: "4px 14px", textTransform: "uppercase", letterSpacing: "0.08em" }}>Navigation</div>
-            {navLinks.filter(l => !l.hasDropdown).map((l, index) => (
-              <button key={l.label} className="menu-link" onClick={() => scrollTo(l.href)}>
-                <span>{l.label}</span>
-                <span className="link-num">0{index + 1}</span>
-              </button>
-            ))}
-          </div>
-          <div className="nav-login-btn">
-            {user ? (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 14px" }}>
-                  {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 26, height: 26, borderRadius: "50%" }} />}
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "#333" }}>{user.displayName}</span>
-                </div>
-                {ADMIN_EMAILS.includes(user.email) && (
-                  <a href="/admin" style={{ display: "block", textDecoration: "none", color: "#5c4ef8", fontSize: 13, fontWeight: 600, padding: "4px 14px" }}>⚙ Go to Admin Panel</a>
-                )}
-                <button className="btn-dark" style={{ width: "100%", padding: "10px 18px", fontSize: 14 }} onClick={logOut}>Log Out</button>
-              </div>
-            ) : (
-              <button className="btn-dark" style={{ width: "100%", padding: "12px 18px", fontSize: 14 }} onClick={signInWithGoogle}>Log In with Google</button>
-            )}
-            <button className="btn-lime" style={{ width: "100%", padding: "12px 18px", fontSize: 14, color: "#1a1a1a" }} onClick={openOrder}>Order Custom Site ✦</button>
-          </div>
-        </div>
-
-        {/* 2. MIDDLE PANEL: Matcha Stats Card */}
-        <div className="nav-middle nav-border nav-panel">
-          <div className="nav-middle-header">Live Network Status</div>
-          <div className="nav-middle-card">
-            <div className="nav-middle-badge">🟢</div>
-            <div className="nav-middle-info">
-              <div className="nav-middle-title">
-                {liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-                  ? `${liveStats.orderCount} Sites Delivered`
-                  : "Active Commissions"}
-              </div>
-              <div className="nav-middle-desc">
-                {liveStats?.avgRating
-                  ? `Annek Network · ${(Number(liveStats.avgRating) * 20).toFixed(0)}% Client Satisfaction`
-                  : "Fully Custom Development · 24hr Support"}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. BOTTOM PANEL: Black Social Coordinates */}
-        <div className="nav-bottom nav-border nav-panel">
-          <ul className="nav-socials">
-            <li><a href="https://github.com/PrakashLeena/Annek" target="_blank" rel="noreferrer">GitHub</a></li>
-            <li><a href="https://wa.me/94701269689" target="_blank" rel="noreferrer">WhatsApp</a></li>
-            <li><a href="mailto:contact@annek.com">Email</a></li>
-          </ul>
-          <div className="nav-asset">
-            <img src={logoImg} alt="" />
-          </div>
-        </div>
       </div>
 
       {/* ── NAV ── */}
@@ -1654,16 +1126,16 @@ export default function App() {
             <button className="hamburger" style={{
               display: "none", flexDirection: "column", gap: 5,
               background: "none", border: "none", cursor: "pointer", padding: 6,
-            }} onClick={toggleMenu}>
+            }} onClick={() => setMobileMenuOpen(o => !o)}>
               {[0, 1, 2].map(i => (
                 <span key={i} style={{
                   width: 22, height: 2, background: "#1a1a1a", borderRadius: 2, display: "block",
-                  transform: menuOpen
+                  transform: mobileMenuOpen
                     ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
                     : i === 2 ? "rotate(-45deg) translate(5px, -5px)" : "scaleX(0)"
                     : "none",
                   transition: "transform 0.3s, opacity 0.3s",
-                  opacity: menuOpen && i === 1 ? 0 : 1,
+                  opacity: mobileMenuOpen && i === 1 ? 0 : 1,
                 }} />
               ))}
             </button>
@@ -1671,17 +1143,14 @@ export default function App() {
         </div>
       </nav>
 
-
-      {/* ─── PAGE SECTIONS ─── */}
-      <div>
-              {/* ── HERO ── */}
-              <section id="services" style={{
-                background: "linear-gradient(160deg, #f0eeff 0%, #e8f0ff 40%, #f5f0ff 100%)",
-                minHeight: "100vh", display: "flex", flexDirection: "column",
-                alignItems: "center", justifyContent: "center",
-                paddingTop: 100, paddingBottom: 60, paddingLeft: 24, paddingRight: 24,
-                textAlign: "center", position: "relative", overflow: "hidden",
-              }}>
+      {/* ── HERO ── */}
+      <section id="services" style={{
+        background: "linear-gradient(160deg, #f0eeff 0%, #e8f0ff 40%, #f5f0ff 100%)",
+        minHeight: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        paddingTop: 100, paddingBottom: 60, paddingLeft: 24, paddingRight: 24,
+        textAlign: "center", position: "relative", overflow: "hidden",
+      }}>
         <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, background: "radial-gradient(circle, rgba(120,100,255,0.13) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
         <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, background: "radial-gradient(circle, rgba(100,180,255,0.1) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
 
@@ -1780,17 +1249,10 @@ export default function App() {
             </FadeUp>
           ))}
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 2: HOW IT WORKS & FEATURES ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── HOW IT WORKS ── */}
-              <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
+      {/* ── HOW IT WORKS ── */}
+      <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
             <FadeUp>
@@ -1846,17 +1308,10 @@ export default function App() {
             ))}
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 3: PORTFOLIO & SOLUTIONS ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── PORTFOLIO ── */}
-              <section id="portfolio" style={{ padding: "80px 24px", background: "#fafafa" }}>
+      {/* ── PORTFOLIO ── */}
+      <section id="portfolio" style={{ padding: "80px 24px", background: "#fafafa" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 52, flexWrap: "wrap", gap: 20 }}>
@@ -1928,17 +1383,10 @@ export default function App() {
             </div>
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 4: PRICING, TESTIMONIALS & FAQ ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── PRICING ── */}
-              <section id="pricing" style={{ padding: "100px 24px", background: "#fff" }}>
+      {/* ── PRICING ── */}
+      <section id="pricing" style={{ padding: "100px 24px", background: "#fff" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ textAlign: "center", marginBottom: 64 }}>
@@ -2079,17 +1527,10 @@ export default function App() {
             </FadeUp>
           ))}
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 5: ABOUT US ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── ABOUT US ── */}
-              <section id="about" style={{ background: "#f9f9fb", padding: "100px 24px" }}>
+      {/* ── ABOUT US ── */}
+      <section id="about" style={{ background: "#f9f9fb", padding: "100px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
             <FadeUp>
@@ -2158,17 +1599,10 @@ export default function App() {
             </FadeUp>
           </div>
         </div>
-              </section>
-            </div>
-          </div>
-        </div>
+      </section>
 
-        {/* ── SLIDE 6: CONTACT, CTA & FOOTER ── */}
-        <div className="section">
-          <div className="section-content">
-            <div className="section-inner">
-              {/* ── CONTACT US ── */}
-              <section id="contact" style={{ background: "#fff", padding: "100px 24px" }}>
+      {/* ── CONTACT US ── */}
+      <section id="contact" style={{ background: "#fff", padding: "100px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <FadeUp>
             <div style={{ textAlign: "center", marginBottom: 64 }}>
@@ -2326,11 +1760,7 @@ export default function App() {
             </div>
           </div>
         </div>
-              </footer>
-            </div>
-          </div>
-        </div>
-      </div>
+      </footer>
 
       {/* ── ADMIN SHORTCUT (only for admin) ── */}
       {user && ADMIN_EMAILS.includes(user.email) && (
