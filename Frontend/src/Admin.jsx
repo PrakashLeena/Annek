@@ -375,8 +375,12 @@ function SettingsTab() {
       setPricingForm({ name: "", priceMin: "", priceMax: "" });
       setShowPricingForm(false);
       setTimeout(() => setStatus(null), 3000);
+    } catch (err) {
+      console.error("Error saving pricing:", err);
+      setStatus({ type: "error", message: "Failed to save pricing." });
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
