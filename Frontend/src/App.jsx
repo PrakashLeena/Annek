@@ -5,9 +5,6 @@ import businessImg from "./images/bussines.jpg";
 import ecommerceImg from "./images/ecommerce.jpg";
 import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
-import educationImg from "./images/education.png";
-import associationImg from "./images/Association.png";
-import clubsImg from "./images/clubs.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
 const API = import.meta.env.VITE_API_URL || "http://annek.tech";
@@ -91,19 +88,16 @@ const faqAnswers = [
 
 const plans = [
   {
-    key: "pricing_starter",
     name: "Starter", price: "$75 - $80", period: "one-time",
     tagline: "Perfect for small businesses getting online.", highlight: false,
     features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions"],
   },
   {
-    key: "pricing_growth",
     name: "Growth", price: "$100 - $120", period: "one-time",
     tagline: "For businesses that need more power.", highlight: true, badge: "Most Popular",
     features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "1 month free support"],
   },
   {
-    key: "pricing_premium",
     name: "Premium", price: "$150 - $170", period: "one-time",
     tagline: "Full-featured sites with custom functionality.", highlight: false,
     features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "3 months free support"],
@@ -114,9 +108,7 @@ const plans = [
 const categoryImageMap = {
   "Booking Site": bookingImg, "E-Commerce": ecommerceImg, "Portfolio": portfolioImg,
   "Business Site": businessImg, "Corporate": businessImg, "Restaurant": ecommerceImg,
-  "Education": educationImg, "Education Websites": educationImg, "Educational": educationImg,
-  "Club": clubsImg, "Clubs Sites": clubsImg, "Club Sites": clubsImg,
-  "Association": associationImg, "Associations": associationImg, "NGO": associationImg,
+  "Education": portfolioImg, "Club": portfolioImg,
 };
 
 /* ─── Order Form Data ─── */
@@ -1217,9 +1209,6 @@ export default function App() {
             { label: "Portfolio", img: portfolioImg, desc: "Showcase" },
             { label: "E-Commerce", img: ecommerceImg, desc: "Online Store" },
             { label: "Booking Site", img: bookingImg, desc: "Appointments" },
-            { label: "Education Website", img: educationImg, desc: "Schools" },
-            { label: "Association", img: associationImg, desc: "Organizations" },
-            { label: "Clubs Site", img: clubsImg, desc: "Community" },
           ].map((c, i) => (
             <div key={i} className="card-hover" style={{
               borderRadius: 20, width: 162, height: 150,
@@ -1431,20 +1420,7 @@ export default function App() {
                   <div style={{ fontSize: 15, fontWeight: 600, color: plan.highlight ? "#fff" : "#0e0e0e", marginBottom: 8 }}>{plan.name}</div>
                   <div style={{ fontSize: 11, color: plan.highlight ? "rgba(255,255,255,0.5)" : "#999", marginBottom: 24, lineHeight: 1.5 }}>{plan.tagline}</div>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 32 }}>
-                    <span style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-2px", color: plan.highlight ? "#fff" : "#0e0e0e", lineHeight: 1 }}>
-                      {(() => {
-                        const saved = settings[plan.key];
-                        if (saved) {
-                          try {
-                            const parsed = JSON.parse(saved);
-                            return `${parsed.priceMin} - ${parsed.priceMax}`;
-                          } catch {
-                            return plan.price;
-                          }
-                        }
-                        return plan.price;
-                      })()}
-                    </span>
+                    <span style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-2px", color: plan.highlight ? "#fff" : "#0e0e0e", lineHeight: 1 }}>{plan.price}</span>
                     <span style={{ fontSize: 13, color: plan.highlight ? "rgba(255,255,255,0.5)" : "#aaa" }}>{plan.period}</span>
                   </div>
                   <div style={{ height: 1, background: plan.highlight ? "rgba(255,255,255,0.1)" : "#e8e8e8", marginBottom: 28 }} />

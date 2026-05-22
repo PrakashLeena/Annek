@@ -305,8 +305,6 @@ function SettingsTab() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
-  const [showPricingForm, setShowPricingForm] = useState(false);
-  const [pricingForm, setPricingForm] = useState({ name: "", priceMin: "", priceMax: "" });
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -348,186 +346,68 @@ function SettingsTab() {
     setSaving(false);
   };
 
-  const savePricing = async () => {
-    if (!pricingForm.name || !pricingForm.priceMin || !pricingForm.priceMax) {
-      setStatus({ type: "error", message: "Please fill all pricing fields." });
-      return;
-    }
-    setSaving(true);
-    try {
-      const key = `pricing_${pricingForm.name.toLowerCase().replace(/\s+/g, "_")}`;
-      const payload = {
-        [key]: JSON.stringify({
-          name: pricingForm.name,
-          priceMin: pricingForm.priceMin,
-          priceMax: pricingForm.priceMax,
-        })
-      };
-      const r = await fetch(`${API}/settings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (!r.ok) throw new Error("Failed to save pricing");
-      const updatedSettings = { ...settings, [key]: payload[key] };
-      setSettings(updatedSettings);
-      setStatus({ type: "success", message: `${pricingForm.name} pricing saved!` });
-      setPricingForm({ name: "", priceMin: "", priceMax: "" });
-      setShowPricingForm(false);
-      setTimeout(() => setStatus(null), 3000);
-    } catch (err) {
-      console.error("Error saving pricing:", err);
-      setStatus({ type: "error", message: "Failed to save pricing." });
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
 
-  // Parse existing pricing from settings
-  const pricingPlans = [
-    { name: "Starter", key: "pricing_starter", min: "$75", max: "$80" },
-    { name: "Growth", key: "pricing_growth", min: "$100", max: "$120" },
-    { name: "Premium", key: "pricing_premium", min: "$150", max: "$170" },
-  ];
-
   return (
-    <div style={{ maxWidth: 800 }}>
-      {/* General Settings */}
-      <div className="admin-settings-card" style={{ background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", marginBottom: 32 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Platform Settings</h2>
-        {loading ? (
-          <div style={{ textAlign: "center", color: "#aaa", padding: 20 }}>Loading settings…</div>
-        ) : (
-          <form onSubmit={saveSettings}>
-            {status && (
-              <div style={{
-                padding: "12px 16px",
-                borderRadius: 8,
-                fontSize: 14,
-                marginBottom: 20,
-                background: status.type === "success" ? "#e8f5f0" : "#fef2f2",
-                color: status.type === "success" ? "#276749" : "#991b1b",
-                border: `1.5px solid ${status.type === "success" ? "#a3e635" : "#fee2e2"}`
-              }}>
-                {status.type === "success" ? "✅ " : "❌ "}
-                {status.message}
-              </div>
-            )}
-            
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: "#555", marginBottom: 8, display: "block" }}>
-                Testimonials Header Title
-              </label>
-              <input
-                style={inpStyle}
-                type="text"
-                value={settings.testimonialsTitle || ""}
-                onChange={e => setSettings(s => ({ ...s, testimonialsTitle: e.target.value }))}
-                placeholder="e.g. Trusted by hundreds of businesses"
-                required
-              />
-              <span style={{ fontSize: 12, color: "#888", marginTop: 6, display: "block" }}>
-                This title will be displayed in the testimonials/reviews section on the landing page.
-              </span>
+    <div className="admin-settings-card" style={{ maxWidth: 600, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Platform Settings</h2>
+      {loading ? (
+        <div style={{ textAlign: "center", color: "#aaa", padding: 20 }}>Loading settings…</div>
+      ) : (
+        <form onSubmit={saveSettings}>
+          {status && (
+            <div style={{
+              padding: "12px 16px",
+              borderRadius: 8,
+              fontSize: 14,
+              marginBottom: 20,
+              background: status.type === "success" ? "#e8f5f0" : "#fef2f2",
+              color: status.type === "success" ? "#276749" : "#991b1b",
+              border: `1.5px solid ${status.type === "success" ? "#a3e635" : "#fee2e2"}`
+            }}>
+              {status.type === "success" ? "✅ " : "❌ "}
+              {status.message}
             </div>
-
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                background: "#5c4ef8",
-                color: "#fff",
-                border: "none",
-                borderRadius: 10,
-                padding: "12px 24px",
-                fontSize: 14,
-                fontWeight: 600,
-                cursor: saving ? "not-allowed" : "pointer",
-                opacity: saving ? 0.7 : 1,
-                fontFamily: "inherit",
-                transition: "opacity 0.2s"
-              }}
-            >
-              {saving ? "Saving…" : "Save General Settings"}
-            </button>
-          </form>
-        )}
-      </div>
-
-      {/* Pricing Management */}
-      <div className="admin-pricing-card" style={{ background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e" }}>Pricing Plans</h2>
-          <button onClick={() => setShowPricingForm(!showPricingForm)} style={{
-            background: "#5c4ef8", color: "#fff", border: "none", borderRadius: 10,
-            padding: "10px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit"
-          }}>+ Add/Edit Plan</button>
-        </div>
-
-        {showPricingForm && (
-          <div style={{ background: "#f8f7ff", border: "1.5px solid #e0dcff", borderRadius: 16, padding: 24, marginBottom: 24 }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#0e0e0e" }}>Add or Update Pricing Plan</h3>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Plan Name *</label>
-                <input style={inpStyle} type="text" placeholder="e.g. Starter, Growth, Premium"
-                  value={pricingForm.name} onChange={e => setPricingForm(p => ({...p, name: e.target.value}))} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Minimum Price *</label>
-                <input style={inpStyle} type="text" placeholder="e.g. $75"
-                  value={pricingForm.priceMin} onChange={e => setPricingForm(p => ({...p, priceMin: e.target.value}))} />
-              </div>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Maximum Price *</label>
-                <input style={inpStyle} type="text" placeholder="e.g. $80"
-                  value={pricingForm.priceMax} onChange={e => setPricingForm(p => ({...p, priceMax: e.target.value}))} />
-              </div>
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={savePricing} disabled={saving} style={{
-                background: "#5c4ef8", color: "#fff", border: "none", borderRadius: 10,
-                padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: saving ? "not-allowed" : "pointer",
-                opacity: saving ? 0.7 : 1, fontFamily: "inherit"
-              }}>
-                {saving ? "Saving…" : "Save Pricing"}
-              </button>
-              <button onClick={() => setShowPricingForm(false)} style={{
-                background: "#f3f4f6", color: "#555", border: "none", borderRadius: 10,
-                padding: "10px 20px", fontSize: 14, cursor: "pointer", fontFamily: "inherit"
-              }}>Cancel</button>
-            </div>
+          )}
+          
+          <div style={{ marginBottom: 24 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: "#555", marginBottom: 8, display: "block" }}>
+              Testimonials Header Title
+            </label>
+            <input
+              style={inpStyle}
+              type="text"
+              value={settings.testimonialsTitle || ""}
+              onChange={e => setSettings(s => ({ ...s, testimonialsTitle: e.target.value }))}
+              placeholder="e.g. Trusted by hundreds of businesses"
+              required
+            />
+            <span style={{ fontSize: 12, color: "#888", marginTop: 6, display: "block" }}>
+              This title will be displayed in the testimonials/reviews section on the landing page.
+            </span>
           </div>
-        )}
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 16 }}>
-          {pricingPlans.map((plan) => {
-            const savedPrice = settings[plan.key];
-            const displayMin = savedPrice ? JSON.parse(savedPrice).priceMin : plan.min;
-            const displayMax = savedPrice ? JSON.parse(savedPrice).priceMax : plan.max;
-            return (
-              <div key={plan.key} style={{
-                background: "#f9f9fc", border: "1.5px solid #e5e5ea", borderRadius: 12,
-                padding: "20px", textAlign: "center"
-              }}>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "#0e0e0e", marginBottom: 12 }}>{plan.name}</div>
-                <div style={{ fontSize: 20, fontWeight: 600, color: "#5c4ef8", marginBottom: 8 }}>
-                  {displayMin} - {displayMax}
-                </div>
-                <button onClick={() => {
-                  setPricingForm({ name: plan.name, priceMin: displayMin, priceMax: displayMax });
-                  setShowPricingForm(true);
-                }} style={{
-                  background: "#f0eeff", color: "#5c4ef8", border: "none", borderRadius: 8,
-                  padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit"
-                }}>✏️ Edit</button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+          <button
+            type="submit"
+            disabled={saving}
+            style={{
+              background: "#5c4ef8",
+              color: "#fff",
+              border: "none",
+              borderRadius: 10,
+              padding: "12px 24px",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: saving ? "not-allowed" : "pointer",
+              opacity: saving ? 0.7 : 1,
+              fontFamily: "inherit",
+              transition: "opacity 0.2s"
+            }}
+          >
+            {saving ? "Saving…" : "Save Settings"}
+          </button>
+        </form>
+      )}
     </div>
   );
 }

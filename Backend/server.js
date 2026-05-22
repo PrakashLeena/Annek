@@ -11,14 +11,6 @@ const settingsRouter = require("./routes/settings");
 const app = express();
 connectDB();
 
-// Global error handlers to avoid silent crashes in serverless environments
-process.on("unhandledRejection", (reason, p) => {
-  console.error("Unhandled Rejection at:", p, "reason:", reason);
-});
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
-});
-
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
@@ -83,19 +75,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: "Something went wrong." });
 });
 
-// If this file is run directly (local development), start the HTTP server.
-if (require.main === module) {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Annek Backend running on http://localhost:${PORT}`);
-  });
-} else {
-  // When deployed on serverless platforms (Vercel), export a handler.
-  // Prefer serverless-http if available; otherwise export the Express app as a fallback.
-  try {
-    const serverless = require("serverless-http");
-    module.exports = serverless(app);
-  } catch (err) {
-    module.exports = app;
-  }
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Annek Backend running on http://localhost:${PORT}`);
+});
