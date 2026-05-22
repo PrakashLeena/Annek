@@ -33,7 +33,7 @@ function adminEmailHtml(data) {
   <div style="max-width:640px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
     <div style="background:#1a1a1a;padding:28px 32px">
       <h1 style="margin:0;color:#d4f74b;font-size:22px;font-weight:700">🌐 New Website Order</h1>
-      <p style="margin:6px 0 0;color:#888;font-size:14px">Received via Annek Platform</p>
+      <p style="margin:6px 0 0;color:#888;font-size:14px">${data.forAdmin ? 'Admin Copy — Received via Annek Platform' : `Hi ${data.name}, here are your order details!`}</p>
     </div>
     <div style="padding:28px 32px">
 
@@ -90,35 +90,7 @@ function adminEmailHtml(data) {
   </body></html>`;
 }
 
-function customerEmailHtml(name) {
-  return `
-  <!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif">
-  <div style="max-width:600px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
-    <div style="background:#1a1a1a;padding:28px 32px;text-align:center">
-      <h1 style="margin:0;color:#d4f74b;font-size:24px;font-weight:700">🎉 Order Received!</h1>
-    </div>
-    <div style="padding:36px 32px;text-align:center">
-      <p style="font-size:18px;color:#333;margin:0 0 16px">Hi <strong>${name}</strong>!</p>
-      <p style="font-size:15px;color:#666;line-height:1.7;margin:0 0 24px">
-        Thank you for placing your website order with <strong>Annek</strong>.<br>
-        Our team has received your requirements and will review them shortly.
-      </p>
-      <div style="background:#eef0ff;border-radius:12px;padding:20px 24px;margin:0 0 28px;text-align:left">
-        <p style="margin:0 0 8px;font-weight:700;color:#5c4ef8;font-size:14px">⏱ What happens next?</p>
-        <ul style="margin:0;padding:0 0 0 18px;color:#555;font-size:14px;line-height:1.9">
-          <li>Our team will review your requirements within <strong>24 hours</strong></li>
-          <li>We'll send you a detailed quote and project timeline</li>
-          <li>Once approved, we'll begin building your website immediately</li>
-        </ul>
-      </div>
-      <a href="mailto:${process.env.EMAIL_USER}" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;padding:14px 32px;border-radius:100px;font-size:15px;font-weight:600">Contact Us Anytime</a>
-    </div>
-    <div style="background:#f9f9f9;padding:20px 32px;text-align:center">
-      <p style="margin:0;font-size:13px;color:#aaa">© 2026 Annek · www.annek.tech</p>
-    </div>
-  </div>
-  </body></html>`;
-}
+
 
 // ── POST /api/orders ─────────────────────────────────────────
 router.post(
@@ -174,29 +146,34 @@ router.post(
       await order.save();
       console.log("Order submission: Order saved successfully to database!");
 
-      // ── Send admin notification email ──
+      const orderData = { ...data, logoUrl, imageUrls, videoUrls };
+      const orderSubject = `🌐 Website Order — ${data.name}${data.company ? ` (${data.company})` : ""}`;
+
+      // ── Send full order details to admin ──
       try {
         await transporter.sendMail({
-          from: `"Annek Platform" <${process.env.EMAIL_USER}>`,
+          from: `"Annek" <${process.env.EMAIL_USER}>`,
           to: process.env.ADMIN_EMAIL,
-          subject: `🌐 New Website Order — ${data.name} ${data.company ? `(${data.company})` : ""}`,
-          html: adminEmailHtml({ ...data, logoUrl, imageUrls, videoUrls }),
+          subject: `[Admin Copy] ${orderSubject}`,
+          html: adminEmailHtml({ ...orderData, forAdmin: true }),
         });
+        console.log("✅ Admin order email sent to:", process.env.ADMIN_EMAIL);
       } catch (emailErr) {
-        console.error("⚠️ Failed to send admin notification email:", emailErr.message || emailErr);
+        console.error("⚠️ Failed to send admin order email:", emailErr.message || emailErr);
       }
 
-      // ── Send customer confirmation email ──
+      // ── Send full order details to customer ──
       if (data.email) {
         try {
           await transporter.sendMail({
             from: `"Annek" <${process.env.EMAIL_USER}>`,
             to: data.email,
-            subject: "🎉 Your Annek Website Order Has Been Received!",
-            html: customerEmailHtml(data.name),
+            subject: `🎉 Your Order Details — ${orderSubject}`,
+            html: adminEmailHtml({ ...orderData, forAdmin: false }),
           });
+          console.log("✅ Customer order email sent to:", data.email);
         } catch (emailErr) {
-          console.error("⚠️ Failed to send customer confirmation email:", emailErr.message || emailErr);
+          console.error("⚠️ Failed to send customer order email:", emailErr.message || emailErr);
         }
       }
 
