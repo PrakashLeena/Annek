@@ -242,7 +242,7 @@ function FeedbackWidget() {
   return (
     <>
       {/* Floating Button */}
-      <button onClick={() => setOpen(o => !o)} title="Give feedback" style={{
+      <button onClick={() => setOpen(o => !o)} title="Give feedback" aria-label="Open feedback form" style={{
         position: "fixed", bottom: 28, right: 28, zIndex: 998,
         width: 56, height: 56, borderRadius: "50%",
         background: "linear-gradient(135deg, #5c4ef8, #7c3aed)",
@@ -412,7 +412,7 @@ function OrderModal({ onClose }) {
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} className="order-modal-content">
         {/* Close */}
-        <button onClick={onClose} style={{
+        <button onClick={onClose} aria-label="Close order form" style={{
           position: "absolute", top: 20, right: 20, background: "#f5f5f5",
           border: "none", borderRadius: "50%", width: 36, height: 36,
           fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center",
@@ -1024,6 +1024,8 @@ export default function App() {
       {/* ── ORDER MODAL ── */}
       {showOrder && <OrderModal onClose={() => setShowOrder(false)} />}
 
+      {/* ── MAIN CONTENT ── */}
+      <main>
       {/* ── MOBILE MENU ── */}
       <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
         <div style={{ marginBottom: 8 }}>
@@ -1064,7 +1066,7 @@ export default function App() {
           {/* Logo */}
           <div style={{ marginRight: 20, cursor: "pointer", display: "flex", alignItems: "center" }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <img src={logoImg} alt="Annek" style={{ height: 42, width: "auto", objectFit: "contain" }} />
+            <img src={logoImg} alt="Annek" width={67} height={42} fetchPriority="high" style={{ height: 42, width: "auto", objectFit: "contain" }} />
           </div>
 
           {/* Desktop Links */}
@@ -1123,7 +1125,7 @@ export default function App() {
               Order Now
             </button>
             {/* Hamburger */}
-            <button className="hamburger" style={{
+            <button className="hamburger" aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen} style={{
               display: "none", flexDirection: "column", gap: 5,
               background: "none", border: "none", cursor: "pointer", padding: 6,
             }} onClick={() => setMobileMenuOpen(o => !o)}>
@@ -1213,7 +1215,7 @@ export default function App() {
               position: "relative", overflow: "hidden", cursor: "pointer",
               border: "1px solid rgba(255,255,255,0.5)", background: "#f0f0f0",
             }} onClick={openOrder}>
-              <img src={c.img} alt={c.label} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={c.img} alt={c.label} width={162} height={150} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
               <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }} />
               <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(255,255,255,0.9)", borderRadius: 100, padding: "3px 10px", fontSize: 10, fontWeight: 700, color: "#333" }}>{c.desc}</div>
               <div style={{ position: "absolute", bottom: 12, left: 12, fontSize: 12, fontWeight: 600, color: "#fff" }}>{c.label}</div>
@@ -1327,31 +1329,40 @@ export default function App() {
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {portfolioProjects.length === 0 ? (
               <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#bbb", padding: 40, fontSize: 15 }}>Loading portfolio…</div>
-            ) : portfolioProjects.map((p, i) => (
-              <FadeUp key={p._id || i} delay={i * 0.08}>
-                <div className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
-                  <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
-                    <img src={p.imageUrl || categoryImageMap[p.category] || businessImg} alt={p.title}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
-                      onMouseEnter={e => e.target.style.transform = "scale(1.06)"}
-                      onMouseLeave={e => e.target.style.transform = "scale(1)"} />
-                  </div>
-                  <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
-                    <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
-                  </div>
-                  <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
-                    <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
-                    <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 8 }}>{p.title}</h3>
-                    <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 16 }}>{p.desc}</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                      {(p.tags || []).map(tag => (
-                        <span key={tag} style={{ background: "#f0f0f0", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, color: "#555" }}>{tag}</span>
-                      ))}
+            ) : portfolioProjects.map((p, i) => {
+              // Optimize Cloudinary images with responsive transformations
+              const optimizedImageUrl = p.imageUrl && p.imageUrl.includes('cloudinary.com')
+                ? p.imageUrl.replace('/upload/', '/upload/w_600,h_400,c_fill,q_80,f_auto/')
+                : p.imageUrl;
+              return (
+                <FadeUp key={p._id || i} delay={i * 0.08}>
+                  <div className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
+                    <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
+                      <img src={optimizedImageUrl || categoryImageMap[p.category] || businessImg} 
+                        alt={p.title}
+                        width={396}
+                        height={200}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
+                        onMouseEnter={e => e.target.style.transform = "scale(1.06)"}
+                        onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                    </div>
+                    <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
+                      <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
+                    </div>
+                    <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
+                      <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
+                      <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 8 }}>{p.title}</h3>
+                      <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 16 }}>{p.desc}</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                        {(p.tags || []).map(tag => (
+                          <span key={tag} style={{ background: "#f0f0f0", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, color: "#555" }}>{tag}</span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </FadeUp>
-            ))}
+                </FadeUp>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -1722,6 +1733,7 @@ export default function App() {
           </div>
         </FadeUp>
       </section>
+      </main>
 
       {/* ── FOOTER ── */}
       <footer style={{ background: "#111", padding: "56px 32px 40px", color: "#888" }}>

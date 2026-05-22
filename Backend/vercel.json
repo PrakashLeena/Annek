@@ -8,6 +8,13 @@
   ],
   "routes": [
     {
+      "src": "/api/(portfolio|stats|feedback|settings)$",
+      "dest": "server.js",
+      "headers": {
+        "Cache-Control": "public, max-age=300"
+      }
+    },
+    {
       "src": "/(.*)",
       "dest": "server.js"
     }
