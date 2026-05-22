@@ -7,7 +7,7 @@ import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL || "http://annek.tech";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 /* ─── Intersection Observer Hook ─── */

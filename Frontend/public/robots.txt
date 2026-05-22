@@ -1,0 +1,35 @@
+# Robots.txt for Annek Website
+# Allows search engines to crawl all pages
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /*.json$
+Disallow: /.git
+Disallow: /node_modules/
+
+# Crawl delay to prevent server overload
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://annek.com/sitemap.xml
+Sitemap: https://annek.com/sitemap-mobile.xml
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Yandexbot
+Allow: /
+
+# Block bad bots
+User-agent: MJ12bot
+User-agent: AhrefsBot
+User-agent: SemrushBot
+Disallow: /
