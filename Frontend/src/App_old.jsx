@@ -6,7 +6,7 @@ import ecommerceImg from "./images/ecommerce.jpg";
 import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
-/*google-site-verification: google467617661029c74f.html*/
+
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
