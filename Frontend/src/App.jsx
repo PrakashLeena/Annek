@@ -44,14 +44,41 @@ const FadeUp = ({ children, delay = 0, className = "" }) => {
 };
 
 /* ─── Nav Data ─── */
+// ─── Inline SVG Icons ───
+const IconPalette = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 0 8 0"/><path d="M9 9h.01M15 9h.01"/></svg>;
+const IconCart = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>;
+const IconStore = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
+const IconCalendar = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IconGradCap = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>;
+const IconHandshake = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78 7.65 7.65 7.65-7.65.78-.78a5.4 5.4 0 0 0 0-7.65z"/></svg>;
+const IconStar = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
+const IconSparkle = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>;
+const IconDiamond = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 22 9 18 21 6 21 2 9"/></svg>;
+const IconLayers = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
+const IconSearch = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
+const IconFolder = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>;
+const IconCoin = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2m-4-6h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h2m2 0v2m0 8v2"/></svg>;
+const IconChat = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+const IconClose = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconCheck = () => <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>;
+const IconCheckSm = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>;
+const IconParty = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01M18 2l-7.1 7.1"/><path d="M6.6 8.4l-4.2 4.2a1.41 1.41 0 0 0 0 2l7 7a1.41 1.41 0 0 0 2 0l4.2-4.2"/></svg>;
+const IconPaperclip = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>;
+const IconWarn = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
+const IconClipboard = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>;
+const IconGear = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
+const IconRocket = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
+const IconMoon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
+const IconSun = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
+
 const serviceDropdownItems = [
-  { label: "Portfolio Sites", icon: "🎨" },
-  { label: "E-Commerce", icon: "🛒" },
-  { label: "Online Store", icon: "🏪" },
-  { label: "Booking Site", icon: "📅" },
-  { label: "Education Websites", icon: "🎓" },
-  { label: "Associations", icon: "🤝" },
-  { label: "Clubs Sites", icon: "⭐" },
+  { label: "Portfolio Sites", icon: <IconPalette /> },
+  { label: "E-Commerce", icon: <IconCart /> },
+  { label: "Online Store", icon: <IconStore /> },
+  { label: "Booking Site", icon: <IconCalendar /> },
+  { label: "Education Websites", icon: <IconGradCap /> },
+  { label: "Associations", icon: <IconHandshake /> },
+  { label: "Clubs Sites", icon: <IconStar /> },
 ];
 
 const navLinks = [
@@ -65,10 +92,10 @@ const navLinks = [
 
 /* ─── Site Data ─── */
 const features = [
-  { icon: "✦", title: "Requirement-Based Order", desc: "Submit your website requirements and get a fully custom-built site tailored to your brand and goals.", bg: "#eef0ff" },
-  { icon: "◈", title: "Expert Designers & Devs", desc: "Our team of skilled professionals brings your vision to life with pixel-perfect precision.", bg: "#e8f5f0" },
-  { icon: "⬡", title: "100+ Premium Templates", desc: "Choose from a wide range of professionally crafted templates as your starting point.", bg: "#fff3e8" },
-  { icon: "◎", title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
+  { icon: <IconSparkle />, title: "Requirement-Based Order", desc: "Submit your website requirements and get a fully custom-built site tailored to your brand and goals.", bg: "#eef0ff" },
+  { icon: <IconDiamond />, title: "Expert Designers & Devs", desc: "Our team of skilled professionals brings your vision to life with pixel-perfect precision.", bg: "#e8f5f0" },
+  { icon: <IconLayers />, title: "100+ Premium Templates", desc: "Choose from a wide range of professionally crafted templates as your starting point.", bg: "#fff3e8" },
+  { icon: <IconSearch />, title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
 ];
 
 
@@ -197,7 +224,7 @@ function UploadBox({ label, id, accept, multiple, val, setter }) {
       }}>
         <input type="file" id={id} accept={accept} multiple={multiple} style={{ display: "none" }}
           onChange={e => setter(e.target.files)} />
-        <span style={{ fontSize: 22 }}>📁</span>
+        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}><IconFolder /></span>
         <span style={{ fontSize: 13, color: val && val.length ? "#5c4ef8" : "#999" }}>
           {val && val.length ? `${val.length} file(s) selected` : "Click to browse"}
         </span>
@@ -215,7 +242,7 @@ function PricingNote() {
       fontSize: 13, color: "#92620a", border: "1px solid #ffe9a0",
       display: "flex", alignItems: "flex-start", gap: 8,
     }}>
-      <span>💰</span>
+      <span style={{ display: "flex", alignItems: "center", flexShrink: 0, color: "#92620a" }}><IconCoin /></span>
       <div><strong>Pricing note:</strong> Selections here may affect your final quote. We'll include a full breakdown when we respond.</div>
     </div>
   );
@@ -260,7 +287,7 @@ function FeedbackWidget() {
         onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
         onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
       >
-        {open ? "✕" : "💬"}
+        {open ? <IconClose /> : <IconChat />}
       </button>
 
       {/* Feedback Panel */}
@@ -316,7 +343,7 @@ function FeedbackWidget() {
             </>
           ) : (
             <div style={{ textAlign: "center", padding: "12px 0" }}>
-              <div style={{ fontSize: 40, marginBottom: 10 }}>🙏</div>
+              <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><IconCheck /></div>
               <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 700, color: "#0e0e0e" }}>Thank you!</h3>
               <p style={{ fontSize: 14, color: "#666", margin: 0 }}>Your feedback has been received.</p>
               <button onClick={() => { setDone(false); setFb({ name:"",email:"",message:"" }); setRating(0); setOpen(false); }}
@@ -510,8 +537,8 @@ function OrderModal({ onClose }) {
             {/* ── STEP 3: Content Materials ── */}
             {step === 3 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ background: "#f0f0ff", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#5c4ef8", border: "1px solid #ddd8ff" }}>
-                  📎 Upload your existing materials. You can skip anything you don't have yet.
+                <div style={{ background: "#f0f0ff", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#5c4ef8", border: "1px solid #ddd8ff", display: "flex", alignItems: "center", gap: 8 }}>
+                  <IconPaperclip /> Upload your existing materials. You can skip anything you don't have yet.
                 </div>
                 <UploadBox label="Logo" id="up-logo" accept="image/*,.svg" val={logoFiles} setter={setLogoFiles} />
                 <UploadBox label="Images / Photos" id="up-img" accept="image/*" multiple val={imgFiles} setter={setImgFiles} />
@@ -561,11 +588,24 @@ function OrderModal({ onClose }) {
                 <div>
                   <label style={lbl}>Theme Preference</label>
                   <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-                    {["🌙 Dark Theme", "☀️ Light Theme"].map(t => (
-                      <CheckPill key={t} label={t}
-                        checked={theme.includes(t)}
-                        onChange={() => toggle(theme, setTheme, t)} />
-                    ))}
+                    {[
+                    { key: "Dark Theme", icon: <IconMoon /> },
+                    { key: "Light Theme", icon: <IconSun /> },
+                  ].map(t => (
+                    <label key={t.key} style={{
+                      display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
+                      padding: "9px 16px", borderRadius: 12,
+                      border: theme.includes(t.key) ? "2px solid #5c4ef8" : "1.5px solid #e5e5e5",
+                      background: theme.includes(t.key) ? "#eef0ff" : "#fff",
+                      fontSize: 14, fontWeight: 500, transition: "all 0.2s", userSelect: "none",
+                    }}>
+                      <input type="checkbox" style={{ accentColor: "#5c4ef8", width: 15, height: 15 }}
+                        checked={theme.includes(t.key)}
+                        onChange={() => toggle(theme, setTheme, t.key)} />
+                      <span style={{ display: "flex", alignItems: "center" }}>{t.icon}</span>
+                      {t.key}
+                    </label>
+                  ))}
                   </div>
                 </div>
                 <div>
@@ -649,8 +689,8 @@ function OrderModal({ onClose }) {
                   </div>
                 </div>
                 {submitError && (
-                  <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#c0392b" }}>
-                    ⚠️ {submitError}
+                  <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#c0392b", display: "flex", alignItems: "center", gap: 8 }}>
+                    <IconWarn /> {submitError}
                   </div>
                 )}
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
@@ -665,7 +705,7 @@ function OrderModal({ onClose }) {
           </>
         ) : (
           <div style={{ textAlign: "center", padding: "20px 0 10px" }}>
-            <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
+            <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><IconParty /></div>
             <h3 style={{ fontSize: 24, fontWeight: 600, color: "#0e0e0e", marginBottom: 12 }}>Order Received!</h3>
             <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 28px" }}>
               Thank you, <strong>{contact.name}</strong>! We've received your website order and will be in touch at{" "}
@@ -715,7 +755,7 @@ function ContactForm({ openOrder }) {
 
   if (sent) return (
     <div style={{ textAlign: "center", padding: "48px 0" }}>
-      <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+      <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><IconCheckSm /></div>
       <div style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e" }}>Message sent!</div>
       <div style={{ fontSize: 14, color: "#888", marginTop: 6 }}>We'll get back to you within 24 hours.</div>
     </div>
@@ -1416,13 +1456,13 @@ export default function App() {
           </div>
           <div className="steps-grid" style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
             {[
-              { step: "01", title: "Submit Requirements", desc: "Fill our simple order form with your business details, design preferences, and features needed.", icon: "📋" },
-              { step: "02", title: "We Design & Build", desc: "Our team crafts your website with care, keeping you updated throughout the process.", icon: "⚙️" },
-              { step: "03", title: "Review & Launch", desc: "Approve your site, request any revisions, and go live — all within your agreed timeline.", icon: "🚀" },
+              { step: "01", title: "Submit Requirements", desc: "Fill our simple order form with your business details, design preferences, and features needed.", icon: <IconClipboard /> },
+              { step: "02", title: "We Design & Build", desc: "Our team crafts your website with care, keeping you updated throughout the process.", icon: <IconGear /> },
+              { step: "03", title: "Review & Launch", desc: "Approve your site, request any revisions, and go live — all within your agreed timeline.", icon: <IconRocket /> },
             ].map((s, i) => (
               <FadeUp key={i} delay={i * 0.15}>
                 <div className="card-hover" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "32px 28px", border: "1px solid rgba(255,255,255,0.9)" }}>
-                  <div style={{ fontSize: 32, marginBottom: 12 }}>{s.icon}</div>
+                  <div style={{ marginBottom: 12, width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}>{s.icon}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", letterSpacing: "0.1em", marginBottom: 8 }}>STEP {s.step}</div>
                   <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 10 }}>{s.title}</h3>
                   <p style={{ fontSize: 14, color: "#666", lineHeight: 1.65 }}>{s.desc}</p>
@@ -1447,7 +1487,7 @@ export default function App() {
             {features.map((f, i) => (
               <FadeUp key={i} delay={i * 0.1}>
                 <div className="card-hover" style={{ background: f.bg, borderRadius: 24, padding: "40px 36px", border: "1px solid rgba(0,0,0,0.04)" }}>
-                  <div style={{ fontSize: 28, marginBottom: 16 }}>{f.icon}</div>
+                  <div style={{ marginBottom: 16, width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}>{f.icon}</div>
                   <h3 style={{ fontSize: 22, fontWeight: 600, marginBottom: 12, color: "#0e0e0e" }}>{f.title}</h3>
                   <p style={{ fontSize: 15, color: "#666", lineHeight: 1.65 }}>{f.desc}</p>
                 </div>
