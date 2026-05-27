@@ -997,6 +997,48 @@ export default function App() {
           100% { transform: translateX(-50%); }
         }
 
+        .portfolio-marquee-container {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+          padding: 16px 0 24px;
+        }
+        .portfolio-marquee-container::before,
+        .portfolio-marquee-container::after {
+          background: linear-gradient(to right, #fff, transparent);
+          content: "";
+          height: 100%;
+          position: absolute;
+          width: 120px;
+          z-index: 2;
+          pointer-events: none;
+          top: 0;
+        }
+        .portfolio-marquee-container::before {
+          left: 0;
+        }
+        .portfolio-marquee-container::after {
+          right: 0;
+          transform: rotateZ(180deg);
+        }
+        .portfolio-marquee-track {
+          display: flex;
+          gap: 24px;
+          width: max-content;
+          animation: portfolio-marquee-scroll 50s linear infinite;
+        }
+        .portfolio-marquee-track:hover {
+          animation-play-state: paused;
+        }
+        .portfolio-marquee-track .portfolio-card {
+          width: 350px;
+          flex-shrink: 0;
+        }
+        @keyframes portfolio-marquee-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+
         input:focus, textarea:focus, select:focus {
           border-color: #5c4ef8 !important; outline: none;
           box-shadow: 0 0 0 3px rgba(92,78,248,0.1);
@@ -1072,10 +1114,34 @@ export default function App() {
           .two-col { grid-template-columns: 1fr !important; }
           .testimonials-grid { grid-template-columns: 1fr !important; }
           .nav-links-desktop { display: none !important; }
-          .hero-cards { flex-direction: column; align-items: center; }
-          .portfolio-grid { grid-template-columns: 1fr !important; }
+          .hero-cards {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12px !important;
+            width: 100% !important;
+            padding: 0 16px !important;
+          }
+          .hero-cards > div {
+            width: 100% !important;
+            height: 130px !important;
+          }
           .pricing-grid { grid-template-columns: 1fr !important; }
-          .steps-grid { grid-template-columns: 1fr !important; }
+          .steps-grid {
+            display: flex !important;
+            flex-direction: row !important;
+            overflow-x: auto !important;
+            scroll-snap-type: x mandatory !important;
+            gap: 16px !important;
+            padding: 8px 4px 16px !important;
+            scrollbar-width: none !important;
+          }
+          .steps-grid::-webkit-scrollbar {
+            display: none !important;
+          }
+          .steps-grid > div {
+            flex: 0 0 85% !important;
+            scroll-snap-align: start !important;
+          }
           .hamburger { display: flex !important; }
           .footer-grid { grid-template-columns: 1fr 1fr !important; }
         }
@@ -1433,45 +1499,53 @@ export default function App() {
             </FadeUp>
           )}
 
-          <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-            {portfolioProjects.length === 0 ? (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#bbb", padding: 40, fontSize: 15 }}>Loading portfolio…</div>
-            ) : filteredProjects.length === 0 ? (
-              <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#888", padding: 40, fontSize: 15 }}>No projects found in this category.</div>
-            ) : filteredProjects.map((p, i) => {
-              // Optimize Cloudinary images with responsive transformations
-              const optimizedImageUrl = p.imageUrl && p.imageUrl.includes('cloudinary.com')
-                ? p.imageUrl.replace('/upload/', '/upload/w_600,h_400,c_fill,q_80,f_auto/')
-                : p.imageUrl;
-              return (
-                <FadeUp key={p._id || i} delay={i * 0.08}>
-                  <div className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
-                    <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
-                      <img src={optimizedImageUrl || categoryImageMap[p.category] || businessImg} 
-                        alt={`${p.title} - custom ${p.category || 'web design'} website build by Annek`}
-                        width={396}
-                        height={200}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
-                        onMouseEnter={e => e.target.style.transform = "scale(1.06)"}
-                        onMouseLeave={e => e.target.style.transform = "scale(1)"} />
-                    </div>
-                    <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
-                      <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
-                    </div>
-                    <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
-                      <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
-                      <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 8 }}>{p.title}</h3>
-                      <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 16 }}>{p.desc}</p>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                        {(p.tags || []).map(tag => (
-                          <span key={tag} style={{ background: "#f0f0f0", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, color: "#555" }}>{tag}</span>
-                        ))}
+          <div className="portfolio-marquee-container">
+            <div className="portfolio-marquee-track">
+              {(() => {
+                let marqueeProjects = [...filteredProjects];
+                if (portfolioProjects.length === 0) {
+                  return <div style={{ textAlign: "center", color: "#bbb", padding: 40, fontSize: 15, width: "100%" }}>Loading portfolio…</div>;
+                }
+                if (filteredProjects.length === 0) {
+                  return <div style={{ textAlign: "center", color: "#888", padding: 40, fontSize: 15, width: "100%" }}>No projects found in this category.</div>;
+                }
+                while (marqueeProjects.length > 0 && marqueeProjects.length < 12) {
+                  marqueeProjects = [...marqueeProjects, ...filteredProjects];
+                }
+                const finalMarquee = [...marqueeProjects, ...marqueeProjects];
+                return finalMarquee.map((p, i) => {
+                  const optimizedImageUrl = p.imageUrl && p.imageUrl.includes('cloudinary.com')
+                    ? p.imageUrl.replace('/upload/', '/upload/w_600,h_400,c_fill,q_80,f_auto/')
+                    : p.imageUrl;
+                  return (
+                    <div key={i} className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
+                      <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
+                        <img src={optimizedImageUrl || categoryImageMap[p.category] || businessImg} 
+                          alt={`${p.title} - custom ${p.category || 'web design'} website build by Annek`}
+                          width={396}
+                          height={200}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
+                          onMouseEnter={e => e.target.style.transform = "scale(1.06)"}
+                          onMouseLeave={e => e.target.style.transform = "scale(1)"} />
+                      </div>
+                      <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
+                        <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
+                      </div>
+                      <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
+                        <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
+                        <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 8 }}>{p.title}</h3>
+                        <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 16, height: 62, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.desc}</p>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {(p.tags || []).slice(0, 3).map(tag => (
+                            <span key={tag} style={{ background: "#f0f0f0", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, color: "#555" }}>{tag}</span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </FadeUp>
-              );
-            })}
+                  );
+                });
+              })()}
+            </div>
           </div>
         </div>
       </section>
