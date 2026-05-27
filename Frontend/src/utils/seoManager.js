@@ -99,7 +99,7 @@ export const pageConfigs = {
   },
   services: {
     title: "Web Design & Development Services | Annek",
-    description: "Our web design and development services include portfolio sites, e-commerce stores, booking systems, and custom websites. Starting at $75 - delivered in 72 hours.",
+    description: "Our web design and development services include portfolio sites, e-commerce stores, booking systems, and custom websites. Starting at $75.",
     keywords: "web design services, web development, website services, e-commerce design, custom web development",
   },
   pricing: {

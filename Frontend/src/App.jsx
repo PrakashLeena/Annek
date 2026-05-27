@@ -86,7 +86,7 @@ const faqs = [
 const faqAnswers = [
   "Simply fill out our order form, describe your requirements in detail — industry, design preferences, features needed — and our team will get back to you within 24 hours with a quote and timeline.",
   "Absolutely. We can connect your existing domain or help you register a new one as part of the order process. Domain setup is included in all our packages.",
-  "Most standard websites are delivered within 72 hours. More complex projects such as e-commerce stores or custom web apps may take 5–10 business days. You'll receive a clear timeline with your quote.",
+  "Timelines vary by project. Standard websites are typically delivered within a few business days, while more complex projects such as e-commerce stores or custom web apps may take 5–10 business days. You'll receive a clear timeline with your quote.",
   "We build all types: business websites, portfolios, e-commerce stores, landing pages, booking sites, blogs, and custom web applications. Just describe what you need!",
   "Yes. All websites are hosted on fast, secure servers. We also offer ongoing maintenance plans to keep your site updated, secure, and performing at its best.",
 ];
@@ -1374,7 +1374,7 @@ export default function App() {
         <div className="ticker-track">
           {[...Array(2)].map((_, ri) => (
             <div key={ri} style={{ display: "flex", gap: 48 }}>
-              {["Portfolio Sites", "E-Commerce", "Booking Sites", "Education Websites", "Online Stores", "Business Sites", "Club Websites", "Associations", "SEO Optimised", "72hr Delivery"].map((t, i) => (
+              {["Portfolio Sites", "E-Commerce", "Booking Sites", "Education Websites", "Online Stores", "Business Sites", "Club Websites", "Associations", "SEO Optimised", "Fast Delivery"].map((t, i) => (
                 <span key={i} style={{ color: "#fff", fontSize: 14, fontWeight: 400, opacity: 0.8, letterSpacing: "0.05em" }}>
                   {t} <span style={{ color: "#d4f74b", margin: "0 12px" }}>✦</span>
                 </span>
