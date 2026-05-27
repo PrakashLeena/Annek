@@ -31,9 +31,6 @@ export const SEOMetaTags = ({
     if (structuredData) {
       addStructuredData(structuredData);
     }
-
-    // Scroll to top on page change
-    window.scrollTo(0, 0);
   }, [page, customTitle, customDescription, customUrl, structuredData, type, customKeywords, customImage]);
 
   return null; // This component only manages meta tags
