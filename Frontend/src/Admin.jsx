@@ -387,6 +387,47 @@ function SettingsTab() {
             </span>
           </div>
 
+          {/* Pricing Section */}
+          <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#0e0e0e", marginBottom: 4 }}>💰 Pricing Plans</div>
+            <div style={{ fontSize: 12, color: "#888", marginBottom: 20 }}>
+              Edit the price shown on each plan card. Use any format e.g. <strong>$75</strong>, <strong>$75 - $90</strong>, <strong>£60</strong>, <strong>₹5,000</strong>.
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Starter Plan Price</label>
+                <input
+                  style={inpStyle}
+                  type="text"
+                  value={settings.starterPrice || ""}
+                  onChange={e => setSettings(s => ({ ...s, starterPrice: e.target.value }))}
+                  placeholder="$75 - $80"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Growth Plan Price</label>
+                <input
+                  style={inpStyle}
+                  type="text"
+                  value={settings.growthPrice || ""}
+                  onChange={e => setSettings(s => ({ ...s, growthPrice: e.target.value }))}
+                  placeholder="$100 - $120"
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Premium Plan Price</label>
+                <input
+                  style={inpStyle}
+                  type="text"
+                  value={settings.premiumPrice || ""}
+                  onChange={e => setSettings(s => ({ ...s, premiumPrice: e.target.value }))}
+                  placeholder="$150 - $170"
+                />
+              </div>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={saving}
@@ -411,6 +452,7 @@ function SettingsTab() {
     </div>
   );
 }
+
 
 /* ─── Reviews Tab ─── */
 function ReviewsTab() {

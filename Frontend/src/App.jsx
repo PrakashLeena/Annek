@@ -5,7 +5,11 @@ import businessImg from "./images/bussines.jpg";
 import ecommerceImg from "./images/ecommerce.jpg";
 import portfolioImg from "./images/portfolio.png";
 import bookingImg from "./images/booking.jpg";
+import educationImg from "./images/education.png";
+import associationImg from "./images/Association.png";
+import clubsImg from "./images/clubs.jpg";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
+import SEOMetaTags from "./components/SEOMetaTags";
 
 
 const API = import.meta.env.VITE_API_URL || "http://annek.tech";
@@ -109,7 +113,9 @@ const plans = [
 const categoryImageMap = {
   "Booking Site": bookingImg, "E-Commerce": ecommerceImg, "Portfolio": portfolioImg,
   "Business Site": businessImg, "Corporate": businessImg, "Restaurant": ecommerceImg,
-  "Education": portfolioImg, "Club": portfolioImg,
+  "Education": educationImg, "Education Websites": educationImg,
+  "Associations": associationImg, "Association": associationImg,
+  "Club": clubsImg, "Clubs Sites": clubsImg, "Clubs": clubsImg,
 };
 
 /* ─── Order Form Data ─── */
@@ -760,6 +766,8 @@ export default function App() {
   const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null, industryCount: null });
   const [liveReviews, setLiveReviews] = useState([]);
   const [settings, setSettings] = useState({ testimonialsTitle: "Trusted by hundreds of businesses" });
+  const [activeSection, setActiveSection] = useState("home");
+  const [selectedCategory, setSelectedCategory] = useState("All");
 
   const displayStats = [
     {
@@ -778,6 +786,25 @@ export default function App() {
       value: "24/7",
       label: "Support & revisions"
     }
+  ];
+
+  // Dynamic pricing — prices editable from admin settings
+  const displayPlans = [
+    {
+      name: "Starter", price: settings.starterPrice || "$75 - $80", period: "one-time",
+      tagline: "Perfect for small businesses getting online.", highlight: false,
+      features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions"],
+    },
+    {
+      name: "Growth", price: settings.growthPrice || "$100 - $120", period: "one-time",
+      tagline: "For businesses that need more power.", highlight: true, badge: "Most Popular",
+      features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "1 month free support"],
+    },
+    {
+      name: "Premium", price: settings.premiumPrice || "$150 - $170", period: "one-time",
+      tagline: "Full-featured sites with custom functionality.", highlight: false,
+      features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "3 months free support"],
+    },
   ];
 
   const displayReviews = [
@@ -820,6 +847,51 @@ export default function App() {
     return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
   }, []);
 
+  useEffect(() => {
+    const sections = ["services", "how-it-works", "portfolio", "pricing", "about", "contact"];
+    const observerOptions = {
+      root: null,
+      rootMargin: "-20% 0px -60% 0px",
+      threshold: 0
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute("id");
+          if (id === "services") setActiveSection("services");
+          else if (id === "portfolio") setActiveSection("portfolio");
+          else if (id === "pricing") setActiveSection("pricing");
+          else if (id === "contact") setActiveSection("contact");
+          else if (id === "about" || id === "how-it-works") setActiveSection("home");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    const handleScroll = () => {
+      if (window.scrollY < 200) {
+        setActiveSection("home");
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const filteredProjects = selectedCategory === "All"
+    ? portfolioProjects
+    : portfolioProjects.filter(p => p.category === selectedCategory);
+
   const openOrder = () => { setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false); };
 
   const scrollTo = (href) => {
@@ -830,6 +902,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', Arial, sans-serif", color: "#1a1a1a", overflowX: "hidden" }}>
+      <SEOMetaTags page={activeSection} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1067,7 +1140,7 @@ export default function App() {
           {/* Logo */}
           <div style={{ marginRight: 20, cursor: "pointer", display: "flex", alignItems: "center" }}
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <img src={logoImg} alt="Annek" width={67} height={42} fetchPriority="high" style={{ height: 42, width: "auto", objectFit: "contain" }} />
+            <img src={logoImg} alt="Annek - Custom Website Design & Development Services Logo" width={67} height={42} fetchPriority="high" style={{ height: 42, width: "auto", objectFit: "contain" }} />
           </div>
 
           {/* Desktop Links */}
@@ -1201,23 +1274,28 @@ export default function App() {
 
         {/* Hero Cards */}
         <div className="hero-cards" style={{
-          marginTop: 64, display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap",
+          marginTop: 64, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap",
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(40px)",
           transition: "opacity 1s ease 0.7s, transform 1s ease 0.7s",
+          maxWidth: 1100,
         }}>
           {[
             { label: "Business Site", img: businessImg, desc: "Corporate" },
             { label: "Portfolio", img: portfolioImg, desc: "Showcase" },
             { label: "E-Commerce", img: ecommerceImg, desc: "Online Store" },
             { label: "Booking Site", img: bookingImg, desc: "Appointments" },
+            { label: "Education", img: educationImg, desc: "Schools & Courses" },
+            { label: "Associations", img: associationImg, desc: "Organizations" },
+            { label: "Clubs Sites", img: clubsImg, desc: "Communities" },
           ].map((c, i) => (
             <div key={i} className="card-hover" style={{
-              borderRadius: 20, width: 162, height: 150,
+              borderRadius: 20, width: 155, height: 148,
               position: "relative", overflow: "hidden", cursor: "pointer",
               border: "1px solid rgba(255,255,255,0.5)", background: "#f0f0f0",
+              flexShrink: 0,
             }} onClick={openOrder}>
-              <img src={c.img} alt={c.label} width={162} height={150} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)" }} />
+              <img src={c.img} alt={`${c.label} website design showcase`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
               <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(255,255,255,0.9)", borderRadius: 100, padding: "3px 10px", fontSize: 10, fontWeight: 700, color: "#333" }}>{c.desc}</div>
               <div style={{ position: "absolute", bottom: 12, left: 12, fontSize: 12, fontWeight: 600, color: "#fff" }}>{c.label}</div>
             </div>
@@ -1327,10 +1405,40 @@ export default function App() {
               <button className="btn-outline" onClick={openOrder}>Start Your Project →</button>
             </div>
           </FadeUp>
+          {/* Category Filter Tabs */}
+          {portfolioProjects.length > 0 && (
+            <FadeUp delay={0.05}>
+              <div className="portfolio-filters" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36, justifyContent: "center" }}>
+                {["All", ...new Set(portfolioProjects.map(p => p.category).filter(Boolean))].map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    style={{
+                      background: selectedCategory === cat ? "#5c4ef8" : "#f4f4f4",
+                      color: selectedCategory === cat ? "#fff" : "#555",
+                      border: "none",
+                      padding: "8px 18px",
+                      borderRadius: 100,
+                      fontSize: 13,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      transition: "all 0.25s ease",
+                      boxShadow: selectedCategory === cat ? "0 4px 12px rgba(92, 78, 248, 0.25)" : "none"
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </FadeUp>
+          )}
+
           <div className="portfolio-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
             {portfolioProjects.length === 0 ? (
               <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#bbb", padding: 40, fontSize: 15 }}>Loading portfolio…</div>
-            ) : portfolioProjects.map((p, i) => {
+            ) : filteredProjects.length === 0 ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", color: "#888", padding: 40, fontSize: 15 }}>No projects found in this category.</div>
+            ) : filteredProjects.map((p, i) => {
               // Optimize Cloudinary images with responsive transformations
               const optimizedImageUrl = p.imageUrl && p.imageUrl.includes('cloudinary.com')
                 ? p.imageUrl.replace('/upload/', '/upload/w_600,h_400,c_fill,q_80,f_auto/')
@@ -1340,7 +1448,7 @@ export default function App() {
                   <div className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
                     <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
                       <img src={optimizedImageUrl || categoryImageMap[p.category] || businessImg} 
-                        alt={p.title}
+                        alt={`${p.title} - custom ${p.category || 'web design'} website build by Annek`}
                         width={396}
                         height={200}
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
@@ -1410,7 +1518,7 @@ export default function App() {
             </div>
           </FadeUp>
           <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, alignItems: "start" }}>
-            {plans.map((plan, i) => (
+            {displayPlans.map((plan, i) => (
               <FadeUp key={i} delay={i * 0.1}>
                 <div className={`pricing-card ${plan.highlight ? "highlight" : ""}`}
                   style={{ background: plan.highlight ? "#1a1a1a" : "#f7f7f7", border: plan.highlight ? "none" : "1.5px solid #eee" }}>
@@ -1534,9 +1642,15 @@ export default function App() {
                   <span style={{ fontSize: 17, fontWeight: 400, color: "#0e0e0e", paddingRight: 16 }}>{q}</span>
                   <span style={{ fontSize: 22, color: "#666", flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "rotate(0)", transition: "transform 0.3s", display: "inline-block", lineHeight: 1 }}>+</span>
                 </div>
-                {openFaq === i && (
-                  <p style={{ marginTop: 16, fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 680 }}>{faqAnswers[i]}</p>
-                )}
+                <div style={{
+                  maxHeight: openFaq === i ? "280px" : "0px",
+                  opacity: openFaq === i ? 1 : 0,
+                  overflow: "hidden",
+                  transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-top 0.3s ease",
+                  marginTop: openFaq === i ? 16 : 0,
+                }}>
+                  <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 680 }}>{faqAnswers[i]}</p>
+                </div>
               </div>
             </FadeUp>
           ))}
@@ -1741,7 +1855,7 @@ export default function App() {
         <div style={{ maxWidth: 1100, margin: "0 auto" }}>
           <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 48 }}>
             <div>
-              <img src={logoImg} alt="Annek" style={{ height: 36, width: "auto", objectFit: "contain", marginBottom: 16 }} />
+              <img src={logoImg} alt="Annek - Professional Website Builder Logo" style={{ height: 36, width: "auto", objectFit: "contain", marginBottom: 16 }} />
               <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, maxWidth: 240 }}>
                 Custom websites built to order. Tell us your vision and we'll bring it to life.
               </p>
