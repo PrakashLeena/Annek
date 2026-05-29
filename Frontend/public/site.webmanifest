@@ -1,0 +1,33 @@
+{
+  "name": "Annek — Website Design & Development",
+  "short_name": "Annek",
+  "description": "Custom website design and development. Portfolio sites, e-commerce, booking systems — delivered in 72 hours from $75.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050508",
+  "theme_color": "#7c6ffa",
+  "orientation": "any",
+  "categories": ["business", "productivity"],
+  "icons": [
+    { "src": "/favicon.ico",           "sizes": "any",         "type": "image/x-icon" },
+    { "src": "/icon-192.png",          "sizes": "192x192",     "type": "image/png", "purpose": "maskable any" },
+    { "src": "/icon-512.png",          "sizes": "512x512",     "type": "image/png", "purpose": "maskable any" },
+    { "src": "/apple-touch-icon.png",  "sizes": "180x180",     "type": "image/png" }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Annek homepage — desktop"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Annek homepage — mobile"
+    }
+  ]
+}
