@@ -1,0 +1,14 @@
+title: Annek
+description: Professional custom website design and development
+theme: jekyll-theme-primer
+
+# This repo is a React + Express app. Exclude source code and internal
+# docs from the GitHub Pages Jekyll build (they contain JSX/Liquid-like syntax).
+exclude:
+  - IMPLEMENTATION_GUIDE.md
+  - SEO_GEO_OPTIMIZATION_GUIDE.md
+  - SEO_QUICK_REFERENCE.md
+  - Frontend
+  - Backend
+  - node_modules
+  - google467617661029c74f.html

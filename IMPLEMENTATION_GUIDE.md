@@ -1,3 +1,7 @@
+---
+published: false
+---
+
 # Annek Premium Redesign — Complete Implementation Guide
 
 ## Files Delivered

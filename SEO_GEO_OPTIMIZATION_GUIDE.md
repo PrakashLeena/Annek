@@ -1,3 +1,7 @@
+---
+published: false
+---
+
 # SEO & GEO Optimization Guide for Annek Website
 
 ## Overview

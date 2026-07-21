@@ -1,3 +1,7 @@
+---
+published: false
+---
+
 # SEO & GEO Implementation - Quick Reference
 
 ## ✅ What Has Been Implemented
