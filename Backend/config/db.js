@@ -11,7 +11,10 @@ const connectDB = async () => {
     console.log("✅ MongoDB connected successfully");
   } catch (err) {
     console.error("❌ MongoDB connection failed:", err.message);
-    process.exit(1);
+    // Don't crash serverless cold starts on Vercel when env is missing/misconfigured
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 };
 

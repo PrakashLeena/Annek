@@ -1,0 +1,12 @@
+{
+  "name": "annek-website",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix Frontend",
+    "build:frontend": "npm run build --prefix Frontend",
+    "build:backend": "npm install --prefix Backend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
