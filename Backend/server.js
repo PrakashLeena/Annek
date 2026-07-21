@@ -7,9 +7,12 @@ const feedbackRouter = require("./routes/feedback");
 const portfolioRouter = require("./routes/portfolio");
 const contactRouter = require("./routes/contact");
 const settingsRouter = require("./routes/settings");
+const aiWebsiteRouter = require("./routes/aiWebsite");
+const { applySecurityMiddleware } = require("./middleware/security");
 
 const app = express();
 connectDB();
+applySecurityMiddleware(app);
 
 const allowedOrigins = [
   "http://localhost:5173",
@@ -17,6 +20,8 @@ const allowedOrigins = [
   "http://localhost:5175",
   "https://annek.vercel.app",
   "https://annek-jet.vercel.app",
+  "https://annek.tech",
+  "https://www.annek.tech",
 ];
 
 if (process.env.FRONTEND_URL) {
@@ -36,6 +41,7 @@ app.use("/api/feedback", feedbackRouter);
 app.use("/api/portfolio", portfolioRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/settings", settingsRouter);
+app.use("/api/ai/website", aiWebsiteRouter);
 
 // Live stats endpoint
 app.get("/api/stats", async (req, res) => {

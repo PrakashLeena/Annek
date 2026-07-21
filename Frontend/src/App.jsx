@@ -83,6 +83,7 @@ const serviceDropdownItems = [
 
 const navLinks = [
   { label: "Services", href: "#services", hasDropdown: true },
+  { label: "AI Builder", href: "/ai-builder", isRoute: true },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Portfolio", href: "#portfolio" },
   { label: "Pricing", href: "#pricing" },
@@ -934,10 +935,27 @@ export default function App() {
 
   const openOrder = () => { setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false); };
 
-  const scrollTo = (href) => {
+  const scrollTo = (href, isRoute) => {
     setMobileMenuOpen(false); setServicesOpen(false);
+    if (isRoute) return;
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const NavItem = ({ link }) => {
+    if (link.isRoute) {
+      return (
+        <Link to={link.href} className="nav-link" style={{ textDecoration: "none" }}
+          onClick={() => { setMobileMenuOpen(false); setServicesOpen(false); }}>
+          {link.label}
+        </Link>
+      );
+    }
+    return (
+      <button className="nav-link" onClick={() => scrollTo(link.href)}>
+        {link.label}
+      </button>
+    );
   };
 
   return (
@@ -1223,11 +1241,22 @@ export default function App() {
         </div>
         <div style={{ height: 1, background: "#eee", margin: "4px 0 8px" }} />
         {navLinks.filter(l => !l.hasDropdown).map(l => (
+          l.isRoute ? (
+            <Link key={l.label} to={l.href} style={{
+              display: "flex", alignItems: "center", gap: 10, width: "100%",
+              background: "none", border: "none", padding: "10px 12px",
+              fontSize: 16, color: "#333", cursor: "pointer", fontFamily: "inherit",
+              borderRadius: 10, textAlign: "left", textDecoration: "none",
+            }} onClick={() => setMobileMenuOpen(false)}>
+            {l.label}
+            </Link>
+          ) : (
           <button key={l.label} className="nav-link"
             style={{ fontSize: 18, padding: "13px 12px", justifyContent: "flex-start" }}
             onClick={() => scrollTo(l.href)}>
             {l.label}
           </button>
+          )
         ))}
         <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
           Order Now
@@ -1270,9 +1299,7 @@ export default function App() {
             </div>
             {/* Other links */}
             {navLinks.filter(l => !l.hasDropdown).map(l => (
-              <button key={l.label} className="nav-link" onClick={() => scrollTo(l.href)}>
-                {l.label}
-              </button>
+              <NavItem key={l.label} link={l} />
             ))}
           </div>
 

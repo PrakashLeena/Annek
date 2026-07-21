@@ -38,6 +38,12 @@ const feedbackLimiter = rateLimit({
   message: { error: "Feedback limit reached." },
 });
 
+const aiWebsiteLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { error: "Too many AI requests. Please try again later." },
+});
+
 // ─── Input Sanitizer ─────────────────────────────────────────
 function sanitizeInput(obj, depth = 0) {
   if (depth > 5) return {};
@@ -127,6 +133,7 @@ function applySecurityMiddleware(app) {
   app.use("/api/orders",   ordersLimiter);
   app.use("/api/contact",  contactLimiter);
   app.use("/api/feedback", feedbackLimiter);
+  app.use("/api/ai/website", aiWebsiteLimiter);
 
   console.log("✅ Security middleware applied");
 }
