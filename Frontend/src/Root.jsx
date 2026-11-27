@@ -4,6 +4,7 @@ import App from './App.jsx'
 
 // The admin panel is split out so visitors never download it.
 const Admin = lazy(() => import('./Admin.jsx'))
+const NotFound = lazy(() => import('./NotFound.jsx'))
 
 export default function Root() {
   return (
@@ -12,7 +13,7 @@ export default function Root() {
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<App />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
