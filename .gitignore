@@ -4,5 +4,8 @@ node_modules/
 !.env.example
 .vercel/
 
+# Local Claude Code config (launch.json etc.)
+.claude/
+
 # Raw source video (compressed copies live in Frontend/public/intro)
 update plan/*.mp4

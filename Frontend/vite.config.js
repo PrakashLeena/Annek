@@ -1,10 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import preloader from "./vite-plugin-preloader.js";
 // import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig({
   plugins: [
     react(),
+    // Inlines src/preloader/* into index.html (see src/preloader/README.md)
+    preloader(),
     // Uncomment to analyze bundle: npx vite build && open stats.html
     // visualizer({ open: true, filename: "stats.html" }),
   ],
@@ -59,6 +62,13 @@ export default defineConfig({
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
     },
+  },
+
+  // `npm run preview`: use a port the API's CORS allowlist accepts (localhost:5173–5175).
+  // Vite's default preview port (4173) is not on that list, so every API call is blocked.
+  preview: {
+    port: 5174,
+    strictPort: true,
   },
 
   // Pre-bundle large deps for faster cold starts

@@ -1,0 +1,46 @@
+/* Annek preloader — critical CSS. Inlined into <head> of index.html by vite-plugin-preloader.js (edit here, not in index.html). */
+@font-face{font-family:"AP Space Grotesk";src:url("/preloader/SpaceGrotesk-500.woff2") format("woff2");font-weight:500;font-display:swap}
+
+#annek-preloader{
+  --ap-bg:#0A0A0C; --ap-ink:#FFFFFF; --ap-dim:#C4C4CC; --ap-accent:#FC6A0A;
+  --ap-glow:rgba(252,106,10,.45); --ap-haze:rgba(252,106,10,.14);
+  position:fixed; inset:0; z-index:2147483000;
+  display:grid; place-items:center;
+  background:radial-gradient(60% 55% at 50% 42%, var(--ap-haze), transparent 70%), var(--ap-bg);
+  color:var(--ap-ink); overflow:hidden;
+  clip-path:inset(0 0 0 0);
+}
+#annek-preloader[data-theme="light"]{
+  --ap-bg:#FFFFFF; --ap-ink:#18181B; --ap-dim:#52525B; --ap-glow:rgba(252,106,10,.28); --ap-haze:rgba(252,106,10,.10);
+}
+/* lock scroll while visible */
+html.ap-lock, html.ap-lock body{overflow:hidden!important}
+
+#annek-preloader .ap-stage{display:flex; flex-direction:column; align-items:center; gap:clamp(28px,5vh,56px); width:100%}
+/* lock-up box keeps the original logo proportions (474.25 x 221.75) */
+#annek-preloader .ap-lockup{position:relative; width:min(62vw,620px); aspect-ratio:474.25/221.75; margin-bottom:clamp(40px,8vw,84px)}
+#annek-preloader .ap-icon{position:absolute; left:0; top:0; width:55.35%; height:100%; z-index:2;
+  transform-origin:50% 80%; opacity:0; will-change:transform,opacity,filter;
+  filter:drop-shadow(0 0 0 var(--ap-glow))}
+/* letters slide out from behind an invisible edge just right of the A's leg */
+#annek-preloader .ap-letters{position:absolute; inset:0; z-index:1; clip-path:inset(-40% -15% -40% calc(46.18% - 6px))}
+#annek-preloader .ap-l{position:absolute; color:var(--ap-ink); opacity:0; transform-origin:50% 100%; will-change:transform,opacity,filter}
+#annek-preloader .ap-ring{position:absolute; left:27.7%; top:62%; width:20%; aspect-ratio:1; border-radius:50%;
+  border:2px solid var(--ap-accent); transform:translate(-50%,-50%) scale(.3); opacity:0; pointer-events:none}
+#annek-preloader .ap-domain{position:absolute; left:50%; top:calc(100% + clamp(18px,3.2vw,40px)); transform:translateX(-50%);
+  display:flex; align-items:center; gap:clamp(14px,2.2vw,30px); white-space:nowrap}
+#annek-preloader .ap-line{display:block; width:clamp(40px,7vw,110px); height:2px; transform:scaleX(0); opacity:.85}
+#annek-preloader .ap-line:first-child{background:linear-gradient(90deg,transparent,var(--ap-accent)); transform-origin:100% 50%}
+#annek-preloader .ap-line:last-child{background:linear-gradient(270deg,transparent,var(--ap-accent)); transform-origin:0 50%}
+#annek-preloader .ap-mask{display:block; overflow:hidden; padding:4px 0}
+#annek-preloader .ap-text{display:block; font:500 clamp(15px,2.4vw,28px)/1 "AP Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  color:var(--ap-dim); letter-spacing:.24em; margin-right:-.24em; transform:translateY(110%); opacity:0}
+#annek-preloader .ap-progress{width:min(40vw,220px); height:2px; border-radius:2px; background:color-mix(in srgb,var(--ap-ink) 10%,transparent); overflow:hidden; opacity:0}
+#annek-preloader .ap-progress i{display:block; height:100%; width:100%; background:var(--ap-accent); transform:scaleX(0); transform-origin:0 50%; transition:transform .35s cubic-bezier(.16,1,.3,1)}
+#annek-preloader.ap-waiting .ap-progress{opacity:1; transition:opacity .3s}
+
+/* Static fallback: reduced motion, or JS failed before running */
+@media (prefers-reduced-motion: reduce){
+  #annek-preloader .ap-icon, #annek-preloader .ap-l, #annek-preloader .ap-text{opacity:1!important; transform:none!important; filter:none!important}
+  #annek-preloader .ap-line{transform:none!important}
+}
