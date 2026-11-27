@@ -1,0 +1,8 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.vercel/
+
+# Raw source video (compressed copies live in Frontend/public/intro)
+update plan/*.mp4

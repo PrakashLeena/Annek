@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
+import { adminFetch } from "./utils/adminApi";
 
-const API = import.meta.env.VITE_API_URL || "/api";
+const CatalogTab = lazy(() => import("./admin/CatalogTab.jsx"));
+const ProductsTab = lazy(() => import("./admin/ProductsTab.jsx"));
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 const STATUS_COLORS = {
@@ -31,10 +33,10 @@ function OrdersTab() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/orders`);
-      setOrders(await r.json());
+      setOrders(await adminFetch("/orders"));
     } catch (err) {
       console.error(err);
+      alert(err.message);
     }
     setLoading(false);
   };
@@ -45,13 +47,15 @@ function OrdersTab() {
   }, []);
 
   const updateStatus = async (id, status) => {
-    await fetch(`${API}/orders/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status }) });
+    try { await adminFetch(`/orders/${id}`, { method: "PATCH", body: { status } }); }
+    catch (err) { alert(err.message); return; }
     setOrders(o => o.map(x => x._id === id ? { ...x, status } : x));
   };
 
   const deleteOrder = async (id) => {
     if (!window.confirm("Delete this order?")) return;
-    await fetch(`${API}/orders/${id}`, { method: "DELETE" });
+    try { await adminFetch(`/orders/${id}`, { method: "DELETE" }); }
+    catch (err) { alert(err.message); return; }
     setOrders(o => o.filter(x => x._id !== id));
   };
 
@@ -108,6 +112,7 @@ function OrdersTab() {
             {/* Expanded details */}
             {expanded === order._id && (
               <div style={{ borderTop: "1px solid #f0f0f0", padding: "20px 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+                <Field label="Selected Package / Product" value={order.selectedPackage} />
                 <Field label="Pages Needed" value={[...(order.pages||[]), order.otherPages].filter(Boolean).join(", ")} />
                 <Field label="Design Colour" value={order.colour} />
                 <Field label="Design Style" value={order.designStyle?.join(", ")} />
@@ -146,8 +151,7 @@ function PortfolioTab() {
 
   const fetchPortfolio = async () => {
     try {
-      const r = await fetch(`${API}/portfolio`);
-      setItems(await r.json());
+      setItems(await adminFetch("/portfolio"));
     } catch (err) {
       console.error(err);
     }
@@ -169,23 +173,24 @@ function PortfolioTab() {
     const fd = new FormData();
     fd.append("data", JSON.stringify({ ...form, tags: form.tags.split(",").map(t=>t.trim()).filter(Boolean) }));
     if (imgFile) fd.append("image", imgFile);
-    const url = editing ? `${API}/portfolio/${editing}` : `${API}/portfolio`;
+    const url = editing ? `/portfolio/${editing}` : "/portfolio";
     const method = editing ? "PUT" : "POST";
     try {
-      const r = await fetch(url, { method, body: fd });
-      const item = await r.json();
+      const item = await adminFetch(url, { method, body: fd });
       if (editing) setItems(it => it.map(x => x._id === editing ? item : x));
       else setItems(it => [item, ...it]);
       setShowForm(false);
     } catch (err) {
       console.error(err);
+      alert(err.message);
     }
     setSaving(false);
   };
 
   const remove = async (id) => {
     if (!window.confirm("Delete this portfolio item?")) return;
-    await fetch(`${API}/portfolio/${id}`, { method: "DELETE" });
+    try { await adminFetch(`/portfolio/${id}`, { method: "DELETE" }); }
+    catch (err) { alert(err.message); return; }
     setItems(it => it.filter(x => x._id !== id));
   };
 
@@ -300,6 +305,23 @@ function UsersTab() {
 }
 
 /* ─── Settings Tab ─── */
+const COMPANY_FIELDS = [
+  ["companyName", "Company name", "Annek"],
+  ["founderName", "Founder / owner name", "Your name"],
+  ["companyTagline", "Tagline", "Digital solutions — apps, web & software"],
+  ["contactEmail", "Contact email", "annek.websitebuild.official@gmail.com"],
+  ["contactPhone", "Phone", "+94 70 126 9689"],
+  ["whatsappNumber", "WhatsApp number (digits only)", "94701269689"],
+  ["address", "Address", "Vankalai, Mannar, Sri Lanka"],
+  ["serviceArea", "Service area", "Sri Lanka & worldwide"],
+  ["aboutText", "About text", "A short paragraph about you and Annek", true],
+];
+const SEO_FIELDS = [
+  ["seoTitle", "Home page title", "Annek — Web, Mobile App & Software Development in Sri Lanka"],
+  ["seoDescription", "Meta description", "Web applications, mobile apps and custom software with monthly maintenance packages…", 3],
+  ["seoKeywords", "Target keywords", "web development sri lanka, mobile application development mannar, software development sri lanka", 3],
+];
+
 function SettingsTab() {
   const [settings, setSettings] = useState({ testimonialsTitle: "" });
   const [loading, setLoading] = useState(true);
@@ -309,9 +331,7 @@ function SettingsTab() {
   const fetchSettings = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/settings`);
-      const data = await r.json();
-      setSettings(data);
+      setSettings(await adminFetch("/settings"));
     } catch (err) {
       console.error(err);
       setStatus({ type: "error", message: "Failed to fetch settings." });
@@ -329,19 +349,12 @@ function SettingsTab() {
     setSaving(true);
     setStatus(null);
     try {
-      const r = await fetch(`${API}/settings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings)
-      });
-      if (!r.ok) throw new Error("Failed to save settings");
-      const data = await r.json();
-      setSettings(data);
+      setSettings(await adminFetch("/settings", { method: "POST", body: settings }));
       setStatus({ type: "success", message: "Settings saved successfully!" });
       setTimeout(() => setStatus(null), 3000);
     } catch (err) {
       console.error(err);
-      setStatus({ type: "error", message: "Failed to save settings." });
+      setStatus({ type: "error", message: err.message || "Failed to save settings." });
     }
     setSaving(false);
   };
@@ -349,7 +362,7 @@ function SettingsTab() {
   const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
 
   return (
-    <div className="admin-settings-card" style={{ maxWidth: 600, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+    <div className="admin-settings-card" style={{ maxWidth: 760, background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 32, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
       <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", marginBottom: 24 }}>Platform Settings</h2>
       {loading ? (
         <div style={{ textAlign: "center", color: "#aaa", padding: 20 }}>Loading settings…</div>
@@ -385,6 +398,36 @@ function SettingsTab() {
             <span style={{ fontSize: 12, color: "#888", marginTop: 6, display: "block" }}>
               This title will be displayed in the testimonials/reviews section on the landing page.
             </span>
+          </div>
+
+          {/* Company & personal details */}
+          <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#0e0e0e", marginBottom: 4 }}>🏢 Company &amp; Personal Details</div>
+            <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>Shown in the footer, contact section and Google business data. Leave blank to keep the current text.</div>
+            <div className="admin-form-grid">
+              {COMPANY_FIELDS.map(([key, label, placeholder, wide]) => (
+                <div key={key} style={{ gridColumn: wide ? "1/-1" : "auto" }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>{label}</label>
+                  {wide
+                    ? <textarea style={{ ...inpStyle, minHeight: 70, resize: "vertical" }} value={settings[key] || ""} placeholder={placeholder} onChange={e => setSettings(s => ({ ...s, [key]: e.target.value }))} />
+                    : <input style={inpStyle} type="text" value={settings[key] || ""} placeholder={placeholder} onChange={e => setSettings(s => ({ ...s, [key]: e.target.value }))} />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SEO */}
+          <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#0e0e0e", marginBottom: 4 }}>🔎 SEO</div>
+            <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>Page title, description and target keywords (comma-separated). Applied to the home page when it loads.</div>
+            {SEO_FIELDS.map(([key, label, placeholder, rows]) => (
+              <div key={key} style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>{label}</label>
+                {rows
+                  ? <textarea rows={rows} style={{ ...inpStyle, resize: "vertical" }} value={settings[key] || ""} placeholder={placeholder} onChange={e => setSettings(s => ({ ...s, [key]: e.target.value }))} />
+                  : <input style={inpStyle} type="text" value={settings[key] || ""} placeholder={placeholder} onChange={e => setSettings(s => ({ ...s, [key]: e.target.value }))} />}
+              </div>
+            ))}
           </div>
 
           {/* Pricing Section */}
@@ -462,8 +505,7 @@ function ReviewsTab() {
   const fetchReviews = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/feedback/all`);
-      setReviews(await r.json());
+      setReviews(await adminFetch("/feedback/all"));
     } catch (err) {
       console.error(err);
     }
@@ -478,12 +520,11 @@ function ReviewsTab() {
   const deleteReview = async (id) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
     try {
-      const r = await fetch(`${API}/feedback/${id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error("Failed to delete review");
+      await adminFetch(`/feedback/${id}`, { method: "DELETE" });
       setReviews(prev => prev.filter(x => x._id !== id));
     } catch (err) {
       console.error(err);
-      alert("Failed to delete review.");
+      alert(err.message || "Failed to delete review.");
     }
   };
 
@@ -560,8 +601,7 @@ function CommentsTab() {
   const fetchComments = async () => {
     setLoading(true);
     try {
-      const r = await fetch(`${API}/contact`);
-      setComments(await r.json());
+      setComments(await adminFetch("/contact"));
     } catch (err) {
       console.error(err);
     }
@@ -576,12 +616,11 @@ function CommentsTab() {
   const deleteComment = async (id) => {
     if (!window.confirm("Are you sure you want to delete this message?")) return;
     try {
-      const r = await fetch(`${API}/contact/${id}`, { method: "DELETE" });
-      if (!r.ok) throw new Error("Failed to delete message");
+      await adminFetch(`/contact/${id}`, { method: "DELETE" });
       setComments(prev => prev.filter(x => x._id !== id));
     } catch (err) {
       console.error(err);
-      alert("Failed to delete message.");
+      alert(err.message || "Failed to delete message.");
     }
   };
 
@@ -677,7 +716,7 @@ export default function Admin() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔐</div>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: "#0e0e0e", marginBottom: 8 }}>Admin Panel</h1>
         <p style={{ fontSize: 14, color: "#888", marginBottom: 32 }}>Sign in with your admin Google account to continue.</p>
-        <button onClick={signInWithGoogle} style={{ width: "100%", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifycontent: "center", gap: 12 }}>
+        <button onClick={signInWithGoogle} style={{ width: "100%", background: "#1a1a1a", color: "#fff", border: "none", borderRadius: 12, padding: "14px", fontSize: 16, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "center", gap: 12 }}>
           <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
           Sign in with Google
         </button>
@@ -686,7 +725,7 @@ export default function Admin() {
   );
 
   // Not admin
-  if (!ADMIN_EMAILS.includes(user.email)) return (
+  if (!ADMIN_EMAILS.map(e => e.toLowerCase()).includes((user.email || "").toLowerCase())) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',sans-serif", flexDirection: "column", gap: 16 }}>
       <div style={{ fontSize: 48 }}>🚫</div>
       <h2 style={{ fontSize: 20, color: "#0e0e0e" }}>Access Denied</h2>
@@ -697,6 +736,8 @@ export default function Admin() {
 
   const tabs = [
     { key: "orders", label: "📋 Orders" },
+    { key: "services", label: "🧩 Services & Packages" },
+    { key: "products", label: "📦 Own Products" },
     { key: "portfolio", label: "🖼️ Portfolio" },
     { key: "reviews", label: "💬 Reviews" },
     { key: "comments", label: "✉️ Comments" },
@@ -838,6 +879,10 @@ export default function Admin() {
       {/* Content */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "32px 24px" }}>
         {tab === "orders" && <OrdersTab />}
+        <Suspense fallback={<div style={{ textAlign: "center", color: "#aaa", padding: 40 }}>Loading…</div>}>
+          {tab === "services" && <CatalogTab />}
+          {tab === "products" && <ProductsTab />}
+        </Suspense>
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "reviews" && <ReviewsTab />}
         {tab === "comments" && <CommentsTab />}

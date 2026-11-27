@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/adminAuth");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
 const Portfolio = require("../models/Portfolio");
@@ -23,7 +24,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST create
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", requireAdmin, upload.single("image"), async (req, res) => {
   try {
     const data = JSON.parse(req.body.data);
     let imageUrl = "";
@@ -38,7 +39,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 });
 
 // PUT update
-router.put("/:id", upload.single("image"), async (req, res) => {
+router.put("/:id", requireAdmin, upload.single("image"), async (req, res) => {
   try {
     const data = JSON.parse(req.body.data);
     let update = { ...data };
@@ -52,7 +53,7 @@ router.put("/:id", upload.single("image"), async (req, res) => {
 });
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   try {
     await Portfolio.findByIdAndDelete(req.params.id);
     res.json({ success: true });

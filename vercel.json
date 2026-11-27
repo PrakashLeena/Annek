@@ -8,18 +8,39 @@
     {
       "source": "/api/:path(portfolio|stats|feedback|settings)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=300" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/intro/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "/api"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/adminAuth");
 const Feedback = require("../models/Feedback");
 const transporter = require("../config/nodemailer");
 
@@ -30,7 +31,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET /api/feedback/all — return all reviews for admin panel
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdmin, async (req, res) => {
   try {
     const reviews = await Feedback.find().sort({ createdAt: -1 });
     res.json(reviews);
@@ -38,7 +39,7 @@ router.get("/all", async (req, res) => {
 });
 
 // DELETE /api/feedback/:id — delete a review by ID
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await Feedback.findByIdAndDelete(id);
