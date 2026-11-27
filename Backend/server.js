@@ -9,9 +9,16 @@ const contactRouter = require("./routes/contact");
 const settingsRouter = require("./routes/settings");
 const catalogRouter = require("./routes/catalog");
 const productsRouter = require("./routes/products");
+const solutionsRouter = require("./routes/solutions");
+const adminSolutionsRouter = require("./routes/adminSolutions");
+const inquiriesRouter = require("./routes/inquiries");
 const { applySecurityMiddleware } = require("./middleware/security");
 
 const app = express();
+// Behind Vercel's proxy: trust its one hop so req.ip is the visitor (Vercel sets
+// X-Forwarded-For itself, so clients cannot spoof it). Without this every visitor
+// shared one rate-limit bucket.
+app.set("trust proxy", 1);
 connectDB();
 applySecurityMiddleware(app);
 
@@ -44,6 +51,9 @@ app.use("/api/contact", contactRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/catalog", catalogRouter);
 app.use("/api/products", productsRouter);
+app.use("/api/solutions", solutionsRouter);
+app.use("/api/admin/solutions", adminSolutionsRouter);
+app.use("/api/inquiries", inquiriesRouter);
 
 // Live stats endpoint
 app.get("/api/stats", async (req, res) => {

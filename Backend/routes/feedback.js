@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
     try {
       await transporter.sendMail({
         from: `"Annek Feedback" <${process.env.EMAIL_USER}>`,
-        to: process.env.ADMIN_EMAIL,
+        to: process.env.ADMIN_EMAIL || "info@annek.tech",
         subject: `💬 New Feedback — ${rating}/5 stars from ${name || "Anonymous"}`,
         html: feedbackEmailHtml({ name, email, rating: Number(rating), message }),
       });

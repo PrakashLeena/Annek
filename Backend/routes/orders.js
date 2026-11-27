@@ -170,11 +170,11 @@ router.post(
       try {
         await transporter.sendMail({
           from: `"Annek" <${process.env.EMAIL_USER}>`,
-          to: process.env.ADMIN_EMAIL,
+          to: process.env.ADMIN_EMAIL || "info@annek.tech",
           subject: `[Admin Copy] ${orderSubject}`,
           html: adminEmailHtml({ ...orderData, forAdmin: true }),
         });
-        console.log("✅ Admin order email sent to:", process.env.ADMIN_EMAIL);
+        console.log("✅ Admin order email sent to:", process.env.ADMIN_EMAIL || "info@annek.tech");
       } catch (emailErr) {
         console.error("⚠️ Failed to send admin order email:", emailErr.message || emailErr);
       }

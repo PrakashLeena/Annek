@@ -1,13 +1,14 @@
 /* Sector 1 — Client solutions. Data from GET /api/catalog (Admin › Services & packages).
    Until the admin adds packages, the three core services are shown with a quote button. */
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { money } from "../utils/format";
 import { IconPhone, IconGlobe, IconCode } from "./icons";
 
 const CORE = [
-  { icon: IconPhone, title: "Mobile Applications", text: "E-commerce, marketing and business apps for Android and iPhone — built from proven templates and customised for you." },
-  { icon: IconGlobe, title: "Web Applications", text: "E-commerce, portfolio, institute and industry platforms that run in any browser, with an admin panel you control." },
-  { icon: IconCode, title: "Custom Software", text: "Software shaped around how your business works — billing, stock, records and automation." },
+  { icon: IconPhone, slug: "mobile", title: "Mobile Applications", text: "Ecommerce, marketing and business apps for Android and iPhone, built from proven templates and customised for you." },
+  { icon: IconGlobe, slug: "web", title: "Web Applications", text: "Ecommerce, portfolio, institute and industry platforms that run in any browser, with an admin panel you control." },
+  { icon: IconCode, slug: "software", title: "Custom Software", text: "Software shaped around how your business works: billing, stock, records and automation." },
 ];
 
 function Package({ p, catName, plan, onOrder }) {
@@ -36,7 +37,7 @@ export default function Solutions({ catalog, onOrder }) {
     <div className="head-row reveal">
       <div style={{ maxWidth: 640 }}>
         <div className="eyebrow">Client solutions</div>
-        <h2 className="h2" id="solutions-title">Built-in packages with monthly maintenance</h2>
+        <h2 className="h2" id="solutions-title">Built in packages with monthly maintenance</h2>
       </div>
       <p className="lead">Every package is a proven template customised for your business, plus a monthly fee that covers hosting, updates and support.</p>
     </div>
@@ -48,12 +49,15 @@ export default function Solutions({ catalog, onOrder }) {
         <div className="wrap">
           {head}
           <div className="grid-3">
-            {CORE.map(({ icon: Icon, title, text }) => (
+            {CORE.map(({ icon: Icon, slug, title, text }) => (
               <article key={title} className="card service-card reveal">
                 <span className="service-icon"><Icon size={24} /></span>
                 <h3>{title}</h3>
                 <p>{text}</p>
-                <button type="button" className="btn btn-line" onClick={() => onOrder(`Enquiry: ${title}`)}>Get a quote</button>
+                <div className="service-actions">
+                  <Link to={`/solutions/${slug}`} className="btn btn-line">View solutions</Link>
+                  <button type="button" className="link-btn" onClick={() => onOrder(`Enquiry: ${title}`)}>Get a quote</button>
+                </div>
               </article>
             ))}
           </div>
@@ -74,6 +78,10 @@ export default function Solutions({ catalog, onOrder }) {
     <section id="solutions" className="section" aria-labelledby="solutions-title">
       <div className="wrap">
         {head}
+        <nav className="showcase-links" aria-label="Ready made solutions">
+          <span>Browse ready made solutions:</span>
+          {CORE.map((c) => <Link key={c.slug} to={`/solutions/${c.slug}`} className="chip">{c.title}</Link>)}
+        </nav>
         <div className="tabs" role="tablist" aria-label="Service categories">
           {mains.map((m) => (
             <button key={m._id} type="button" role="tab" className="tab" aria-selected={String(m._id) === String(active._id)}

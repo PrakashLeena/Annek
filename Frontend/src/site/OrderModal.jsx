@@ -17,8 +17,8 @@ const TITLES = [
 const PLATFORMS = ["Android", "iPhone", "Web browser", "Windows PC", "Not sure yet"];
 const SCREENS = ["Home", "About", "Services / Products", "Gallery", "Blog", "FAQ", "Contact", "Login / Account"];
 const FEATURES = [
-  "Online payments", "Admin dashboard", "User login & sign-up", "Booking system", "Push notifications",
-  "WhatsApp chat", "Multi-language", "Blog / news", "Product catalogue", "SEO (Google search)", "Analytics", "Contact form",
+  "Online payments", "Admin dashboard", "User login & sign up", "Booking system", "Push notifications",
+  "WhatsApp chat", "Multilingual", "Blog / news", "Product catalogue", "SEO (Google search)", "Analytics", "Contact form",
 ];
 const STYLES = ["Modern", "Minimal", "Bold", "Elegant", "Playful"];
 const THEMES = ["Light", "Dark", "Both"];
@@ -70,7 +70,7 @@ function Upload({ id, label, accept, multiple, files, onChange }) {
     <label htmlFor={id} className="upload">
       <input id={id} type="file" accept={accept} multiple={multiple} onChange={(e) => onChange(e.target.files)} />
       <IconUpload />
-      <span>{count ? `${label}: ${count} file${count > 1 ? "s" : ""} selected` : `${label} — click to choose`}</span>
+      <span>{count ? `${label}: ${count} file${count > 1 ? "s" : ""} selected` : `${label}: click to choose`}</span>
     </label>
   );
 }
@@ -255,7 +255,7 @@ export default function OrderModal({ preset = "", onClose }) {
 
                 {step === 5 && (
                   <>
-                    <div><div className="group-label">Monthly maintenance — what should we take care of?</div><Checks options={MAINTENANCE} value={maintenance} onToggle={toggleMaintenance} /></div>
+                    <div><div className="group-label">Monthly maintenance: what should we take care of?</div><Checks options={MAINTENANCE} value={maintenance} onToggle={toggleMaintenance} /></div>
                     <div><div className="group-label">Review</div>
                       <dl className="summary">{summary.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
                     </div>

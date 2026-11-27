@@ -1,0 +1,19 @@
+/* Solution card (SolutionCard.jsx). Self-contained so Admin › Solutions can preview it
+   without loading site.css: wrap the preview in .sol-card-scope to get the site tokens. */
+.sol-card-scope {
+  --ink: #16130F; --muted: #5B554D; --line: #EEECE8; --line-2: #E2DFD9;
+  --orange-soft: #FFF1E8; --orange-text: #B8460B;
+  --display: "Space Grotesk", Inter, system-ui, sans-serif;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.sol-card { display: flex; flex-direction: column; width: 100%; height: 100%; padding: 0; overflow: hidden; text-align: left; font: inherit; color: var(--ink); cursor: pointer; background: #fff; border: 1px solid var(--line); border-radius: 24px; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.sol-card:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(22,19,15,.08); border-color: var(--line-2); }
+.sol-cover { display: flex; align-items: center; justify-content: center; aspect-ratio: 4 / 3; background: var(--orange-soft); color: var(--orange-text); font: 600 48px var(--display); overflow: hidden; }
+.sol-cover img { width: 100%; height: 100%; object-fit: cover; }
+.sol-card-body { display: flex; flex-direction: column; gap: 8px; padding: 20px 22px 22px; flex: 1; }
+.sol-card-title { font-family: var(--display); font-size: 21px; font-weight: 600; margin: 0; line-height: 1.25; overflow-wrap: anywhere; }
+.sol-card-purpose { font-size: 15px; line-height: 1.55; color: var(--muted); flex: 1; overflow-wrap: anywhere; }
+.sol-card-more { font-size: 14px; font-weight: 600; color: var(--orange-text); margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  .sol-card, .sol-card:hover { transition: none; transform: none; }
+}

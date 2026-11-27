@@ -34,6 +34,13 @@ const contactLimiter = rateLimit({
   message: { error: "Message limit reached. Please try again in an hour." },
 });
 
+const inquiryLimiter = rateLimit({
+  skip: (req) => req.method !== "POST",
+  windowMs: 60 * 60 * 1000,       // 1 hour, per visitor IP
+  max: 5,
+  message: { error: "Too many requests. Please try again in an hour or email info@annek.tech.", fallback: "info@annek.tech" },
+});
+
 const feedbackLimiter = rateLimit({
   skip: (req) => req.method !== "POST", // only limit public submissions, not the admin panel
   windowMs: 60 * 60 * 1000,
@@ -130,6 +137,7 @@ function applySecurityMiddleware(app) {
   app.use("/api/orders",   ordersLimiter);
   app.use("/api/contact",  contactLimiter);
   app.use("/api/feedback", feedbackLimiter);
+  app.use("/api/inquiries", inquiryLimiter);
 
   console.log("✅ Security middleware applied");
 }

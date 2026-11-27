@@ -5,7 +5,7 @@ import { IconPhone, IconGlobe, IconCode } from "./icons";
 
 const TYPE = { web: ["Web app", IconGlobe], mobile: ["Mobile app", IconPhone], software: ["Software", IconCode] };
 const STATUS = { live: ["Live", "live"], beta: ["Beta", "soon"], "coming-soon": ["Coming soon", "soon"] };
-const INTERVAL = { month: "/ month", year: "/ year", "one-time": "one-time", free: "" };
+const INTERVAL = { month: "/ month", year: "/ year", "one-time": "one time", free: "" };
 const LINKS = [["web", "Open web app"], ["android", "Android"], ["ios", "iPhone"], ["windows", "Windows"], ["mac", "macOS"]];
 
 export default function Products({ products, onOrder }) {
@@ -53,7 +53,7 @@ export default function Products({ products, onOrder }) {
                           {pl.features?.length > 0 && <ul>{pl.features.map((f) => <li key={f}>{f}</li>)}</ul>}
                           {pl.checkoutUrl
                             ? <a className="btn btn-orange btn-sm" href={pl.checkoutUrl} target="_blank" rel="noopener noreferrer">Subscribe</a>
-                            : <button type="button" className="btn btn-orange btn-sm" onClick={() => onOrder(`Subscription: ${p.name} — ${pl.name}`)}>Subscribe</button>}
+                            : <button type="button" className="btn btn-orange btn-sm" onClick={() => onOrder(`Subscription: ${p.name} (${pl.name})`)}>Subscribe</button>}
                         </div>
                       ))}
                     </div>

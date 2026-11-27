@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from "react";
 import "./site/site.css";
 import logoImg from "./images/annek-logo.webp";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
@@ -6,6 +6,7 @@ import SEOMetaTags from "./components/SEOMetaTags";
 import Solutions from "./site/Solutions";
 import Products from "./site/Products";
 import FeedbackWidget from "./site/FeedbackWidget";
+import Marquee from "./site/Marquee";
 import { IconMenu, IconClose, IconMail, IconPin, IconWhatsApp } from "./site/icons";
 import { money } from "./utils/format";
 
@@ -14,10 +15,10 @@ const OrderModal = lazy(() => import("./site/OrderModal"));
 const API = import.meta.env.VITE_API_URL || "/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
-const STRIP = ["E-Commerce Apps", "Marketing Apps", "Web Applications", "Portfolio Sites", "Institute Platforms", "Inventory & POS", "Custom Software", "Monthly Maintenance"];
+const STRIP = ["Ecommerce Apps", "Marketing Apps", "Web Applications", "Portfolio Sites", "Institute Platforms", "Inventory & POS", "Custom Software", "Monthly Maintenance"];
 
 const STEPS = [
-  ["Choose a package", "Pick a ready-made template or tell us what you need."],
+  ["Choose a package", "Pick a ready made template or tell us what you need."],
   ["We customise it", "Your brand, content and features, built in."],
   ["Launch", "We publish it to the web, Play Store, App Store or your PCs."],
   ["Monthly care", "Hosting, updates, backups and changes, every month."],
@@ -25,7 +26,7 @@ const STEPS = [
 
 const FAQS = [
   ["What does a monthly maintenance plan cover?", "Hosting, security updates, backups, small content changes and support. Each package lists exactly what is included, and you can add more care any time."],
-  ["Can you customise a template for my business?", "Yes. Every template is a starting point — we add your brand, content, features and integrations so it fits how your business works."],
+  ["Can you customise a template for my business?", "Yes. Every template is a starting point. We add your brand, content, features and integrations so it fits how your business works."],
   ["How long does delivery take?", "Standard websites take a few business days. Apps, web applications and custom software usually take one to four weeks depending on features. You get a clear timeline with your quote."],
   ["Do you build Android and iPhone apps?", "Yes. We build mobile apps for Android and iPhone and help you publish them on the Play Store and App Store."],
   ["Can I use my own domain?", "Absolutely. We can connect a domain you already own or help you register a new one."],
@@ -136,31 +137,40 @@ export default function App() {
 
   useReveal([catalog, products, portfolio, reviews]);
 
+  // Arriving at /#section (e.g. "All services" on a showcase page): scroll there once it has rendered.
+  const hashDone = useRef(false);
+  useEffect(() => {
+    if (hashDone.current) return;
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const el = id && document.getElementById(id);
+    if (!id) { hashDone.current = true; return; }
+    if (el) { hashDone.current = true; el.scrollIntoView(); }
+  }, [catalog, products, portfolio]);
+
   const openOrder = useCallback((preset) => { setMenuOpen(false); setOrder(typeof preset === "string" ? preset : ""); }, []);
   const closeOrder = useCallback(() => setOrder(null), []);
   const go = (id) => { setMenuOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
 
   const isAdmin = !!user && ADMIN_EMAILS.includes((user.email || "").toLowerCase());
   const company = {
-    email: settings.contactEmail || "annek.websitebuild.official@gmail.com",
+    email: settings.contactEmail || "info@annek.tech",
     whatsapp: (settings.whatsappNumber || "94701269689").replace(/[^0-9]/g, ""),
     phone: settings.contactPhone || "+94 70 126 9689",
-    address: settings.address || "Vankalai, Mannar, Sri Lanka",
-    area: settings.serviceArea || "Mannar, Sri Lanka · Serving worldwide",
-    tagline: settings.companyTagline || "Web apps, mobile apps and custom software — built, customised and maintained for your business.",
-    about: settings.aboutText || "Annek is a digital studio from Mannar, Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
+    address: settings.address || "Vankalai, Sri Lanka",
+    area: settings.serviceArea || "Sri Lanka · Serving worldwide",
+    tagline: settings.companyTagline || "Web apps, mobile apps and custom software that we build, customise and maintain for your business.",
+    about: settings.aboutText || "Annek is a digital studio from Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
   };
 
   const featured = catalog?.packages?.find((p) => p.highlighted) || catalog?.packages?.[0];
   const categories = ["All", ...new Set(portfolio.map((p) => p.category).filter(Boolean))];
   const shownWork = filter === "All" ? portfolio : portfolio.filter((p) => p.category === filter);
   const websitePlans = [
-    { name: "Starter", price: settings.starterPrice || "$75 – $80", items: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup"] },
-    { name: "Growth", price: settings.growthPrice || "$100 – $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
-    { name: "Premium", price: settings.premiumPrice || "$150 – $170", items: ["Unlimited pages", "E-commerce / bookings", "Payment gateway", "Custom animations"] },
+    { name: "Starter", price: settings.starterPrice || "$75 to $80", items: ["Up to 5 pages", "Mobile responsive design", "Contact form", "Basic SEO setup"] },
+    { name: "Growth", price: settings.growthPrice || "$100 to $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
+    { name: "Premium", price: settings.premiumPrice || "$150 to $170", items: ["Unlimited pages", "Ecommerce / bookings", "Payment gateway", "Custom animations"] },
   ];
   const shownReviews = reviews.slice(0, 6);
-  const reviewTitle = (settings.testimonialsTitle || "What our clients say").replace("{count}", String(stats.orderCount ?? ""));
   const statItems = [
     portfolio.length > 0 && [portfolio.length, "Projects showcased"],
     stats.avgRating && [`${stats.avgRating}/5`, stats.reviewCount ? `Rating from ${stats.reviewCount} reviews` : "Average client rating"],
@@ -183,7 +193,7 @@ export default function App() {
 
       <header className={`nav ${scrolled ? "scrolled" : ""}`}>
         <div className="wrap nav-inner">
-          <button type="button" className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Annek — back to top">
+          <button type="button" className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Annek, back to top">
             <img src={logoImg} alt="Annek" width="82" height="38" fetchPriority="high" />
           </button>
           <nav className="nav-links" aria-label="Main">
@@ -220,8 +230,8 @@ export default function App() {
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <span className="pill"><span className="dot" />{company.area}</span>
-              <h1>Apps, web apps &amp; software — <span>built and looked after.</span></h1>
-              <p className="lead">Pick a ready-made solution. We customise it to your business, launch it, and keep it secure and up to date with a monthly maintenance plan.</p>
+              <h1>Mobile Apps, Web Apps, and Software <span>Built and Looked After</span></h1>
+              <p className="lead">Pick a ready made solution. We customise it to your business, launch it, and keep it secure and up to date with a monthly maintenance plan.</p>
               <div className="hero-ctas">
                 <button type="button" className="btn btn-orange btn-lg" onClick={() => go("solutions")}>Explore solutions</button>
                 <button type="button" className="btn btn-line btn-lg" onClick={() => openOrder("")}>Tell us what you need</button>
@@ -284,19 +294,17 @@ export default function App() {
                   </div>
                 )}
               </div>
-              <div className="grid-4">
-                {shownWork.map((w) => (
-                  <article key={w._id} className="work reveal">
-                    <div className="work-img">
-                      {w.imageUrl ? <img src={w.imageUrl} alt={`${w.title} website`} loading="lazy" decoding="async" width="600" height="450" /> : <span aria-hidden="true">{w.title?.[0]}</span>}
-                    </div>
-                    <span className="cat">{w.category}</span>
-                    <h3>{w.title}</h3>
-                    {w.desc && <p>{w.desc}</p>}
-                  </article>
-                ))}
-              </div>
             </div>
+            <Marquee label="Portfolio projects" items={shownWork} keyOf={(w) => w._id} renderItem={(w) => (
+              <article className="work">
+                <div className="work-img">
+                  {w.imageUrl ? <img src={w.imageUrl} alt={`${w.title} website`} loading="lazy" decoding="async" width="600" height="450" /> : <span aria-hidden="true">{w.title?.[0]}</span>}
+                </div>
+                <span className="cat">{w.category}</span>
+                <h3>{w.title}</h3>
+                {w.desc && <p>{w.desc}</p>}
+              </article>
+            )} />
           </section>
         )}
 
@@ -306,14 +314,14 @@ export default function App() {
             <div className="pricing-intro reveal">
               <div className="eyebrow" style={{ marginBottom: 0 }}>Website builds</div>
               <h2 className="h2" id="pricing-title">Just need a website?</h2>
-              <p className="lead">One-time builds with no hidden fees. Add a monthly maintenance plan any time.</p>
+              <p className="lead">One time builds with no hidden fees. Add a monthly maintenance plan any time.</p>
             </div>
             <div className="grid-3" style={{ gap: 16 }}>
               {websitePlans.map((p) => (
                 <div key={p.name} className={`card web-plan reveal ${p.hot ? "hot" : ""}`}>
                   <b>{p.name}</b>
                   <div className="price">{p.price}</div>
-                  <small className="meta">one-time</small>
+                  <small className="meta">one time</small>
                   <ul className="ticks">{p.items.map((i) => <li key={i}>{i}</li>)}</ul>
                   <button type="button" className={`btn btn-block btn-sm ${p.hot ? "btn-orange" : "btn-line"}`} onClick={() => openOrder(`Website: ${p.name}`)}>Get started</button>
                 </div>
@@ -326,17 +334,15 @@ export default function App() {
         {shownReviews.length > 0 && (
           <section className="section tint" aria-labelledby="reviews-title">
             <div className="wrap">
-              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>{reviewTitle}</h2>
-              <div className="reviews">
-                {shownReviews.map((r) => (
-                  <figure key={r._id} className="card review reveal" style={{ margin: 0 }}>
-                    <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
-                    <blockquote>“{r.message}”</blockquote>
-                    <footer>— {r.name || "Verified client"}</footer>
-                  </figure>
-                ))}
-              </div>
+              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>Trusted By</h2>
             </div>
+            <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => (
+              <figure className="card review" style={{ margin: 0 }}>
+                <div className="stars" role="img" aria-label={`${r.rating || 5} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
+                <blockquote>“{r.message}”</blockquote>
+                <footer>{r.name || "Verified client"}</footer>
+              </figure>
+            )} />
           </section>
         )}
 
@@ -345,7 +351,7 @@ export default function App() {
           <div className="wrap about">
             <div className="about-copy reveal">
               <div className="eyebrow" style={{ marginBottom: 0 }}>About Annek</div>
-              <h2 className="h2" id="about-title">A digital studio from Mannar, building for businesses everywhere.</h2>
+              <h2 className="h2" id="about-title">A digital studio from Sri Lanka, building for businesses everywhere.</h2>
               <p className="lead" style={{ whiteSpace: "pre-line" }}>{company.about}</p>
               {statItems.length > 0 && (
                 <div className="stats">{statItems.map(([v, l]) => <div key={l} className="stat"><b>{v}</b><span>{l}</span></div>)}</div>
