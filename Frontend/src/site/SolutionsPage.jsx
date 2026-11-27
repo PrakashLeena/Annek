@@ -40,6 +40,8 @@ function usePageMeta(title, description, path) {
       set('meta[property="og:url"]', "content", SITE + path),
       set('meta[property="og:title"]', "content", title),
       set('meta[property="og:description"]', "content", description),
+      set('meta[name="twitter:title"]', "content", title),
+      set('meta[name="twitter:description"]', "content", description),
     ];
     return () => { document.title = prevTitle; undo.forEach((f) => f()); };
   }, [title, description, path]);
@@ -52,7 +54,7 @@ function Showcase({ info }) {
   const [preset, setPreset] = useState(null); // { title } preselected in the inquiry form
   const lastCard = useRef(null);
 
-  usePageMeta(`${info.title} | Annek`, info.intro, `/solutions/${info.slug}`);
+  usePageMeta(info.seoTitle, info.seoDescription, `/solutions/${info.slug}`);
 
   useEffect(() => {
     let alive = true;

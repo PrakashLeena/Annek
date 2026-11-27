@@ -4,9 +4,9 @@
  */
 
 export const updateMetaTags = ({
-  title = "Annek | Custom Website Design & Development",
-  description = "Professional website design and development services. Get custom built websites starting at $75.",
-  keywords = "website design, web development, e-commerce, portfolio",
+  title = "Annek | Software Development Company in Sri Lanka",
+  description = "Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond.",
+  keywords = "software development company, custom software development, web application development, mobile app development, annek",
   url = "https://annek.tech",
   image = "https://annek.tech/og-image.png",
   type = "website",
@@ -87,38 +87,38 @@ export const addGeoMetaTags = (country, region, city, lat, lon) => {
  * Page-specific SEO configurations
  */
 export const BASE_KEYWORDS = [
-  "web development", "web development sri lanka",
-  "mobile application development sri lanka",
-  "software development sri lanka", "software customization",
-  "web application development", "website maintenance packages", "monthly maintenance packages",
-  "e-commerce app development", "custom software sri lanka", "annek",
+  "software development company", "software development company sri lanka", "software company sri lanka",
+  "custom software development", "custom software development sri lanka",
+  "web application development sri lanka", "mobile app development sri lanka",
+  "software maintenance and support", "annek",
 ].join(", ");
 
+// Titles: "<Page> | Annek Software Development", max 60 chars. Descriptions: max 155 chars.
 export const pageConfigs = {
   home: {
-    title: "Annek | Web, Mobile App & Software Development in Sri Lanka",
-    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka, with ready made templates customised for your business and monthly maintenance packages.",
+    title: "Annek | Software Development Company in Sri Lanka",
+    description: "Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond.",
     keywords: BASE_KEYWORDS,
   },
   services: {
-    title: "Mobile Apps, Web Apps & Custom Software Packages | Annek",
-    description: "Built in packages for mobile applications, web applications and custom software, customised to your business and maintained monthly. Sri Lanka & worldwide.",
-    keywords: `mobile application development, web application development, software customization, maintenance packages, ${BASE_KEYWORDS}`,
+    title: "Services | Annek Software Development",
+    description: "Custom software, web applications and mobile apps built for your business by Annek, a software development company in Sri Lanka.",
+    keywords: `custom software development, web application development, mobile app development, ${BASE_KEYWORDS}`,
   },
   portfolio: {
-    title: "Portfolio | Web & App Projects | Annek",
-    description: "Websites, web apps and mobile apps Annek has built for businesses in Sri Lanka and worldwide.",
-    keywords: `portfolio, web design examples, app projects, ${BASE_KEYWORDS}`,
+    title: "Portfolio | Annek Software Development",
+    description: "Software, web applications and mobile apps Annek has built for businesses in Sri Lanka and worldwide.",
+    keywords: `software projects, app projects, ${BASE_KEYWORDS}`,
   },
   pricing: {
-    title: "Pricing & Maintenance Packages | Annek",
-    description: "Transparent pricing for websites, web apps, mobile apps and software, with monthly maintenance packages.",
-    keywords: `website pricing sri lanka, app development cost, maintenance packages, ${BASE_KEYWORDS}`,
+    title: "Pricing | Annek Software Development",
+    description: "Clear pricing for custom software, web applications, mobile apps and websites, with monthly maintenance and support plans.",
+    keywords: `software development cost sri lanka, app development cost, maintenance plans, ${BASE_KEYWORDS}`,
   },
   contact: {
-    title: "Contact Annek | Web, App & Software Development, Sri Lanka",
-    description: "Talk to Annek about your web application, mobile app or custom software. We reply within 24 hours.",
-    keywords: `contact web developer sri lanka, app developer sri lanka, ${BASE_KEYWORDS}`,
+    title: "Contact | Annek Software Development",
+    description: "Talk to Annek, a software development company in Sri Lanka, about your custom software, web application or mobile app. We reply within 24 hours.",
+    keywords: `contact software company sri lanka, hire software developers sri lanka, ${BASE_KEYWORDS}`,
   },
 };
 
