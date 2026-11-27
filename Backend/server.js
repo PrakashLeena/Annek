@@ -12,6 +12,7 @@ const productsRouter = require("./routes/products");
 const solutionsRouter = require("./routes/solutions");
 const adminSolutionsRouter = require("./routes/adminSolutions");
 const inquiriesRouter = require("./routes/inquiries");
+const googleReviewsRouter = require("./routes/googleReviews");
 const { applySecurityMiddleware } = require("./middleware/security");
 
 const app = express();
@@ -49,6 +50,7 @@ app.use("/api/products", productsRouter);
 app.use("/api/solutions", solutionsRouter);
 app.use("/api/admin/solutions", adminSolutionsRouter);
 app.use("/api/inquiries", inquiriesRouter);
+app.use("/api/google-reviews", googleReviewsRouter);
 
 // Live stats endpoint
 app.get("/api/stats", async (req, res) => {
