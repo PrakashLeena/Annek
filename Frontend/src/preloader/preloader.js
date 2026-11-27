@@ -1,4 +1,4 @@
-/* Annek preloader — inline this <script> directly AFTER the preloader markup (not deferred, not a module).
+/* Annek preloader — inlined by vite-plugin-preloader.js as a classic (non-module, non-deferred) <script> right after the markup.
    Config (data-* on #annek-preloader):
      data-theme  = "dark" | "light" | "auto"   (auto: html.dark / prefers-color-scheme)
      data-once   = "session" | "always"         (session: play once per browser tab session)
@@ -19,7 +19,7 @@
   var done = false;
 
   function store(get) {
-    try { return get ? sessionStorage.getItem(KEY) : sessionStorage.setItem(KEY, "1"); } catch (e) { return null; }
+    try { return get ? sessionStorage.getItem(KEY) : sessionStorage.setItem(KEY, "1"); } catch { return null; }
   }
   function finish() {
     if (done) return; done = true;

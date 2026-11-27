@@ -1,4 +1,4 @@
-/* Annek preloader — inline this in <head> (critical CSS) so it paints on the first frame. */
+/* Annek preloader — critical CSS. Inlined into <head> of index.html by vite-plugin-preloader.js (edit here, not in index.html). */
 @font-face{font-family:"AP Space Grotesk";src:url("/preloader/SpaceGrotesk-500.woff2") format("woff2");font-weight:500;font-display:swap}
 
 #annek-preloader{
@@ -11,7 +11,7 @@
   clip-path:inset(0 0 0 0);
 }
 #annek-preloader[data-theme="light"]{
-  --ap-bg:#FAFAF9; --ap-ink:#18181B; --ap-dim:#52525B; --ap-glow:rgba(252,106,10,.28); --ap-haze:rgba(252,106,10,.10);
+  --ap-bg:#FFFFFF; --ap-ink:#18181B; --ap-dim:#52525B; --ap-glow:rgba(252,106,10,.28); --ap-haze:rgba(252,106,10,.10);
 }
 /* lock scroll while visible */
 html.ap-lock, html.ap-lock body{overflow:hidden!important}
