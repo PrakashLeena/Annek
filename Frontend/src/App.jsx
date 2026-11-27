@@ -6,6 +6,7 @@ import SEOMetaTags from "./components/SEOMetaTags";
 import Solutions from "./site/Solutions";
 import Products from "./site/Products";
 import FeedbackWidget from "./site/FeedbackWidget";
+import Marquee from "./site/Marquee";
 import { IconMenu, IconClose, IconMail, IconPin, IconWhatsApp } from "./site/icons";
 import { money } from "./utils/format";
 
@@ -294,19 +295,17 @@ export default function App() {
                   </div>
                 )}
               </div>
-              <div className="grid-4">
-                {shownWork.map((w) => (
-                  <article key={w._id} className="work reveal">
-                    <div className="work-img">
-                      {w.imageUrl ? <img src={w.imageUrl} alt={`${w.title} website`} loading="lazy" decoding="async" width="600" height="450" /> : <span aria-hidden="true">{w.title?.[0]}</span>}
-                    </div>
-                    <span className="cat">{w.category}</span>
-                    <h3>{w.title}</h3>
-                    {w.desc && <p>{w.desc}</p>}
-                  </article>
-                ))}
-              </div>
             </div>
+            <Marquee label="Portfolio projects" items={shownWork} keyOf={(w) => w._id} renderItem={(w) => (
+              <article className="work">
+                <div className="work-img">
+                  {w.imageUrl ? <img src={w.imageUrl} alt={`${w.title} website`} loading="lazy" decoding="async" width="600" height="450" /> : <span aria-hidden="true">{w.title?.[0]}</span>}
+                </div>
+                <span className="cat">{w.category}</span>
+                <h3>{w.title}</h3>
+                {w.desc && <p>{w.desc}</p>}
+              </article>
+            )} />
           </section>
         )}
 
@@ -337,16 +336,14 @@ export default function App() {
           <section className="section tint" aria-labelledby="reviews-title">
             <div className="wrap">
               <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>{reviewTitle}</h2>
-              <div className="reviews">
-                {shownReviews.map((r) => (
-                  <figure key={r._id} className="card review reveal" style={{ margin: 0 }}>
-                    <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
-                    <blockquote>“{r.message}”</blockquote>
-                    <footer>{r.name || "Verified client"}</footer>
-                  </figure>
-                ))}
-              </div>
             </div>
+            <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => (
+              <figure className="card review" style={{ margin: 0 }}>
+                <div className="stars" role="img" aria-label={`${r.rating || 5} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
+                <blockquote>“{r.message}”</blockquote>
+                <footer>{r.name || "Verified client"}</footer>
+              </figure>
+            )} />
           </section>
         )}
 
