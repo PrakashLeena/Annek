@@ -56,10 +56,13 @@
 
 
     <!-- Icons -->
-    <link rel="icon"             href="/favicon.ico"           sizes="48x48" />
-    <link rel="icon"             href="/favicon.png"           type="image/png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
-    <link rel="manifest"         href="/site.webmanifest" />
+    <!-- Favicon: orange "A" on transparent (?v=2 busts old cached black-background icons) -->
+    <link rel="icon"             href="/favicon.ico?v=2"           sizes="16x16 32x32 48x48 64x64" />
+    <link rel="icon"             href="/favicon-32x32.png?v=2"     type="image/png" sizes="32x32" />
+    <link rel="icon"             href="/favicon-16x16.png?v=2"     type="image/png" sizes="16x16" />
+    <link rel="icon"             href="/favicon.png?v=2"           type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2"  sizes="180x180" />
+    <link rel="manifest"         href="/site.webmanifest?v=2" />
 
     <!-- Sitemap hint for crawlers -->
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
