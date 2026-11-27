@@ -4,8 +4,8 @@
  */
 
 export const updateMetaTags = ({
-  title = "Annek - Custom Website Design & Development",
-  description = "Professional website design and development services. Get custom-built websites starting at $75.",
+  title = "Annek | Custom Website Design & Development",
+  description = "Professional website design and development services. Get custom built websites starting at $75.",
   keywords = "website design, web development, e-commerce, portfolio",
   url = "https://annek.tech",
   image = "https://annek.tech/og-image.png",
@@ -96,17 +96,17 @@ export const BASE_KEYWORDS = [
 
 export const pageConfigs = {
   home: {
-    title: "Annek — Web, Mobile App & Software Development in Sri Lanka",
-    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka — ready-made templates customised for your business, with monthly maintenance packages.",
+    title: "Annek | Web, Mobile App & Software Development in Sri Lanka",
+    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka, with ready made templates customised for your business and monthly maintenance packages.",
     keywords: BASE_KEYWORDS,
   },
   services: {
     title: "Mobile Apps, Web Apps & Custom Software Packages | Annek",
-    description: "Built-in packages for mobile applications, web applications and custom software — customised to your business and maintained monthly. Sri Lanka & worldwide.",
+    description: "Built in packages for mobile applications, web applications and custom software, customised to your business and maintained monthly. Sri Lanka & worldwide.",
     keywords: `mobile application development, web application development, software customization, maintenance packages, ${BASE_KEYWORDS}`,
   },
   portfolio: {
-    title: "Portfolio — Web & App Projects | Annek",
+    title: "Portfolio | Web & App Projects | Annek",
     description: "Websites, web apps and mobile apps Annek has built for businesses in Sri Lanka and worldwide.",
     keywords: `portfolio, web design examples, app projects, ${BASE_KEYWORDS}`,
   },
@@ -116,7 +116,7 @@ export const pageConfigs = {
     keywords: `website pricing sri lanka, app development cost, maintenance packages, ${BASE_KEYWORDS}`,
   },
   contact: {
-    title: "Contact Annek — Web, App & Software Development, Sri Lanka",
+    title: "Contact Annek | Web, App & Software Development, Sri Lanka",
     description: "Talk to Annek about your web application, mobile app or custom software. We reply within 24 hours.",
     keywords: `contact web developer sri lanka, app developer sri lanka, ${BASE_KEYWORDS}`,
   },
@@ -141,8 +141,8 @@ export const getServiceSchema = (serviceName) => {
     ecommerce: {
       "@context": "https://schema.org",
       "@type": "Service",
-      "name": "E-Commerce Website Design",
-      "description": "Professional e-commerce website design and development for online stores.",
+      "name": "Ecommerce Website Design",
+      "description": "Professional ecommerce website design and development for online stores.",
       "provider": {
         "@type": "Organization",
         "name": "Annek",

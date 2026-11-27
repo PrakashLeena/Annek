@@ -31,7 +31,7 @@ function PlansEditor({ plans, setPlans }) {
         <strong style={{ fontSize: 14 }}>Subscription plans</strong>
         <Btn kind="soft" onClick={() => setPlans((ps) => [...ps, emptyPlan()])} disabled={plans.length >= 12}>+ Plan</Btn>
       </div>
-      {plans.length === 0 && <p style={{ fontSize: 13, color: C.muted }}>No plans — the product shows as free / open access.</p>}
+      {plans.length === 0 && <p style={{ fontSize: 13, color: C.muted }}>No plans. The product shows as free / open access.</p>}
       {plans.map((p, i) => (
         <div key={p._id || i} style={{ background: "#fff", border: "1px solid #eee", borderRadius: 12, padding: 12, marginBottom: 10 }}>
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1.2fr", gap: 8 }} className="plan-grid">
@@ -41,7 +41,7 @@ function PlansEditor({ plans, setPlans }) {
               {["USD", "LKR", "EUR", "GBP"].map((c) => <option key={c}>{c}</option>)}
             </select>
             <select aria-label="Billing" style={inp} value={p.interval} onChange={(e) => update(i, { interval: e.target.value })}>
-              <option value="free">Free</option><option value="month">per month</option><option value="year">per year</option><option value="one-time">one-time</option>
+              <option value="free">Free</option><option value="month">per month</option><option value="year">per year</option><option value="one-time">one time</option>
             </select>
           </div>
           <textarea aria-label="Plan features" rows={3} style={{ ...inp, marginTop: 8, resize: "vertical" }} placeholder="Features (one per line)"
@@ -110,7 +110,7 @@ export default function ProductsTab() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text }}>Own Products <span style={{ fontSize: 14, color: C.muted, fontWeight: 400 }}>({items.length})</span></h2>
-          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Apps and software built and run by Annek — install links and subscription tiers.</p>
+          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Apps and software built and run by Annek, with install links and subscription tiers.</p>
         </div>
         <Btn onClick={() => setEditing(null)}>+ Add product</Btn>
       </div>

@@ -19,7 +19,7 @@ function Badge({ status }) {
   const s = STATUS_COLORS[status] || { bg: "#f3f4f6", color: "#6b7280" };
   return (
     <span style={{ background: s.bg, color: s.color, padding: "3px 12px", borderRadius: 100, fontSize: 12, fontWeight: 700, textTransform: "capitalize" }}>
-      {status}
+      {String(status || "").replace(/-/g, " ")}
     </span>
   );
 }
@@ -78,7 +78,7 @@ function OrdersTab() {
             <button key={f} onClick={() => setFilter(f)} style={{
               padding: "6px 16px", borderRadius: 100, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
               background: filter === f ? "#16130F" : "#f3f4f6", color: filter === f ? "#fff" : "#555", border: "none", transition: "all 0.2s",
-            }}>{f === "all" ? "All" : f}</button>
+            }}>{f === "all" ? "All" : f.replace(/-/g, " ")}</button>
           ))}
         </div>
       </div>
@@ -99,7 +99,7 @@ function OrdersTab() {
                 <select value={order.status} onClick={e => e.stopPropagation()}
                   onChange={e => updateStatus(order._id, e.target.value)}
                   style={{ fontSize: 13, padding: "4px 10px", borderRadius: 8, border: "1px solid #e5e5e5", background: "#fafafa", cursor: "pointer", fontFamily: "inherit" }}>
-                  {["pending","in-review","in-progress","completed","cancelled"].map(s => <option key={s} value={s}>{s}</option>)}
+                  {["pending","in-review","in-progress","completed","cancelled"].map(s => <option key={s} value={s}>{s.replace(/-/g, " ")}</option>)}
                 </select>
               </div>
               <div style={{ fontSize: 12, color: "#bbb" }}>{new Date(order.createdAt).toLocaleDateString()}</div>
@@ -212,7 +212,7 @@ function PortfolioTab() {
         <div style={{ background: "#FFF8F3", border: "1.5px solid #FDE3D0", borderRadius: 16, padding: 24, marginBottom: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#16130F" }}>{editing ? "Edit Project" : "New Project"}</h3>
           <div className="admin-form-grid">
-            {[["title","Title *"],["category","Category *"],["desc","Description"],["tags","Tags (comma-separated)"]].map(([k,l]) => (
+            {[["title","Title *"],["category","Category *"],["desc","Description"],["tags","Tags (comma separated)"]].map(([k,l]) => (
               <div key={k} style={{ gridColumn: k === "desc" || k === "tags" ? "1/-1" : "auto" }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>{l}</label>
                 {k === "desc" ? <textarea style={{ ...inpStyle, minHeight: 72, resize: "vertical" }} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /> : <input style={inpStyle} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />}
@@ -289,7 +289,7 @@ function UsersTab() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#16130F", marginBottom: 24 }}>Logged-in Users</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 700, color: "#16130F", marginBottom: 24 }}>Logged in Users</h2>
       {loading ? <div style={{ color: "#aaa", textAlign: "center", padding: 40 }}>Loading…</div> :
         users.length === 0 ? <div style={{ color: "#aaa", textAlign: "center", padding: 40 }}>No users found.</div> :
         users.map(u => (
@@ -312,7 +312,7 @@ function UsersTab() {
 const COMPANY_FIELDS = [
   ["companyName", "Company name", "Annek"],
   ["founderName", "Founder / owner name", "Your name"],
-  ["companyTagline", "Tagline", "Digital solutions — apps, web & software"],
+  ["companyTagline", "Tagline", "Digital solutions for apps, web & software"],
   ["contactEmail", "Contact email", "annek.websitebuild.official@gmail.com"],
   ["contactPhone", "Phone", "+94 70 126 9689"],
   ["whatsappNumber", "WhatsApp number (digits only)", "94701269689"],
@@ -321,7 +321,7 @@ const COMPANY_FIELDS = [
   ["aboutText", "About text", "A short paragraph about you and Annek", true],
 ];
 const SEO_FIELDS = [
-  ["seoTitle", "Home page title", "Annek — Web, Mobile App & Software Development in Sri Lanka"],
+  ["seoTitle", "Home page title", "Annek | Web, Mobile App & Software Development in Sri Lanka"],
   ["seoDescription", "Meta description", "Web applications, mobile apps and custom software with monthly maintenance packages…", 3],
   ["seoKeywords", "Target keywords", "web development sri lanka, mobile application development sri lanka, software development sri lanka", 3],
 ];
@@ -423,7 +423,7 @@ function SettingsTab() {
           {/* SEO */}
           <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#16130F", marginBottom: 4 }}>🔎 SEO</div>
-            <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>Page title, description and target keywords (comma-separated). Applied to the home page when it loads.</div>
+            <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>Page title, description and target keywords (comma separated). Applied to the home page when it loads.</div>
             {SEO_FIELDS.map(([key, label, placeholder, rows]) => (
               <div key={key} style={{ marginBottom: 14 }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>{label}</label>
@@ -438,7 +438,7 @@ function SettingsTab() {
           <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#16130F", marginBottom: 4 }}>💰 Pricing Plans</div>
             <div style={{ fontSize: 12, color: "#888", marginBottom: 20 }}>
-              Edit the price shown on each plan card. Use any format e.g. <strong>$75</strong>, <strong>$75 - $90</strong>, <strong>£60</strong>, <strong>₹5,000</strong>.
+              Edit the price shown on each plan card. Use any format e.g. <strong>$75</strong>, <strong>$75 to $90</strong>, <strong>£60</strong>, <strong>₹5,000</strong>.
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>

@@ -14,10 +14,10 @@ const OrderModal = lazy(() => import("./site/OrderModal"));
 const API = import.meta.env.VITE_API_URL || "/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
-const STRIP = ["E-Commerce Apps", "Marketing Apps", "Web Applications", "Portfolio Sites", "Institute Platforms", "Inventory & POS", "Custom Software", "Monthly Maintenance"];
+const STRIP = ["Ecommerce Apps", "Marketing Apps", "Web Applications", "Portfolio Sites", "Institute Platforms", "Inventory & POS", "Custom Software", "Monthly Maintenance"];
 
 const STEPS = [
-  ["Choose a package", "Pick a ready-made template or tell us what you need."],
+  ["Choose a package", "Pick a ready made template or tell us what you need."],
   ["We customise it", "Your brand, content and features, built in."],
   ["Launch", "We publish it to the web, Play Store, App Store or your PCs."],
   ["Monthly care", "Hosting, updates, backups and changes, every month."],
@@ -25,7 +25,7 @@ const STEPS = [
 
 const FAQS = [
   ["What does a monthly maintenance plan cover?", "Hosting, security updates, backups, small content changes and support. Each package lists exactly what is included, and you can add more care any time."],
-  ["Can you customise a template for my business?", "Yes. Every template is a starting point — we add your brand, content, features and integrations so it fits how your business works."],
+  ["Can you customise a template for my business?", "Yes. Every template is a starting point. We add your brand, content, features and integrations so it fits how your business works."],
   ["How long does delivery take?", "Standard websites take a few business days. Apps, web applications and custom software usually take one to four weeks depending on features. You get a clear timeline with your quote."],
   ["Do you build Android and iPhone apps?", "Yes. We build mobile apps for Android and iPhone and help you publish them on the Play Store and App Store."],
   ["Can I use my own domain?", "Absolutely. We can connect a domain you already own or help you register a new one."],
@@ -147,7 +147,7 @@ export default function App() {
     phone: settings.contactPhone || "+94 70 126 9689",
     address: settings.address || "Vankalai, Sri Lanka",
     area: settings.serviceArea || "Sri Lanka · Serving worldwide",
-    tagline: settings.companyTagline || "Web apps, mobile apps and custom software — built, customised and maintained for your business.",
+    tagline: settings.companyTagline || "Web apps, mobile apps and custom software that we build, customise and maintain for your business.",
     about: settings.aboutText || "Annek is a digital studio from Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
   };
 
@@ -155,9 +155,9 @@ export default function App() {
   const categories = ["All", ...new Set(portfolio.map((p) => p.category).filter(Boolean))];
   const shownWork = filter === "All" ? portfolio : portfolio.filter((p) => p.category === filter);
   const websitePlans = [
-    { name: "Starter", price: settings.starterPrice || "$75 – $80", items: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup"] },
-    { name: "Growth", price: settings.growthPrice || "$100 – $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
-    { name: "Premium", price: settings.premiumPrice || "$150 – $170", items: ["Unlimited pages", "E-commerce / bookings", "Payment gateway", "Custom animations"] },
+    { name: "Starter", price: settings.starterPrice || "$75 to $80", items: ["Up to 5 pages", "Mobile responsive design", "Contact form", "Basic SEO setup"] },
+    { name: "Growth", price: settings.growthPrice || "$100 to $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
+    { name: "Premium", price: settings.premiumPrice || "$150 to $170", items: ["Unlimited pages", "Ecommerce / bookings", "Payment gateway", "Custom animations"] },
   ];
   const shownReviews = reviews.slice(0, 6);
   const reviewTitle = (settings.testimonialsTitle || "What our clients say").replace("{count}", String(stats.orderCount ?? ""));
@@ -183,7 +183,7 @@ export default function App() {
 
       <header className={`nav ${scrolled ? "scrolled" : ""}`}>
         <div className="wrap nav-inner">
-          <button type="button" className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Annek — back to top">
+          <button type="button" className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Annek, back to top">
             <img src={logoImg} alt="Annek" width="82" height="38" fetchPriority="high" />
           </button>
           <nav className="nav-links" aria-label="Main">
@@ -220,8 +220,8 @@ export default function App() {
           <div className="wrap hero-grid">
             <div className="hero-copy">
               <span className="pill"><span className="dot" />{company.area}</span>
-              <h1>Apps, web apps &amp; software — <span>built and looked after.</span></h1>
-              <p className="lead">Pick a ready-made solution. We customise it to your business, launch it, and keep it secure and up to date with a monthly maintenance plan.</p>
+              <h1>Mobile Apps, Web Apps, and Software <span>Built and Looked After</span></h1>
+              <p className="lead">Pick a ready made solution. We customise it to your business, launch it, and keep it secure and up to date with a monthly maintenance plan.</p>
               <div className="hero-ctas">
                 <button type="button" className="btn btn-orange btn-lg" onClick={() => go("solutions")}>Explore solutions</button>
                 <button type="button" className="btn btn-line btn-lg" onClick={() => openOrder("")}>Tell us what you need</button>
@@ -306,14 +306,14 @@ export default function App() {
             <div className="pricing-intro reveal">
               <div className="eyebrow" style={{ marginBottom: 0 }}>Website builds</div>
               <h2 className="h2" id="pricing-title">Just need a website?</h2>
-              <p className="lead">One-time builds with no hidden fees. Add a monthly maintenance plan any time.</p>
+              <p className="lead">One time builds with no hidden fees. Add a monthly maintenance plan any time.</p>
             </div>
             <div className="grid-3" style={{ gap: 16 }}>
               {websitePlans.map((p) => (
                 <div key={p.name} className={`card web-plan reveal ${p.hot ? "hot" : ""}`}>
                   <b>{p.name}</b>
                   <div className="price">{p.price}</div>
-                  <small className="meta">one-time</small>
+                  <small className="meta">one time</small>
                   <ul className="ticks">{p.items.map((i) => <li key={i}>{i}</li>)}</ul>
                   <button type="button" className={`btn btn-block btn-sm ${p.hot ? "btn-orange" : "btn-line"}`} onClick={() => openOrder(`Website: ${p.name}`)}>Get started</button>
                 </div>
@@ -332,7 +332,7 @@ export default function App() {
                   <figure key={r._id} className="card review reveal" style={{ margin: 0 }}>
                     <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
                     <blockquote>“{r.message}”</blockquote>
-                    <footer>— {r.name || "Verified client"}</footer>
+                    <footer>{r.name || "Verified client"}</footer>
                   </figure>
                 ))}
               </div>

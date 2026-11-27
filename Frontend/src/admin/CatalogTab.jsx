@@ -8,7 +8,7 @@ import { C, money, payload } from "./helpers";
 const SECTIONS = [
   ["categories", "Categories"],
   ["templates", "Showcase templates"],
-  ["packages", "Built-in packages"],
+  ["packages", "Built in packages"],
   ["maintenance", "Maintenance plans"],
 ];
 
@@ -35,12 +35,12 @@ export default function CatalogTab() {
   const subsOf = (id) => cats.filter((c) => String(c.parent) === String(id));
   const catName = (id) => {
     const c = cats.find((x) => String(x._id) === String(id));
-    if (!c) return "—";
+    if (!c) return "None";
     const p = c.parent && cats.find((x) => String(x._id) === String(c.parent));
     return p ? `${p.name} › ${c.name}` : c.name;
   };
   const catOptions = useMemo(() => {
-    const opts = [["", "— choose —"]];
+    const opts = [["", "Choose…"]];
     for (const m of mains) {
       opts.push([m._id, m.name]);
       for (const s of subsOf(m._id)) opts.push([s._id, `   ↳ ${s.name}`]);
@@ -48,12 +48,12 @@ export default function CatalogTab() {
     return opts;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cats]);
-  const planOptions = [["", "— none —"], ...(data?.maintenancePlans || []).map((p) => [p._id, `${p.name} (${money(p.monthlyFee, p.currency)}/mo)`])];
+  const planOptions = [["", "None"], ...(data?.maintenancePlans || []).map((p) => [p._id, `${p.name} (${money(p.monthlyFee, p.currency)}/mo)`])];
 
   const FIELDS = {
     categories: [
       { key: "name", label: "Name", required: true, placeholder: "Mobile Applications" },
-      { key: "parent", label: "Parent (leave empty for a main category)", type: "select", options: [["", "— main category —"], ...mains.filter((m) => String(m._id) !== String(editing?.doc?._id)).map((m) => [m._id, m.name])] },
+      { key: "parent", label: "Parent (leave empty for a main category)", type: "select", options: [["", "Main category"], ...mains.filter((m) => String(m._id) !== String(editing?.doc?._id)).map((m) => [m._id, m.name])] },
       { key: "icon", label: "Icon (emoji)", placeholder: "📱" },
       { key: "order", label: "Sort order", type: "number" },
       { key: "description", label: "Description", type: "textarea", rows: 2 },
@@ -71,12 +71,12 @@ export default function CatalogTab() {
       { key: "visible", label: "Visible on site", type: "checkbox", default: true },
     ],
     packages: [
-      { key: "name", label: "Package name", required: true, placeholder: "E-Commerce Starter" },
+      { key: "name", label: "Package name", required: true, placeholder: "Ecommerce Starter" },
       { key: "category", label: "Category", type: "select", options: catOptions },
-      { key: "setupPrice", label: "One-time setup price", type: "number" },
+      { key: "setupPrice", label: "One time setup price", type: "number" },
       { key: "monthlyFee", label: "Monthly maintenance fee", type: "number" },
       { key: "currency", label: "Currency", type: "select", default: "USD", options: [["USD", "USD $"], ["LKR", "LKR Rs"], ["EUR", "EUR €"], ["GBP", "GBP £"]] },
-      { key: "deliveryTime", label: "Delivery time", placeholder: "7–10 days" },
+      { key: "deliveryTime", label: "Delivery time", placeholder: "7 to 10 days" },
       { key: "maintenancePlan", label: "Included maintenance plan", type: "select", options: planOptions },
       { key: "order", label: "Sort order", type: "number" },
       { key: "description", label: "Description", type: "textarea", rows: 2 },
@@ -110,7 +110,7 @@ export default function CatalogTab() {
   };
 
   const seed = async () => {
-    try { setData(await adminFetch("/catalog/admin/seed", { method: "POST" })); flash("Starter categories added — edit them as you like."); }
+    try { setData(await adminFetch("/catalog/admin/seed", { method: "POST" })); flash("Starter categories added. Edit them as you like."); }
     catch (err) { flash(err.message, "error"); }
   };
 
@@ -136,7 +136,7 @@ export default function CatalogTab() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 12 }}>
         <div>
           <h2 style={{ fontSize: 22, fontWeight: 700, color: C.text }}>Client Services &amp; Packages</h2>
-          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Mobile apps, web apps and custom software — sold as built-in packages with a monthly maintenance fee.</p>
+          <p style={{ fontSize: 13, color: C.muted, marginTop: 4 }}>Mobile apps, web apps and custom software, sold as built in packages with a monthly maintenance fee.</p>
         </div>
         {cats.length === 0 && <Btn onClick={seed}>✨ Add starter categories from the plan</Btn>}
       </div>

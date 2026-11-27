@@ -5,9 +5,9 @@ import { money } from "../utils/format";
 import { IconPhone, IconGlobe, IconCode } from "./icons";
 
 const CORE = [
-  { icon: IconPhone, title: "Mobile Applications", text: "E-commerce, marketing and business apps for Android and iPhone — built from proven templates and customised for you." },
-  { icon: IconGlobe, title: "Web Applications", text: "E-commerce, portfolio, institute and industry platforms that run in any browser, with an admin panel you control." },
-  { icon: IconCode, title: "Custom Software", text: "Software shaped around how your business works — billing, stock, records and automation." },
+  { icon: IconPhone, title: "Mobile Applications", text: "Ecommerce, marketing and business apps for Android and iPhone, built from proven templates and customised for you." },
+  { icon: IconGlobe, title: "Web Applications", text: "Ecommerce, portfolio, institute and industry platforms that run in any browser, with an admin panel you control." },
+  { icon: IconCode, title: "Custom Software", text: "Software shaped around how your business works: billing, stock, records and automation." },
 ];
 
 function Package({ p, catName, plan, onOrder }) {
@@ -36,7 +36,7 @@ export default function Solutions({ catalog, onOrder }) {
     <div className="head-row reveal">
       <div style={{ maxWidth: 640 }}>
         <div className="eyebrow">Client solutions</div>
-        <h2 className="h2" id="solutions-title">Built-in packages with monthly maintenance</h2>
+        <h2 className="h2" id="solutions-title">Built in packages with monthly maintenance</h2>
       </div>
       <p className="lead">Every package is a proven template customised for your business, plus a monthly fee that covers hosting, updates and support.</p>
     </div>
