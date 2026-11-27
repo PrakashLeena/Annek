@@ -418,6 +418,24 @@ function SettingsTab() {
             ))}
           </div>
 
+          {/* Google rating badge (typed in by hand, no Google API) */}
+          <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: "#16130F", marginBottom: 4 }}>⭐ Google rating</div>
+            <div style={{ fontSize: 12, color: "#888", marginBottom: 16 }}>Copy these from your Google Business Profile. The badge in Trusted By shows only when both are filled in. Leave both empty to hide it.</div>
+            <div className="admin-form-grid">
+              <div>
+                <label htmlFor="googleRating" style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Google rating (1.0 to 5.0)</label>
+                <input id="googleRating" style={inpStyle} type="number" inputMode="decimal" min="1" max="5" step="0.1" placeholder="4.9"
+                  value={settings.googleRating || ""} onChange={e => setSettings(s => ({ ...s, googleRating: e.target.value }))} />
+              </div>
+              <div>
+                <label htmlFor="googleReviewCount" style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 6, display: "block" }}>Number of Google reviews</label>
+                <input id="googleReviewCount" style={inpStyle} type="number" inputMode="numeric" min="0" step="1" placeholder="24"
+                  value={settings.googleReviewCount || ""} onChange={e => setSettings(s => ({ ...s, googleReviewCount: e.target.value }))} />
+              </div>
+            </div>
+          </div>
+
           {/* Pricing Section */}
           <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#16130F", marginBottom: 4 }}>💰 Pricing Plans</div>

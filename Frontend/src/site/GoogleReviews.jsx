@@ -4,7 +4,8 @@
    and a short notice about how Google handles reviews. All review text is rendered as React
    text nodes, so it is escaped. */
 
-export const GOOGLE_REVIEW_URL = "https://g.page/r/CauKhIX6AGnKEAI/review";
+import { GOOGLE_REVIEW_URL } from "../utils/googleRating";
+
 const UGC_POLICY_URL = "https://support.google.com/contributionpolicy/answer/7422880";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
