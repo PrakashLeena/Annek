@@ -153,7 +153,7 @@ export default function App() {
 
   const isAdmin = !!user && ADMIN_EMAILS.includes((user.email || "").toLowerCase());
   const company = {
-    email: settings.contactEmail || "annek.websitebuild.official@gmail.com",
+    email: settings.contactEmail || "info@annek.tech",
     whatsapp: (settings.whatsappNumber || "94701269689").replace(/[^0-9]/g, ""),
     phone: settings.contactPhone || "+94 70 126 9689",
     address: settings.address || "Vankalai, Sri Lanka",

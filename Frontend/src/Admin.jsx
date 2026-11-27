@@ -314,7 +314,7 @@ const COMPANY_FIELDS = [
   ["companyName", "Company name", "Annek"],
   ["founderName", "Founder / owner name", "Your name"],
   ["companyTagline", "Tagline", "Digital solutions for apps, web & software"],
-  ["contactEmail", "Contact email", "annek.websitebuild.official@gmail.com"],
+  ["contactEmail", "Contact email", "info@annek.tech"],
   ["contactPhone", "Phone", "+94 70 126 9689"],
   ["whatsappNumber", "WhatsApp number (digits only)", "94701269689"],
   ["address", "Address", "Vankalai, Sri Lanka"],
