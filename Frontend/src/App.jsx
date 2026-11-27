@@ -7,6 +7,7 @@ import Solutions from "./site/Solutions";
 import Products from "./site/Products";
 import FeedbackWidget from "./site/FeedbackWidget";
 import Marquee from "./site/Marquee";
+import { GoogleSummary, GoogleReviewCard, WriteReviewButton, Stars } from "./site/GoogleReviews";
 import { IconMenu, IconClose, IconMail, IconPin, IconWhatsApp } from "./site/icons";
 import { money } from "./utils/format";
 
@@ -105,6 +106,7 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [google, setGoogle] = useState(null);
   const [stats, setStats] = useState({});
   const [filter, setFilter] = useState("All");
   const [page, setPage] = useState("home");
@@ -121,6 +123,7 @@ export default function App() {
     get("/products", setProducts, Array.isArray);
     get("/portfolio", (d) => setPortfolio(d.filter((p) => p.visible !== false)), Array.isArray);
     get("/feedback", setReviews, Array.isArray);
+    get("/google-reviews", setGoogle, (d) => Array.isArray(d.reviews));
     get("/stats", setStats);
     return () => { window.removeEventListener("scroll", onScroll); unsub(); };
   }, []);
@@ -136,7 +139,7 @@ export default function App() {
     return () => io.disconnect();
   }, [catalog, products, portfolio]);
 
-  useReveal([catalog, products, portfolio, reviews]);
+  useReveal([catalog, products, portfolio, reviews, google]);
 
   // Arriving at /#section (e.g. "All services" on a showcase page): scroll there once it has rendered.
   const hashDone = useRef(false);
@@ -171,7 +174,11 @@ export default function App() {
     { name: "Growth", price: settings.growthPrice || "$100 to $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
     { name: "Premium", price: settings.premiumPrice || "$150 to $170", items: ["Unlimited pages", "Ecommerce / bookings", "Payment gateway", "Custom animations"] },
   ];
-  const shownReviews = reviews.slice(0, 6);
+  // Every review Google returns (no rating filter), then the admin testimonials.
+  const shownReviews = [
+    ...(google?.reviews || []).map((r) => ({ ...r, _google: true, _id: `g:${r.id}` })),
+    ...reviews.slice(0, 6),
+  ];
   const statItems = [
     portfolio.length > 0 && [portfolio.length, "Projects showcased"],
     stats.avgRating && [`${stats.avgRating}/5`, stats.reviewCount ? `Rating from ${stats.reviewCount} reviews` : "Average client rating"],
@@ -332,20 +339,21 @@ export default function App() {
         </section>
 
         {/* REVIEWS */}
-        {shownReviews.length > 0 && (
-          <section className="section tint" aria-labelledby="reviews-title">
-            <div className="wrap">
-              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>Trusted By</h2>
-            </div>
-            <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => (
+        <section id="reviews" className="section tint" aria-labelledby="reviews-title">
+          <div className="wrap">
+            <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 28 }}>Trusted By</h2>
+            <GoogleSummary data={google} />
+          </div>
+          {shownReviews.length > 0 && (
+            <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => r._google ? <GoogleReviewCard review={r} /> : (
               <figure className="card review" style={{ margin: 0 }}>
-                <div className="stars" role="img" aria-label={`${r.rating || 5} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
+                <Stars value={r.rating || 5} />
                 <blockquote>“{r.message}”</blockquote>
                 <footer>{r.name || "Verified client"}</footer>
               </figure>
             )} />
-          </section>
-        )}
+          )}
+        </section>
 
         {/* ABOUT + FAQ */}
         <section id="about" className="section" aria-labelledby="about-title">
@@ -390,6 +398,7 @@ export default function App() {
           <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 360 }}>
             <img src={logoImg} alt="Annek" width="73" height="34" loading="lazy" />
             <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>{company.tagline}</p>
+            <WriteReviewButton className="btn btn-soft btn-sm footer-review">Write a Google review</WriteReviewButton>
           </div>
           <nav aria-label="Footer">
             {navItems.map(([id, label]) => <button key={id} type="button" onClick={() => go(id)}>{label}</button>)}
