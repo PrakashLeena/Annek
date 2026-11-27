@@ -88,6 +88,9 @@
     var a = el.animate([{ clipPath: "inset(0 0 0 0)" }, { clipPath: "inset(0 0 100% 0)" }],
       { duration: 720, delay: 180, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" });
     a.onfinish = finish;
+    // Finish events only fire on rendered frames; a tab that isn't painting (opened in the
+    // background, occluded) could otherwise keep the page scroll-locked. finish() runs once.
+    setTimeout(finish, 180 + 720 + 120);
   }
 
   // hard cap: never block the site longer than cfg.max
