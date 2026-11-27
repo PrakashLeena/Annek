@@ -20,3 +20,6 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+// Tell the inline preloader (index.html) that the app has painted.
+requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new Event('annek:ready'))))
