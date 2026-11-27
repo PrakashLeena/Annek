@@ -33,6 +33,41 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/((?!api(?:/|$)).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "annek.vercel.app"
+        }
+      ],
+      "destination": "https://annek.tech/$1",
+      "permanent": true
+    },
+    {
+      "source": "/((?!api(?:/|$)).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "annek-d6zv-a-g-prakash-leenas-projects.vercel.app"
+        }
+      ],
+      "destination": "https://annek.tech/$1",
+      "permanent": true
+    },
+    {
+      "source": "/((?!api(?:/|$)).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "annek-d6zv-git-main-a-g-prakash-leenas-projects.vercel.app"
+        }
+      ],
+      "destination": "https://annek.tech/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/:path*",

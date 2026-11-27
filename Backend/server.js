@@ -22,20 +22,15 @@ app.set("trust proxy", 1);
 connectDB();
 applySecurityMiddleware(app);
 
+// CORS: only the official site (plus local dev) may call the API from a browser.
+// The live site calls its own /api (same origin), which doesn't need CORS at all.
+// FRONTEND_URL is intentionally no longer read, so no extra origins can be added by env.
 const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-  "https://annek.vercel.app",
-  "https://annek-jet.vercel.app",
   "https://annek.tech",
-  "https://www.annek.tech",
+  "http://localhost:5173", // vite dev
+  "http://localhost:5174", // vite preview
+  "http://localhost:5175",
 ];
-
-if (process.env.FRONTEND_URL) {
-  const customOrigins = process.env.FRONTEND_URL.split(",").map(url => url.trim());
-  allowedOrigins.push(...customOrigins);
-}
 
 app.use(cors({
   origin: allowedOrigins,
