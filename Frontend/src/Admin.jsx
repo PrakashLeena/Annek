@@ -328,7 +328,7 @@ const SEO_FIELDS = [
 ];
 
 function SettingsTab() {
-  const [settings, setSettings] = useState({ testimonialsTitle: "" });
+  const [settings, setSettings] = useState({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState(null);
@@ -388,23 +388,6 @@ function SettingsTab() {
             </div>
           )}
           
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: "#555", marginBottom: 8, display: "block" }}>
-              Testimonials Header Title
-            </label>
-            <input
-              style={inpStyle}
-              type="text"
-              value={settings.testimonialsTitle || ""}
-              onChange={e => setSettings(s => ({ ...s, testimonialsTitle: e.target.value }))}
-              placeholder="e.g. Trusted by hundreds of businesses"
-              required
-            />
-            <span style={{ fontSize: 12, color: "#888", marginTop: 6, display: "block" }}>
-              This title will be displayed in the testimonials/reviews section on the landing page.
-            </span>
-          </div>
-
           {/* Company & personal details */}
           <div style={{ borderTop: "1.5px solid #f0f0f0", paddingTop: 24, marginBottom: 24 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "#16130F", marginBottom: 4 }}>🏢 Company &amp; Personal Details</div>

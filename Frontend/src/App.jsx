@@ -171,7 +171,6 @@ export default function App() {
     { name: "Premium", price: settings.premiumPrice || "$150 to $170", items: ["Unlimited pages", "Ecommerce / bookings", "Payment gateway", "Custom animations"] },
   ];
   const shownReviews = reviews.slice(0, 6);
-  const reviewTitle = (settings.testimonialsTitle || "What our clients say").replace("{count}", String(stats.orderCount ?? ""));
   const statItems = [
     portfolio.length > 0 && [portfolio.length, "Projects showcased"],
     stats.avgRating && [`${stats.avgRating}/5`, stats.reviewCount ? `Rating from ${stats.reviewCount} reviews` : "Average client rating"],
@@ -335,7 +334,7 @@ export default function App() {
         {shownReviews.length > 0 && (
           <section className="section tint" aria-labelledby="reviews-title">
             <div className="wrap">
-              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>{reviewTitle}</h2>
+              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>Trusted By</h2>
             </div>
             <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => (
               <figure className="card review" style={{ margin: 0 }}>
