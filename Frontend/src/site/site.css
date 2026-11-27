@@ -424,3 +424,16 @@ textarea.input { resize: vertical; min-height: 88px; }
 .service-actions { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
 .showcase-links { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: -12px 0 28px; font-size: 14px; color: var(--muted); }
 .showcase-links .chip { text-decoration: none; }
+
+/* Inquiry form (InquiryForm.jsx) */
+.inq { display: flex; flex-direction: column; gap: 16px; padding: 28px; max-width: 760px; }
+.inq .btn { align-self: flex-start; }
+.inq select.input { appearance: auto; }
+.inq-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.inq-err { color: #B42318; font-size: 14px; line-height: 1.5; margin: 0; }
+.inq-done { display: flex; flex-direction: column; gap: 8px; padding: 32px 28px; max-width: 760px; }
+.inq-done b { font: 600 22px var(--display); }
+.inq-done span { color: var(--muted); line-height: 1.6; }
+.inq-done .link-btn { align-self: flex-start; margin-top: 6px; }
+.sol-customize { position: relative; }
+@media (max-width: 620px) { .inq { padding: 20px 16px; } .inq .btn { align-self: stretch; } }

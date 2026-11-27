@@ -5,6 +5,7 @@ import "./site.css";
 import logoImg from "../images/annek-logo.webp";
 import NotFound from "../NotFound.jsx";
 import SolutionCard from "./SolutionCard.jsx";
+import InquiryForm from "./InquiryForm.jsx";
 import { IconClose } from "./icons";
 import { CATEGORY_INFO, cld, cldSrcSet, videoEmbed, videoPoster } from "../utils/media";
 
@@ -48,7 +49,7 @@ function Showcase({ info }) {
   const [items, setItems] = useState(null); // null = loading
   const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(null);
-  const [customize, setCustomize] = useState(""); // solution title preselected in the form (Task 4)
+  const [preset, setPreset] = useState(null); // { title } preselected in the inquiry form
   const lastCard = useRef(null);
 
   usePageMeta(`${info.title} | Annek`, info.intro, `/solutions/${info.slug}`);
@@ -66,7 +67,7 @@ function Showcase({ info }) {
   const close = () => { setOpen(null); lastCard.current?.focus(); };
   const startCustomize = (title) => {
     setOpen(null);
-    setCustomize(title);
+    if (title) setPreset({ title });
     requestAnimationFrame(() => document.getElementById("customize")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
@@ -126,8 +127,8 @@ function Showcase({ info }) {
         <section id="customize" className="section tint sol-customize" aria-labelledby="customize-title">
           <div className="wrap">
             <h2 className="h2" id="customize-title">Customize this for your business</h2>
-            <p className="lead">Tell us which solution you like and what you need changed{customize ? ` for “${customize}”` : ""}. We reply within 24 hours.</p>
-            <p><a className="btn btn-orange" href="/#contact">Contact us</a></p>
+            <p className="lead">Tell us which solution you like and what you need changed. We reply within 24 hours.</p>
+            <InquiryForm category={info.slug} label={info.label} solutions={items || []} preset={preset} />
           </div>
         </section>
       </main>
