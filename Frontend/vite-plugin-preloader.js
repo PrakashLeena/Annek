@@ -35,9 +35,12 @@ export default function preloaderPlugin({ dir = "src/preloader" } = {}) {
 
     transformIndexHtml: {
       order: "post",
-      async handler(html) {
+      async handler(html, ctx) {
+        // The site's own index.html must have both slots; any other HTML page is left alone.
+        const isIndex = !ctx || ctx.path === "/index.html" || ctx.path === "/";
+        if (!isIndex && !html.includes(CSS_SLOT) && !html.includes(HTML_SLOT)) return html;
         for (const slot of [CSS_SLOT, HTML_SLOT]) {
-          if (!html.includes(slot)) throw new Error(`[annek-preloader] index.html is missing the ${slot} placeholder`);
+          if (!html.includes(slot)) throw new Error(`[annek-preloader] ${isIndex ? "index.html" : ctx.path} is missing the ${slot} placeholder`);
         }
 
         let css = read("preloader.css");
