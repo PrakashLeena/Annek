@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/adminAuth");
 const Settings = require("../models/Settings");
 
 // GET /api/settings
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // POST /api/settings
-router.post("/", async (req, res) => {
+router.post("/", requireAdmin, async (req, res) => {
   try {
     const updates = req.body;
     for (const [key, value] of Object.entries(updates)) {

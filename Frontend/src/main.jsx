@@ -3,8 +3,9 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import Admin from './Admin.jsx'
 
+// Admin and the AI builder are split out so visitors never download them.
+const Admin = lazy(() => import('./Admin.jsx'))
 const AIWebsiteBuilder = lazy(() => import('./pages/AIWebsiteBuilder.jsx'))
 
 createRoot(document.getElementById('root')).render(

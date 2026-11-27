@@ -7,8 +7,8 @@ export const updateMetaTags = ({
   title = "Annek - Custom Website Design & Development",
   description = "Professional website design and development services. Get custom-built websites starting at $75.",
   keywords = "website design, web development, e-commerce, portfolio",
-  url = "https://annek.com",
-  image = "https://annek.com/og-image.png",
+  url = "https://annek.tech",
+  image = "https://annek.tech/og-image.png",
   type = "website",
   author = "Annek",
   locale = "en_US",
@@ -86,31 +86,39 @@ export const addGeoMetaTags = (country, region, city, lat, lon) => {
 /**
  * Page-specific SEO configurations
  */
+export const BASE_KEYWORDS = [
+  "web development", "web development sri lanka", "web development mannar",
+  "mobile application development sri lanka", "mobile app development mannar",
+  "software development sri lanka", "software development mannar", "software customization",
+  "web application development", "website maintenance packages", "monthly maintenance packages",
+  "e-commerce app development", "custom software sri lanka", "annek",
+].join(", ");
+
 export const pageConfigs = {
   home: {
-    title: "Annek - Custom Website Design & Development Services",
-    description: "Professional website design and development services. Get custom-built websites, e-commerce stores, portfolios, and booking sites. Fast delivery, SEO-optimized, affordable pricing starting at $75.",
-    keywords: "website design, website development, web designer, e-commerce website, portfolio website, booking website, custom website builder, web development agency",
-  },
-  portfolio: {
-    title: "Our Portfolio - Custom Website Projects | Annek",
-    description: "View our portfolio of custom websites we've built for businesses. E-commerce sites, portfolios, booking systems, and more. See our best work.",
-    keywords: "portfolio websites, web design examples, website projects, custom websites, web design portfolio",
+    title: "Annek — Web, Mobile App & Software Development in Sri Lanka",
+    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka (Mannar) — ready-made templates customised for your business, with monthly maintenance packages.",
+    keywords: BASE_KEYWORDS,
   },
   services: {
-    title: "Web Design & Development Services | Annek",
-    description: "Our web design and development services include portfolio sites, e-commerce stores, booking systems, and custom websites. Starting at $75.",
-    keywords: "web design services, web development, website services, e-commerce design, custom web development",
+    title: "Mobile Apps, Web Apps & Custom Software Packages | Annek",
+    description: "Built-in packages for mobile applications, web applications and custom software — customised to your business and maintained monthly. Sri Lanka & worldwide.",
+    keywords: `mobile application development, web application development, software customization, maintenance packages, ${BASE_KEYWORDS}`,
+  },
+  portfolio: {
+    title: "Portfolio — Web & App Projects | Annek",
+    description: "Websites, web apps and mobile apps Annek has built for businesses in Sri Lanka and worldwide.",
+    keywords: `portfolio, web design examples, app projects, ${BASE_KEYWORDS}`,
   },
   pricing: {
-    title: "Website Design Pricing Plans | Annek",
-    description: "Affordable website design pricing starting at $75. Starter, Growth, and Professional plans with different features and support levels.",
-    keywords: "website pricing, web design cost, affordable website design, website design packages",
+    title: "Pricing & Maintenance Packages | Annek",
+    description: "Transparent pricing for websites, web apps, mobile apps and software, with monthly maintenance packages.",
+    keywords: `website pricing sri lanka, app development cost, maintenance packages, ${BASE_KEYWORDS}`,
   },
   contact: {
-    title: "Contact Annek - Custom Website Design",
-    description: "Get in touch with Annek for your custom website project. We respond within 24 hours. Fast, affordable, professional web design services.",
-    keywords: "contact web designer, website design inquiry, web development contact",
+    title: "Contact Annek — Web, App & Software Development, Mannar, Sri Lanka",
+    description: "Talk to Annek about your web application, mobile app or custom software. We reply within 24 hours.",
+    keywords: `contact web developer sri lanka, app developer mannar, ${BASE_KEYWORDS}`,
   },
 };
 
@@ -127,7 +135,7 @@ export const getServiceSchema = (serviceName) => {
       "provider": {
         "@type": "Organization",
         "name": "Annek",
-        "url": "https://annek.com"
+        "url": "https://annek.tech"
       }
     },
     ecommerce: {
@@ -138,7 +146,7 @@ export const getServiceSchema = (serviceName) => {
       "provider": {
         "@type": "Organization",
         "name": "Annek",
-        "url": "https://annek.com"
+        "url": "https://annek.tech"
       }
     },
     booking: {
@@ -149,7 +157,7 @@ export const getServiceSchema = (serviceName) => {
       "provider": {
         "@type": "Organization",
         "name": "Annek",
-        "url": "https://annek.com"
+        "url": "https://annek.tech"
       }
     },
   };

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/adminAuth");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
 const Order = require("../models/Order");
@@ -186,7 +187,7 @@ router.post(
 );
 
 // ── GET /api/orders ── (admin)
-router.get("/", async (req, res) => {
+router.get("/", requireAdmin, async (req, res) => {
   try {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.json(orders);
@@ -196,7 +197,7 @@ router.get("/", async (req, res) => {
 });
 
 // ── PATCH /api/orders/:id ── update status
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", requireAdmin, async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(
       req.params.id,
@@ -208,7 +209,7 @@ router.patch("/:id", async (req, res) => {
 });
 
 // ── DELETE /api/orders/:id ──
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   try {
     await Order.findByIdAndDelete(req.params.id);
     res.json({ success: true });

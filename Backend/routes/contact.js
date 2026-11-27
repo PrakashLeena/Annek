@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { requireAdmin } = require("../middleware/adminAuth");
 const Contact = require("../models/Contact");
 const transporter = require("../config/nodemailer");
 
@@ -20,7 +21,7 @@ function contactEmailHtml(data) {
 }
 
 // GET /api/contact — return all contact messages for admin panel
-router.get("/", async (req, res) => {
+router.get("/", requireAdmin, async (req, res) => {
   try {
     const contacts = await Contact.find().sort({ createdAt: -1 });
     res.json(contacts);
@@ -31,7 +32,7 @@ router.get("/", async (req, res) => {
 });
 
 // DELETE /api/contact/:id — delete a contact message by ID
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     await Contact.findByIdAndDelete(id);

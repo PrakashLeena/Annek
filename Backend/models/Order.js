@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
 const OrderSchema = new mongoose.Schema({
+  // Package / template / product the client picked on the site (optional)
+  selectedPackage: { type: String, default: "", maxlength: 300 },
+
   // Step 1 - Contact
   name:    { type: String, required: true },
   email:   { type: String, required: true },

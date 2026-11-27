@@ -1,39 +1,39 @@
 import { useEffect } from "react";
 import { updateMetaTags, addStructuredData, pageConfigs } from "../utils/seoManager";
 
+const SITE = "https://annek.tech/";
+
 /**
- * SEO Component - Updates meta tags when component mounts
- * Usage: <SEOMetaTags page="home" customTitle="Custom Title" />
+ * Keeps <title>, description, keywords and social tags in sync with the section in view.
+ * `overrides` = settings from Admin › Settings (seoTitle, seoDescription, seoKeywords) — applied to the home page.
+ * The canonical URL always stays the home page: hash sections are not separate pages for Google.
  */
 export const SEOMetaTags = ({
   page = "home",
+  overrides = {},
   customTitle = null,
   customDescription = null,
   customKeywords = null,
-  customUrl = null,
   customImage = null,
   type = "website",
   structuredData = null,
 }) => {
+  const { seoTitle, seoDescription, seoKeywords } = overrides || {};
   useEffect(() => {
     const config = pageConfigs[page] || pageConfigs.home;
-    
+    const isHome = !pageConfigs[page] || page === "home";
     updateMetaTags({
-      title: customTitle || config.title,
-      description: customDescription || config.description,
-      keywords: customKeywords || config.keywords,
-      url: customUrl || `https://annek.com/#${page === "home" ? "" : page}`,
-      image: customImage || "https://annek.com/og-image.png",
+      title: customTitle || (isHome && seoTitle) || config.title,
+      description: customDescription || (isHome && seoDescription) || config.description,
+      keywords: customKeywords || [seoKeywords, config.keywords].filter(Boolean).join(", "),
+      url: SITE,
+      image: customImage || `${SITE}og-image.png`,
       type,
     });
+    if (structuredData) addStructuredData(structuredData);
+  }, [page, seoTitle, seoDescription, seoKeywords, customTitle, customDescription, customKeywords, customImage, structuredData, type]);
 
-    // Add custom structured data if provided
-    if (structuredData) {
-      addStructuredData(structuredData);
-    }
-  }, [page, customTitle, customDescription, customUrl, structuredData, type, customKeywords, customImage]);
-
-  return null; // This component only manages meta tags
+  return null;
 };
 
 export default SEOMetaTags;

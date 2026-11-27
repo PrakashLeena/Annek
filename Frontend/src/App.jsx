@@ -1,19 +1,23 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import logoImg from "./images/logo.png";
-import businessImg from "./images/bussines.jpg";
-import ecommerceImg from "./images/ecommerce.jpg";
-import portfolioImg from "./images/portfolio.png";
-import bookingImg from "./images/booking.jpg";
-import educationImg from "./images/education.png";
-import associationImg from "./images/Association.png";
-import clubsImg from "./images/clubs.jpg";
+import businessImg from "./images/bussines.webp";
+import ecommerceImg from "./images/ecommerce.webp";
+import portfolioImg from "./images/portfolio.webp";
+import bookingImg from "./images/booking.webp";
+import educationImg from "./images/education.webp";
+import associationImg from "./images/Association.webp";
+import clubsImg from "./images/clubs.webp";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 import SEOMetaTags from "./components/SEOMetaTags";
 
+// Code-split: only downloaded when the admin has published catalog/products.
+const ServicesCatalog = lazy(() => import("./components/ServicesCatalog.jsx"));
+const OwnProducts = lazy(() => import("./components/OwnProducts.jsx"));
+
 
 const API = import.meta.env.VITE_API_URL || "/api";
-const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
 
 /* ─── Intersection Observer Hook ─── */
 const useInView = (threshold = 0.15) => {
@@ -119,23 +123,6 @@ const faqAnswers = [
   "Yes. All websites are hosted on fast, secure servers. We also offer ongoing maintenance plans to keep your site updated, secure, and performing at its best.",
 ];
 
-const plans = [
-  {
-    name: "Starter", price: "$75 - $80", period: "one-time",
-    tagline: "Perfect for small businesses getting online.", highlight: false,
-    features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions"],
-  },
-  {
-    name: "Growth", price: "$100 - $120", period: "one-time",
-    tagline: "For businesses that need more power.", highlight: true, badge: "Most Popular",
-    features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "1 month free support"],
-  },
-  {
-    name: "Premium", price: "$150 - $170", period: "one-time",
-    tagline: "Full-featured sites with custom functionality.", highlight: false,
-    features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "3 months free support"],
-  },
-];
 
 
 const categoryImageMap = {
@@ -360,7 +347,7 @@ function FeedbackWidget() {
 }
 
 /* ─── Order Modal ─── */
-function OrderModal({ onClose }) {
+function OrderModal({ onClose, preset = "" }) {
   const TOTAL = 7;
   const [step, setStep] = useState(1);
 
@@ -406,6 +393,7 @@ function OrderModal({ onClose }) {
     try {
       const orderData = {
         name: contact.name, email: contact.email, company: contact.company,
+        selectedPackage: preset,
         pages, otherPages,
         textContent, productDetails, socialLinks, contactInfo,
         colour, designStyle, fonts, theme, likedSites,
@@ -459,7 +447,7 @@ function OrderModal({ onClose }) {
             {/* Header */}
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 11, color: "#5c4ef8", fontWeight: 700, marginBottom: 6, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Website Order Form
+                Order Form
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", letterSpacing: "-0.3px" }}>
                 {stepTitles[step - 1]}
@@ -477,6 +465,12 @@ function OrderModal({ onClose }) {
                 }} />
               ))}
             </div>
+
+            {preset && (
+              <div style={{ background: "#f0eeff", color: "#5c4ef8", borderRadius: 12, padding: "10px 14px", fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
+                ✦ {preset}
+              </div>
+            )}
 
             {/* ── STEP 1: Contact ── */}
             {step === 1 && (
@@ -809,6 +803,11 @@ export default function App() {
   const [settings, setSettings] = useState({ testimonialsTitle: "Trusted by hundreds of businesses" });
   const [activeSection, setActiveSection] = useState("home");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [catalog, setCatalog] = useState(null);
+  const [ownProducts, setOwnProducts] = useState([]);
+  const [orderPreset, setOrderPreset] = useState("");
+  const hasCatalog = !!catalog?.categories?.some(c => !c.parent);
+  const hasProducts = ownProducts.length > 0;
 
   const displayStats = [
     {
@@ -877,6 +876,14 @@ export default function App() {
       .then(r => r.json())
       .then(data => setLiveReviews(data))
       .catch(() => {});
+    fetch(`${API}/catalog`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => data && setCatalog(data))
+      .catch(() => {});
+    fetch(`${API}/products`)
+      .then(r => (r.ok ? r.json() : []))
+      .then(data => Array.isArray(data) && setOwnProducts(data))
+      .catch(() => {});
     fetch(`${API}/settings`)
       .then(r => r.json())
       .then(data => {
@@ -889,7 +896,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const sections = ["services", "how-it-works", "portfolio", "pricing", "about", "contact"];
+    const sections = ["services", "solutions", "how-it-works", "portfolio", "pricing", "products", "about", "contact"];
     const observerOptions = {
       root: null,
       rootMargin: "-20% 0px -60% 0px",
@@ -900,7 +907,8 @@ export default function App() {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const id = entry.target.getAttribute("id");
-          if (id === "services") setActiveSection("services");
+          if (id === "services") setActiveSection("home"); // hero section
+          else if (id === "solutions" || id === "products") setActiveSection("services");
           else if (id === "portfolio") setActiveSection("portfolio");
           else if (id === "pricing") setActiveSection("pricing");
           else if (id === "contact") setActiveSection("contact");
@@ -927,13 +935,33 @@ export default function App() {
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [hasCatalog, hasProducts]);
 
   const filteredProjects = selectedCategory === "All"
     ? portfolioProjects
     : portfolioProjects.filter(p => p.category === selectedCategory);
 
-  const openOrder = () => { setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false); };
+  const openOrder = (preset) => {
+    setOrderPreset(typeof preset === "string" ? preset : "");
+    setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false);
+  };
+
+  // Company details are editable in Admin › Settings (fallbacks = current details)
+  const company = {
+    email: settings.contactEmail || "annek.websitebuild.official@gmail.com",
+    whatsapp: (settings.whatsappNumber || "94701269689").replace(/[^0-9]/g, ""),
+    phone: settings.contactPhone || "",
+    address: settings.address || "Mannar, Sri Lanka",
+    area: settings.serviceArea || "Serving Sri Lanka & clients worldwide",
+    tagline: settings.companyTagline || "Web apps, mobile apps and custom software — built, customised and maintained for your business.",
+    about: settings.aboutText || "",
+  };
+
+  const visibleNavLinks = [
+    ...(hasCatalog ? [{ label: "Solutions", href: "#solutions" }] : []),
+    ...(hasProducts ? [{ label: "Products", href: "#products" }] : []),
+    ...navLinks.filter(l => !l.hasDropdown),
+  ];
 
   const scrollTo = (href, isRoute) => {
     setMobileMenuOpen(false); setServicesOpen(false);
@@ -960,7 +988,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', Arial, sans-serif", color: "#1a1a1a", overflowX: "hidden" }}>
-      <SEOMetaTags page={activeSection} />
+      <SEOMetaTags page={activeSection} overrides={settings} />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1220,7 +1248,7 @@ export default function App() {
       `}</style>
 
       {/* ── ORDER MODAL ── */}
-      {showOrder && <OrderModal onClose={() => setShowOrder(false)} />}
+      {showOrder && <OrderModal preset={orderPreset} onClose={() => setShowOrder(false)} />}
 
       {/* ── MAIN CONTENT ── */}
       <main>
@@ -1240,7 +1268,7 @@ export default function App() {
           ))}
         </div>
         <div style={{ height: 1, background: "#eee", margin: "4px 0 8px" }} />
-        {navLinks.filter(l => !l.hasDropdown).map(l => (
+        {visibleNavLinks.map(l => (
           l.isRoute ? (
             <Link key={l.label} to={l.href} style={{
               display: "flex", alignItems: "center", gap: 10, width: "100%",
@@ -1298,7 +1326,7 @@ export default function App() {
               )}
             </div>
             {/* Other links */}
-            {navLinks.filter(l => !l.hasDropdown).map(l => (
+            {visibleNavLinks.map(l => (
               <NavItem key={l.label} link={l} />
             ))}
           </div>
@@ -1307,7 +1335,7 @@ export default function App() {
           <div style={{ display: "flex", gap: 12, alignItems: "center", marginLeft: "auto" }}>
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {ADMIN_EMAILS.includes(user.email) && (
+                {ADMIN_EMAILS.includes((user.email || "").toLowerCase()) && (
                   <a href="/admin" className="nav-admin-btn" style={{
                     display: "flex", alignItems: "center", gap: 6,
                     background: "#1a1a1a", color: "#d4f74b",
@@ -1370,7 +1398,7 @@ export default function App() {
             borderRadius: 100, padding: "6px 18px", marginBottom: 32,
             fontSize: 13, color: "#5c4ef8", fontWeight: 600,
           }}>
-            <span>✦</span> Custom websites built to your exact requirements
+            <span>✦</span> Web apps · Mobile apps · Custom software
           </div>
         </div>
 
@@ -1380,7 +1408,7 @@ export default function App() {
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(32px)",
           transition: "opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s", color: "#0e0e0e",
         }}>
-          Your website,{" "}<em style={{ fontStyle: "normal", fontWeight: 300 }}>built for you</em>
+          Your digital solution,{" "}<em style={{ fontStyle: "normal", fontWeight: 300 }}>built &amp; maintained</em>
         </h1>
 
         <p style={{
@@ -1388,8 +1416,8 @@ export default function App() {
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(24px)",
           transition: "opacity 0.8s ease 0.35s, transform 0.8s ease 0.35s",
         }}>
-          Tell us your vision, requirements, and budget — Annek's expert team will design and
-          deliver a stunning, high-performance website crafted just for you.
+          Pick a ready-made app, website or software package — Annek customises it to your
+          business and keeps it secure and up to date with a monthly maintenance plan.
         </p>
 
         <div style={{
@@ -1397,8 +1425,8 @@ export default function App() {
           opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(20px)",
           transition: "opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s",
         }}>
-          <button className="btn-dark" style={{ fontSize: 16, padding: "16px 36px" }} onClick={openOrder}>
-            Order Your Website
+          <button className="btn-dark" style={{ fontSize: 16, padding: "16px 36px" }} onClick={() => (hasCatalog ? scrollTo("#solutions") : openOrder())}>
+            {hasCatalog ? "Explore Solutions" : "Start Your Order"}
           </button>
           <button className="btn-outline" style={{ fontSize: 16, padding: "16px 36px" }} onClick={() => scrollTo("#portfolio")}>
             View Portfolio
@@ -1441,7 +1469,7 @@ export default function App() {
         <div className="ticker-track">
           {[...Array(2)].map((_, ri) => (
             <div key={ri} style={{ display: "flex", gap: 48 }}>
-              {["Portfolio Sites", "E-Commerce", "Booking Sites", "Education Websites", "Online Stores", "Business Sites", "Club Websites", "Associations", "SEO Optimised", "Fast Delivery"].map((t, i) => (
+              {["Mobile Applications", "Web Applications", "Custom Software", "E-Commerce", "Portfolio Sites", "Institute Platforms", "Monthly Maintenance", "Software Customisation", "SEO Optimised", "Fast Delivery"].map((t, i) => (
                 <span key={i} style={{ color: "#fff", fontSize: 14, fontWeight: 400, opacity: 0.8, letterSpacing: "0.05em" }}>
                   {t} <span style={{ color: "#d4f74b", margin: "0 12px" }}>✦</span>
                 </span>
@@ -1464,6 +1492,13 @@ export default function App() {
           ))}
         </div>
       </section>
+
+      {/* ── SECTOR 1: CLIENT SERVICES & PACKAGES ── */}
+      {hasCatalog && (
+        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
+          <ServicesCatalog catalog={catalog} onOrder={openOrder} />
+        </Suspense>
+      )}
 
       {/* ── HOW IT WORKS ── */}
       <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
@@ -1655,7 +1690,7 @@ export default function App() {
               <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 58px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e", marginBottom: 16 }}>
                 Simple, <em style={{ fontStyle: "italic" }}>honest pricing</em>
               </h2>
-              <p style={{ fontSize: 16, color: "#777", maxWidth: 500, margin: "0 auto" }}>No hidden fees. No subscriptions. Pay once, own it forever.</p>
+              <p style={{ fontSize: 16, color: "#777", maxWidth: 500, margin: "0 auto" }}>One-time website builds with no hidden fees. Want us to run it for you? Add a monthly maintenance plan.</p>
             </div>
           </FadeUp>
           <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, alignItems: "start" }}>
@@ -1702,6 +1737,13 @@ export default function App() {
           </FadeUp>
         </div>
       </section>
+
+      {/* ── SECTOR 2: OWN PRODUCTS ── */}
+      {hasProducts && (
+        <Suspense fallback={<div style={{ minHeight: 400, background: "#0f0f12" }} />}>
+          <OwnProducts products={ownProducts} onOrder={openOrder} />
+        </Suspense>
+      )}
 
       {/* ── TESTIMONIALS ── */}
       {displayReviews.length > 0 && (
@@ -1808,8 +1850,8 @@ export default function App() {
                 <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 300, letterSpacing: "-1.5px", color: "#0e0e0e", marginBottom: 24 }}>
                   We build websites that <em style={{ fontStyle: "italic" }}>work for you</em>
                 </h2>
-                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 20 }}>
-                  Annek is a website-ordering platform where businesses and individuals commission fully custom-built websites — without the hassle of hiring freelancers or navigating complex agency contracts.
+                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 20, whiteSpace: "pre-line" }}>
+                  {company.about || "Annek is a digital solutions company from Mannar, Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance packages."}
                 </p>
                 <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 32 }}>
                   Founded with a simple mission — make professional web design accessible to everyone — our team of expert designers and developers has delivered over 1,200 websites across 40+ industries worldwide.
@@ -1896,9 +1938,9 @@ export default function App() {
                       </svg>
                     ),
                     label: "Email",
-                    value: "annek.websitebuild.official@gmail.com",
+                    value: company.email,
                     sub: "We reply within 24 hours",
-                    href: "mailto:annek.websitebuild.official@gmail.com"
+                    href: `mailto:${company.email}`
                   },
                   {
                     icon: (
@@ -1907,9 +1949,9 @@ export default function App() {
                       </svg>
                     ),
                     label: "WhatsApp",
-                    value: "+94701269689",
+                    value: company.phone || `+${company.whatsapp}`,
                     sub: "Mon–Fri, 9am – 6pm",
-                    href: "https://wa.me/94701269689"
+                    href: `https://wa.me/${company.whatsapp}`
                   },
                   {
                     icon: (
@@ -1932,8 +1974,8 @@ export default function App() {
                       </svg>
                     ),
                     label: "Location",
-                    value: "Global Remote Team",
-                    sub: "Serving clients worldwide"
+                    value: company.address,
+                    sub: company.area
                   }
                 ].map((c, i) => (
                   <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
@@ -1974,7 +2016,7 @@ export default function App() {
             Ready to get started?
           </p>
           <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4.5vw, 64px)", fontWeight: 300, letterSpacing: "-2px", color: "#fff", marginBottom: 16 }}>
-            Order your website today
+            Start your digital solution today
           </h2>
           <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>
             Unlimited revisions · Expert support
@@ -1998,11 +2040,11 @@ export default function App() {
             <div>
               <img src={logoImg} alt="Annek - Professional Website Builder Logo" style={{ height: 36, width: "auto", objectFit: "contain", marginBottom: 16 }} />
               <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, maxWidth: 240 }}>
-                Custom websites built to order. Tell us your vision and we'll bring it to life.
+                {company.tagline}
               </p>
             </div>
             {[
-              { title: "Services", links: ["Portfolio Sites", "E-Commerce", "Booking Sites", "Education Websites", "Clubs & Associations"] },
+              { title: "Services", links: ["Mobile Applications", "Web Applications", "Custom Software", "Maintenance Packages", "Our Products"] },
               { title: "Company", links: ["About Us", "How It Works", "Portfolio", "Pricing"] },
               { title: "Support", links: ["Contact Us", "FAQ", "Privacy Policy", "Terms"] },
             ].map(col => (
@@ -2033,7 +2075,7 @@ export default function App() {
       </footer>
 
       {/* ── ADMIN SHORTCUT (only for admin) ── */}
-      {user && ADMIN_EMAILS.includes(user.email) && (
+      {user && ADMIN_EMAILS.includes((user.email || "").toLowerCase()) && (
         <a href="/admin" title="Go to Admin Panel" style={{
           position: "fixed", bottom: 28, left: 28, zIndex: 998,
           background: "#1a1a1a", color: "#d4f74b",
@@ -2051,7 +2093,7 @@ export default function App() {
       )}
 
       {/* ── WHATSAPP BUTTON ── */}
-      <a href="https://wa.me/94701269689" target="_blank" rel="noopener noreferrer"
+      <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer"
         title="Chat on WhatsApp"
         style={{
           position: "fixed", bottom: 96, right: 28, zIndex: 998,

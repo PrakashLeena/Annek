@@ -1,5 +1,5 @@
 # Robots.txt — annek.tech
-# Last updated: 2026-05-29
+# Last updated: 2026-11-27
 
 User-agent: *
 Allow: /
@@ -19,14 +19,20 @@ Allow: /*.js$
 # No crawl delay for major crawlers
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /api/
 Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /api/
 Crawl-delay: 1
 
 User-agent: Yandexbot
 Allow: /
+Disallow: /admin
+Disallow: /api/
 Crawl-delay: 2
 
 User-agent: facebookexternalhit
@@ -78,4 +84,3 @@ Disallow: /
 
 # Sitemaps
 Sitemap: https://annek.tech/sitemap.xml
-Sitemap: https://annek.tech/sitemap-images.xml
