@@ -20,6 +20,7 @@ const globalLimiter = rateLimit({
 });
 
 const ordersLimiter = rateLimit({
+  skip: (req) => req.method !== "POST", // only limit public submissions, not the admin panel
   windowMs: 60 * 60 * 1000,       // 1 hour
   max: 10,
   message: { error: "Order limit reached. Please contact us directly." },
@@ -27,21 +28,17 @@ const ordersLimiter = rateLimit({
 });
 
 const contactLimiter = rateLimit({
+  skip: (req) => req.method !== "POST", // only limit public submissions, not the admin panel
   windowMs: 60 * 60 * 1000,
   max: 5,
   message: { error: "Message limit reached. Please try again in an hour." },
 });
 
 const feedbackLimiter = rateLimit({
+  skip: (req) => req.method !== "POST", // only limit public submissions, not the admin panel
   windowMs: 60 * 60 * 1000,
   max: 10,
   message: { error: "Feedback limit reached." },
-});
-
-const aiWebsiteLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 60,
-  message: { error: "Too many AI requests. Please try again later." },
 });
 
 // ─── Input Sanitizer ─────────────────────────────────────────
@@ -133,7 +130,6 @@ function applySecurityMiddleware(app) {
   app.use("/api/orders",   ordersLimiter);
   app.use("/api/contact",  contactLimiter);
   app.use("/api/feedback", feedbackLimiter);
-  app.use("/api/ai/website", aiWebsiteLimiter);
 
   console.log("✅ Security middleware applied");
 }

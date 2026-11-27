@@ -26,7 +26,7 @@ const emptyPlan = () => ({ name: "", price: 0, currency: "USD", interval: "month
 function PlansEditor({ plans, setPlans }) {
   const update = (i, patch) => setPlans((ps) => ps.map((p, j) => (j === i ? { ...p, ...patch } : p)));
   return (
-    <div style={{ marginTop: 18, borderTop: "1.5px solid #e0dcff", paddingTop: 14 }}>
+    <div style={{ marginTop: 18, borderTop: "1.5px solid #FDE3D0", paddingTop: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
         <strong style={{ fontSize: 14 }}>Subscription plans</strong>
         <Btn kind="soft" onClick={() => setPlans((ps) => [...ps, emptyPlan()])} disabled={plans.length >= 12}>+ Plan</Btn>
