@@ -313,7 +313,7 @@ function UsersTab() {
 const COMPANY_FIELDS = [
   ["companyName", "Company name", "Annek"],
   ["founderName", "Founder / owner name", "Your name"],
-  ["companyTagline", "Tagline", "Digital solutions for apps, web & software"],
+  ["companyTagline", "Tagline", "Software development company in Sri Lanka"],
   ["contactEmail", "Contact email", "info@annek.tech"],
   ["contactPhone", "Phone", "+94 70 126 9689"],
   ["whatsappNumber", "WhatsApp number (digits only)", "94701269689"],
@@ -322,9 +322,9 @@ const COMPANY_FIELDS = [
   ["aboutText", "About text", "A short paragraph about you and Annek", true],
 ];
 const SEO_FIELDS = [
-  ["seoTitle", "Home page title", "Annek | Web, Mobile App & Software Development in Sri Lanka"],
-  ["seoDescription", "Meta description", "Web applications, mobile apps and custom software with monthly maintenance packages…", 3],
-  ["seoKeywords", "Target keywords", "web development sri lanka, mobile application development sri lanka, software development sri lanka", 3],
+  ["seoTitle", "Home page title", "Annek | Software Development Company in Sri Lanka"],
+  ["seoDescription", "Meta description", "Leave empty to use the default: Annek is a software development company in Sri Lanka…", 3],
+  ["seoKeywords", "Target keywords", "software development company sri lanka, custom software development", 3],
 ];
 
 function SettingsTab() {

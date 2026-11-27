@@ -16,7 +16,7 @@ export default function NotFound() {
     }
     const prevRobots = robots.content;
     robots.content = "noindex";
-    document.title = "Page not found | Annek";
+    document.title = "Page Not Found | Annek Software Development";
     return () => {
       document.title = prevTitle;
       if (created) robots.remove();

@@ -46,6 +46,8 @@ export const CATEGORY_INFO = {
     label: "Mobile Applications",
     short: "Mobile App",
     title: "Mobile app solutions",
+    seoTitle: "Mobile App Solutions | Annek Software Development",
+    seoDescription: "Ready made mobile apps for Android and iPhone from Annek, a software development company in Sri Lanka, customised and launched for your business.",
     intro: "Ready made mobile apps for Android and iPhone. Pick one and we customise it for your business.",
   },
   web: {
@@ -53,6 +55,8 @@ export const CATEGORY_INFO = {
     label: "Web Applications",
     short: "Web App",
     title: "Web application solutions",
+    seoTitle: "Web App Solutions | Annek Software Development",
+    seoDescription: "Ready made web applications with admin panels from Annek, a software development company in Sri Lanka. Try the live demos and customise one.",
     intro: "Ready made web applications that run in any browser, with an admin panel you control. Try the live demos.",
   },
   software: {
@@ -60,6 +64,8 @@ export const CATEGORY_INFO = {
     label: "Custom Software",
     short: "Software",
     title: "Software solutions",
+    seoTitle: "Software Solutions | Annek Software Development",
+    seoDescription: "Ready made business software for billing, stock, records and automation from Annek, a software development company in Sri Lanka.",
     intro: "Ready made software for billing, stock, records and automation, shaped around how your business works.",
   },
 };
