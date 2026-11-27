@@ -14,6 +14,10 @@ const adminSolutionsRouter = require("./routes/adminSolutions");
 const { applySecurityMiddleware } = require("./middleware/security");
 
 const app = express();
+// Behind Vercel's proxy: trust its one hop so req.ip is the visitor (Vercel sets
+// X-Forwarded-For itself, so clients cannot spoof it). Without this every visitor
+// shared one rate-limit bucket.
+app.set("trust proxy", 1);
 connectDB();
 applySecurityMiddleware(app);
 
