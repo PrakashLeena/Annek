@@ -25,6 +25,7 @@ const STEPS = [
 ];
 
 const FAQS = [
+  ["What does Annek do?", "Annek is a software development company in Sri Lanka. We build custom software, web applications and mobile apps for businesses, from idea to launch, and keep them secure and up to date with monthly maintenance."],
   ["What does a monthly maintenance plan cover?", "Hosting, security updates, backups, small content changes and support. Each package lists exactly what is included, and you can add more care any time."],
   ["Can you customise a template for my business?", "Yes. Every template is a starting point. We add your brand, content, features and integrations so it fits how your business works."],
   ["How long does delivery take?", "Standard websites take a few business days. Apps, web applications and custom software usually take one to four weeks depending on features. You get a clear timeline with your quote."],
@@ -159,7 +160,7 @@ export default function App() {
     address: settings.address || "Vankalai, Sri Lanka",
     area: settings.serviceArea || "Sri Lanka · Serving worldwide",
     tagline: settings.companyTagline || "Web apps, mobile apps and custom software that we build, customise and maintain for your business.",
-    about: settings.aboutText || "Annek is a digital studio from Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
+    about: settings.aboutText || "Annek is a software development company in Sri Lanka. We build custom software, web applications and mobile apps for businesses, from idea to launch, often starting from proven solutions we customise for you, and keep them running with affordable monthly maintenance.",
   };
 
   const featured = catalog?.packages?.find((p) => p.highlighted) || catalog?.packages?.[0];
@@ -351,7 +352,7 @@ export default function App() {
           <div className="wrap about">
             <div className="about-copy reveal">
               <div className="eyebrow" style={{ marginBottom: 0 }}>About Annek</div>
-              <h2 className="h2" id="about-title">A digital studio from Sri Lanka, building for businesses everywhere.</h2>
+              <h2 className="h2" id="about-title">A software development company from Sri Lanka, building for businesses everywhere.</h2>
               <p className="lead" style={{ whiteSpace: "pre-line" }}>{company.about}</p>
               {statItems.length > 0 && (
                 <div className="stats">{statItems.map(([v, l]) => <div key={l} className="stat"><b>{v}</b><span>{l}</span></div>)}</div>
