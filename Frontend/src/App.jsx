@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from "react";
 import "./site/site.css";
 import logoImg from "./images/annek-logo.webp";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
@@ -135,6 +135,16 @@ export default function App() {
   }, [catalog, products, portfolio]);
 
   useReveal([catalog, products, portfolio, reviews]);
+
+  // Arriving at /#section (e.g. "All services" on a showcase page): scroll there once it has rendered.
+  const hashDone = useRef(false);
+  useEffect(() => {
+    if (hashDone.current) return;
+    const id = decodeURIComponent(window.location.hash.slice(1));
+    const el = id && document.getElementById(id);
+    if (!id) { hashDone.current = true; return; }
+    if (el) { hashDone.current = true; el.scrollIntoView(); }
+  }, [catalog, products, portfolio]);
 
   const openOrder = useCallback((preset) => { setMenuOpen(false); setOrder(typeof preset === "string" ? preset : ""); }, []);
   const closeOrder = useCallback(() => setOrder(null), []);

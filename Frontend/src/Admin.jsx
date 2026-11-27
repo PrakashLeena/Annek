@@ -5,6 +5,7 @@ import logoImg from "./images/annek-logo.webp";
 
 const CatalogTab = lazy(() => import("./admin/CatalogTab.jsx"));
 const ProductsTab = lazy(() => import("./admin/ProductsTab.jsx"));
+const SolutionsTab = lazy(() => import("./admin/SolutionsTab.jsx"));
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 const STATUS_COLORS = {
@@ -738,7 +739,7 @@ export default function Admin() {
 
   const groups = [
     ["Sales", [["orders", "Orders"], ["comments", "Messages"], ["reviews", "Reviews"]]],
-    ["Catalog", [["services", "Services & packages"], ["products", "Own products"], ["portfolio", "Portfolio"]]],
+    ["Catalog", [["solutions", "Solutions"], ["services", "Services & packages"], ["products", "Own products"], ["portfolio", "Portfolio"]]],
     ["Site", [["settings", "Company & SEO"], ["users", "Account"]]],
   ];
 
@@ -771,6 +772,7 @@ export default function Admin() {
         <Suspense fallback={<div style={{ textAlign: "center", color: "#8A847B", padding: 40 }}>Loading…</div>}>
           {tab === "services" && <CatalogTab />}
           {tab === "products" && <ProductsTab />}
+          {tab === "solutions" && <SolutionsTab />}
         </Suspense>
         {tab === "portfolio" && <PortfolioTab />}
         {tab === "reviews" && <ReviewsTab />}
