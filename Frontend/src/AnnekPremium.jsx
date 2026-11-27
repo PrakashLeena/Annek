@@ -1213,7 +1213,7 @@ function Contact({ onOrder }) {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({}); setStatus("loading");
     try {
-      const API = import.meta.env?.VITE_API_URL || "https://annek.tech/api";
+      const API = import.meta.env?.VITE_API_URL || "/api";
       const res = await fetch(`${API}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1584,7 +1584,7 @@ function OrderModal({ onClose }) {
     if (!contact.name || !contact.email) return;
     setLoading(true);
     try {
-      const API = import.meta.env?.VITE_API_URL || "https://annek.tech/api";
+      const API = import.meta.env?.VITE_API_URL || "/api";
       const res = await fetch(`${API}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1714,7 +1714,7 @@ function OrderModal({ onClose }) {
 /* ─────────────────────────────────────────────
    ROOT APP
    ───────────────────────────────────────────── */
-const API = import.meta.env?.VITE_API_URL || "https://annek.tech/api";
+const API = import.meta.env?.VITE_API_URL || "/api";
 
 export default function AnnekPremium() {
   const [showOrder, setShowOrder] = useState(false);

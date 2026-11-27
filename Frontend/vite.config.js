@@ -51,6 +51,10 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     open: false,
+    // Local dev: forward /api to the Express backend (npm run dev --prefix Backend)
+    proxy: {
+      "/api": "http://localhost:5000",
+    },
     headers: {
       "X-Content-Type-Options": "nosniff",
       "X-Frame-Options": "DENY",
