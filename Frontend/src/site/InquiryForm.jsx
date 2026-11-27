@@ -99,7 +99,7 @@ export default function InquiryForm({ category, label, solutions, preset }) {
       </div>
       {state === "error" && (
         <p id="inq-error" className="inq-err" role="alert">
-          {error} You can also email us at <a href={`mailto:${FALLBACK}`}>{FALLBACK}</a>.
+          {error.replace(` Please email us at ${FALLBACK}.`, "")} You can also email us at <a href={`mailto:${FALLBACK}`}>{FALLBACK}</a>.
         </p>
       )}
       <button type="submit" className="btn btn-orange btn-lg" disabled={state === "sending"}>{state === "sending" ? "Sending…" : "Send request"}</button>
