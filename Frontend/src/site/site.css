@@ -495,3 +495,21 @@ a.g-author:hover { text-decoration: underline; }
   .g-summary-actions { width: 100%; }
   .g-summary-actions .btn { flex: 1 1 auto; }
 }
+
+/* ── Google rating badge (Trusted By) ── */
+.g-badge-row { background: #fff; border: 1px solid var(--line); border-radius: 24px; padding: 20px 24px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 24px; margin: 0 0 28px; }
+.g-badge-main { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.g-wordmark { font-family: Arial, Helvetica, sans-serif; font-size: 26px; font-weight: 500; letter-spacing: -.5px; line-height: 1; }
+.g-badge-score { display: flex; flex-direction: column; gap: 4px; }
+.g-badge-line { display: flex; align-items: center; gap: 10px; }
+.g-badge-line b { font-family: var(--display); font-size: 30px; font-weight: 600; line-height: 1; }
+.g-stars { position: relative; display: inline-block; font-size: 20px; letter-spacing: 2px; line-height: 1; white-space: nowrap; }
+.g-stars-off { color: var(--line-2); }
+.g-stars-on { position: absolute; inset: 0 auto 0 0; overflow: hidden; color: #FBBC05; }
+.g-badge-count { font-size: 14px; color: var(--muted); }
+.g-badge-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+@media (max-width: 620px) {
+  .g-badge-row { padding: 18px; border-radius: 20px; }
+  .g-badge-actions { width: 100%; }
+  .g-badge-actions .btn { flex: 1 1 auto; }
+}

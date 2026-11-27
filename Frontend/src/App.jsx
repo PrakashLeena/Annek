@@ -7,6 +7,8 @@ import Solutions from "./site/Solutions";
 import Products from "./site/Products";
 import FeedbackWidget from "./site/FeedbackWidget";
 import Marquee from "./site/Marquee";
+import GoogleRatingBadge from "./site/GoogleRatingBadge";
+import { parseGoogleRating } from "./utils/googleRating";
 import { GoogleSummary, GoogleReviewCard, WriteReviewButton, Stars } from "./site/GoogleReviews";
 import { IconMenu, IconClose, IconMail, IconPin, IconWhatsApp } from "./site/icons";
 import { money } from "./utils/format";
@@ -342,7 +344,10 @@ export default function App() {
         <section id="reviews" className="section tint" aria-labelledby="reviews-title">
           <div className="wrap">
             <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 28 }}>Trusted By</h2>
-            <GoogleSummary data={google} />
+            {/* Live Places data wins; otherwise the rating typed in Admin > Settings; otherwise just "Write a review". */}
+            {!(google?.userRatingCount > 0) && parseGoogleRating(settings)
+              ? <GoogleRatingBadge settings={settings} />
+              : <GoogleSummary data={google} />}
           </div>
           {shownReviews.length > 0 && (
             <Marquee label="Client ratings" reverse items={shownReviews} keyOf={(r) => r._id} renderItem={(r) => r._google ? <GoogleReviewCard review={r} /> : (
