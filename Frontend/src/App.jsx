@@ -145,10 +145,10 @@ export default function App() {
     email: settings.contactEmail || "annek.websitebuild.official@gmail.com",
     whatsapp: (settings.whatsappNumber || "94701269689").replace(/[^0-9]/g, ""),
     phone: settings.contactPhone || "+94 70 126 9689",
-    address: settings.address || "Vankalai, Mannar, Sri Lanka",
-    area: settings.serviceArea || "Mannar, Sri Lanka · Serving worldwide",
+    address: settings.address || "Vankalai, Sri Lanka",
+    area: settings.serviceArea || "Sri Lanka · Serving worldwide",
     tagline: settings.companyTagline || "Web apps, mobile apps and custom software — built, customised and maintained for your business.",
-    about: settings.aboutText || "Annek is a digital studio from Mannar, Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
+    about: settings.aboutText || "Annek is a digital studio from Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
   };
 
   const featured = catalog?.packages?.find((p) => p.highlighted) || catalog?.packages?.[0];
@@ -345,7 +345,7 @@ export default function App() {
           <div className="wrap about">
             <div className="about-copy reveal">
               <div className="eyebrow" style={{ marginBottom: 0 }}>About Annek</div>
-              <h2 className="h2" id="about-title">A digital studio from Mannar, building for businesses everywhere.</h2>
+              <h2 className="h2" id="about-title">A digital studio from Sri Lanka, building for businesses everywhere.</h2>
               <p className="lead" style={{ whiteSpace: "pre-line" }}>{company.about}</p>
               {statItems.length > 0 && (
                 <div className="stats">{statItems.map(([v, l]) => <div key={l} className="stat"><b>{v}</b><span>{l}</span></div>)}</div>

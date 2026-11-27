@@ -87,9 +87,9 @@ export const addGeoMetaTags = (country, region, city, lat, lon) => {
  * Page-specific SEO configurations
  */
 export const BASE_KEYWORDS = [
-  "web development", "web development sri lanka", "web development mannar",
-  "mobile application development sri lanka", "mobile app development mannar",
-  "software development sri lanka", "software development mannar", "software customization",
+  "web development", "web development sri lanka",
+  "mobile application development sri lanka",
+  "software development sri lanka", "software customization",
   "web application development", "website maintenance packages", "monthly maintenance packages",
   "e-commerce app development", "custom software sri lanka", "annek",
 ].join(", ");
@@ -97,7 +97,7 @@ export const BASE_KEYWORDS = [
 export const pageConfigs = {
   home: {
     title: "Annek — Web, Mobile App & Software Development in Sri Lanka",
-    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka (Mannar) — ready-made templates customised for your business, with monthly maintenance packages.",
+    description: "Annek builds web applications, mobile apps and custom software in Sri Lanka — ready-made templates customised for your business, with monthly maintenance packages.",
     keywords: BASE_KEYWORDS,
   },
   services: {
@@ -116,9 +116,9 @@ export const pageConfigs = {
     keywords: `website pricing sri lanka, app development cost, maintenance packages, ${BASE_KEYWORDS}`,
   },
   contact: {
-    title: "Contact Annek — Web, App & Software Development, Mannar, Sri Lanka",
+    title: "Contact Annek — Web, App & Software Development, Sri Lanka",
     description: "Talk to Annek about your web application, mobile app or custom software. We reply within 24 hours.",
-    keywords: `contact web developer sri lanka, app developer mannar, ${BASE_KEYWORDS}`,
+    keywords: `contact web developer sri lanka, app developer sri lanka, ${BASE_KEYWORDS}`,
   },
 };
 
