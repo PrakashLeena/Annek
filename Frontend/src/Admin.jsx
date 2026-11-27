@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL || "/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 const STATUS_COLORS = {

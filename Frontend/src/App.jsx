@@ -12,7 +12,7 @@ import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 import SEOMetaTags from "./components/SEOMetaTags";
 
 
-const API = import.meta.env.VITE_API_URL || "http://annek.tech";
+const API = import.meta.env.VITE_API_URL || "/api";
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 /* ─── Intersection Observer Hook ─── */

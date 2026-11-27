@@ -1,13 +1,25 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npm install --prefix Frontend",
+  "installCommand": "npm install --prefix Frontend && npm install --prefix Backend",
   "buildCommand": "npm run build --prefix Frontend",
   "outputDirectory": "Frontend/dist",
-  "rewrites": [
+  "headers": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/:path(portfolio|stats|feedback|settings)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=300" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
     }
+  ],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
