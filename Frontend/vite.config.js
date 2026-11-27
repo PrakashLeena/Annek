@@ -61,6 +61,13 @@ export default defineConfig({
     },
   },
 
+  // `npm run preview`: use a port the API's CORS allowlist accepts (localhost:5173–5175).
+  // Vite's default preview port (4173) is not on that list, so every API call is blocked.
+  preview: {
+    port: 5174,
+    strictPort: true,
+  },
+
   // Pre-bundle large deps for faster cold starts
   optimizeDeps: {
     include: [
