@@ -7,7 +7,6 @@ const feedbackRouter = require("./routes/feedback");
 const portfolioRouter = require("./routes/portfolio");
 const contactRouter = require("./routes/contact");
 const settingsRouter = require("./routes/settings");
-const aiWebsiteRouter = require("./routes/aiWebsite");
 const catalogRouter = require("./routes/catalog");
 const productsRouter = require("./routes/products");
 const { applySecurityMiddleware } = require("./middleware/security");
@@ -43,7 +42,6 @@ app.use("/api/feedback", feedbackRouter);
 app.use("/api/portfolio", portfolioRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/settings", settingsRouter);
-app.use("/api/ai/website", aiWebsiteRouter);
 app.use("/api/catalog", catalogRouter);
 app.use("/api/products", productsRouter);
 

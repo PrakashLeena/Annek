@@ -8,6 +8,11 @@ const OrderSchema = new mongoose.Schema({
   name:    { type: String, required: true },
   email:   { type: String, required: true },
   company: { type: String, default: "" },
+  phone:   { type: String, default: "", maxlength: 40 },
+
+  // Project (2026 redesign): where it runs + free-text brief
+  platforms:   [String],
+  description: { type: String, default: "", maxlength: 4000 },
 
   // Step 2 - Pages
   pages:      [String],

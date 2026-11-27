@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { requireAdmin } = require("../middleware/adminAuth");
+const { sanitizeInput } = require("../middleware/security");
 const multer = require("multer");
 const cloudinary = require("../config/cloudinary");
 const Order = require("../models/Order");
@@ -23,35 +24,48 @@ const uploadBuffer = (buffer, options) =>
   });
 
 // ── Email Templates ──────────────────────────────────────────
-function adminEmailHtml(data) {
+// Customer input goes into HTML email: escape it so nobody can inject markup or links.
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeUrl = (u) => (/^https:\/\/res\.cloudinary\.com\//.test(String(u)) ? esc(u) : "#");
+
+function adminEmailHtml(raw) {
+  const data = { ...raw, name: esc(raw.name) };
   const row = (label, value) =>
     value
-      ? `<tr><td style="padding:8px 12px;font-weight:600;color:#555;width:180px;border-bottom:1px solid #f0f0f0">${label}</td><td style="padding:8px 12px;color:#333;border-bottom:1px solid #f0f0f0">${value}</td></tr>`
+      ? `<tr><td style="padding:8px 12px;font-weight:600;color:#555;width:180px;border-bottom:1px solid #f0f0f0">${label}</td><td style="padding:8px 12px;color:#333;border-bottom:1px solid #f0f0f0;white-space:pre-wrap">${esc(value)}</td></tr>`
       : "";
 
   return `
   <!DOCTYPE html><html><body style="margin:0;padding:0;background:#f5f5f5;font-family:'Helvetica Neue',Arial,sans-serif">
   <div style="max-width:640px;margin:32px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08)">
     <div style="background:#1a1a1a;padding:28px 32px">
-      <h1 style="margin:0;color:#d4f74b;font-size:22px;font-weight:700">🌐 New Website Order</h1>
+      <h1 style="margin:0;color:#F26A1B;font-size:22px;font-weight:700">New Order — Annek</h1>
       <p style="margin:6px 0 0;color:#888;font-size:14px">${data.forAdmin ? 'Admin Copy — Received via Annek Platform' : `Hi ${data.name}, here are your order details!`}</p>
     </div>
     <div style="padding:28px 32px">
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Contact Details</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Contact Details</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Name", data.name)}
         ${row("Email", data.email)}
         ${row("Company", data.company)}
+        ${row("Phone / WhatsApp", data.phone)}
       </table>
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Pages Required</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Project</h2>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
+        ${row("Selected package", data.selectedPackage)}
+        ${row("Runs on", data.platforms?.join(", "))}
+        ${row("Description", data.description)}
+      </table>
+
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Pages / Screens</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Pages", data.pages?.join(", "))}
         ${row("Other", data.otherPages)}
       </table>
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Design Preferences</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Design Preferences</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Colours", data.colour)}
         ${row("Style", data.designStyle?.join(", "))}
@@ -60,13 +74,13 @@ function adminEmailHtml(data) {
         ${row("Liked Sites", data.likedSites)}
       </table>
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Features Required</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Features Required</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Features", data.features?.join(", "))}
         ${row("Other", data.otherFeatures)}
       </table>
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Domain & Hosting</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Domain & Hosting</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Purchase Domain", data.buyDomain === true ? "Yes — Purchase Domain" : data.buyDomain === false ? "No — Free Version" : "Not specified")}
         ${row("Has Domain", data.hasDomain === true ? "Yes" : data.hasDomain === false ? "No" : "Not specified")}
@@ -74,14 +88,14 @@ function adminEmailHtml(data) {
         ${row("Timeline", data.timeline)}
       </table>
 
-      <h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Maintenance & Support</h2>
+      <h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Maintenance & Support</h2>
       <table style="width:100%;border-collapse:collapse;margin-bottom:24px;background:#fafafa;border-radius:10px;overflow:hidden">
         ${row("Options", data.maintenance?.join(", "))}
       </table>
 
-      ${data.logoUrl ? `<h2 style="font-size:15px;color:#5c4ef8;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Uploaded Files</h2><p style="margin:0 0 8px"><a href="${data.logoUrl}" style="color:#5c4ef8">View Logo</a></p>` : ""}
-      ${data.imageUrls?.length ? data.imageUrls.map((u, i) => `<p style="margin:0 0 4px"><a href="${u}" style="color:#5c4ef8">Image ${i + 1}</a></p>`).join("") : ""}
-      ${data.videoUrls?.length ? data.videoUrls.map((u, i) => `<p style="margin:0 0 4px"><a href="${u}" style="color:#5c4ef8">Video ${i + 1}</a></p>`).join("") : ""}
+      ${data.logoUrl ? `<h2 style="font-size:15px;color:#B8460B;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 12px">Uploaded Files</h2><p style="margin:0 0 8px"><a href="${safeUrl(data.logoUrl)}" style="color:#B8460B">View Logo</a></p>` : ""}
+      ${data.imageUrls?.length ? data.imageUrls.map((u, i) => `<p style="margin:0 0 4px"><a href="${safeUrl(u)}" style="color:#B8460B">Image ${i + 1}</a></p>`).join("") : ""}
+      ${data.videoUrls?.length ? data.videoUrls.map((u, i) => `<p style="margin:0 0 4px"><a href="${safeUrl(u)}" style="color:#B8460B">Video ${i + 1}</a></p>`).join("") : ""}
 
     </div>
     <div style="background:#f9f9f9;padding:20px 32px;text-align:center">
@@ -104,7 +118,9 @@ router.post(
   async (req, res) => {
     try {
       console.log("Order submission: Parsing JSON data...");
-      const data = JSON.parse(req.body.data);
+      // Multipart body skips the global sanitizer; clean it and drop fields clients must not set.
+      const { _id, status, createdAt, logoUrl: _l, imageUrls: _i, videoUrls: _v, ...data } = sanitizeInput(JSON.parse(req.body.data || "{}"));
+      if (!data.name || !data.email) return res.status(400).json({ error: "Name and email are required." });
 
       let logoUrl = "";
       let imageUrls = [];
@@ -148,7 +164,7 @@ router.post(
       console.log("Order submission: Order saved successfully to database!");
 
       const orderData = { ...data, logoUrl, imageUrls, videoUrls };
-      const orderSubject = `🌐 Website Order — ${data.name}${data.company ? ` (${data.company})` : ""}`;
+      const orderSubject = `New Order — ${String(data.name).slice(0, 80)}${data.company ? ` (${String(data.company).slice(0, 80)})` : ""}`;
 
       // ── Send full order details to admin ──
       try {

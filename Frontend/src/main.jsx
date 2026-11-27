@@ -4,18 +4,17 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
-// Admin and the AI builder are split out so visitors never download them.
+// The admin panel is split out so visitors never download it.
 const Admin = lazy(() => import('./Admin.jsx'))
-const AIWebsiteBuilder = lazy(() => import('./pages/AIWebsiteBuilder.jsx'))
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', fontFamily: 'sans-serif' }}>Loading…</div>}>
+      <Suspense fallback={<div style={{ padding: 40, textAlign: 'center', fontFamily: 'Inter, sans-serif' }}>Loading…</div>}>
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/admin" element={<Admin />} />
-          <Route path="/ai-builder" element={<AIWebsiteBuilder />} />
+          <Route path="*" element={<App />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

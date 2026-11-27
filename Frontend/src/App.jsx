@@ -1,2120 +1,396 @@
-import { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { Link } from "react-router-dom";
-import logoImg from "./images/logo.png";
-import businessImg from "./images/bussines.webp";
-import ecommerceImg from "./images/ecommerce.webp";
-import portfolioImg from "./images/portfolio.webp";
-import bookingImg from "./images/booking.webp";
-import educationImg from "./images/education.webp";
-import associationImg from "./images/Association.webp";
-import clubsImg from "./images/clubs.webp";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
+import "./site/site.css";
+import logoImg from "./images/annek-logo.webp";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 import SEOMetaTags from "./components/SEOMetaTags";
+import Solutions from "./site/Solutions";
+import Products from "./site/Products";
+import FeedbackWidget from "./site/FeedbackWidget";
+import { IconMenu, IconClose, IconMail, IconPin, IconWhatsApp } from "./site/icons";
+import { money } from "./utils/format";
 
-// Code-split: only downloaded when the admin has published catalog/products.
-const ServicesCatalog = lazy(() => import("./components/ServicesCatalog.jsx"));
-const OwnProducts = lazy(() => import("./components/OwnProducts.jsx"));
-
+const OrderModal = lazy(() => import("./site/OrderModal"));
 
 const API = import.meta.env.VITE_API_URL || "/api";
-const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
 
-/* ─── Intersection Observer Hook ─── */
-const useInView = (threshold = 0.15) => {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
+const STRIP = ["E-Commerce Apps", "Marketing Apps", "Web Applications", "Portfolio Sites", "Institute Platforms", "Inventory & POS", "Custom Software", "Monthly Maintenance"];
+
+const STEPS = [
+  ["Choose a package", "Pick a ready-made template or tell us what you need."],
+  ["We customise it", "Your brand, content and features, built in."],
+  ["Launch", "We publish it to the web, Play Store, App Store or your PCs."],
+  ["Monthly care", "Hosting, updates, backups and changes, every month."],
+];
+
+const FAQS = [
+  ["What does a monthly maintenance plan cover?", "Hosting, security updates, backups, small content changes and support. Each package lists exactly what is included, and you can add more care any time."],
+  ["Can you customise a template for my business?", "Yes. Every template is a starting point — we add your brand, content, features and integrations so it fits how your business works."],
+  ["How long does delivery take?", "Standard websites take a few business days. Apps, web applications and custom software usually take one to four weeks depending on features. You get a clear timeline with your quote."],
+  ["Do you build Android and iPhone apps?", "Yes. We build mobile apps for Android and iPhone and help you publish them on the Play Store and App Store."],
+  ["Can I use my own domain?", "Absolutely. We can connect a domain you already own or help you register a new one."],
+  ["How do I place an order?", "Choose a package or press “Start a project”, answer a few questions, and we reply within 24 hours with a quote and timeline."],
+];
+
+const SECTION_PAGE = { solutions: "services", products: "services", work: "portfolio", pricing: "pricing", contact: "contact" };
+
+/* Fades sections in as they scroll into view. Re-scans when new content renders. */
+function useReveal(deps) {
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setInView(true); },
-      { threshold }
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, inView];
-};
-
-const FadeUp = ({ children, delay = 0, className = "" }) => {
-  const [ref, inView] = useInView();
-  return (
-    <div ref={ref} className={className} style={{
-      opacity: inView ? 1 : 0,
-      transform: inView ? "translateY(0)" : "translateY(32px)",
-      transition: `opacity 0.7s ease ${delay}s, transform 0.7s ease ${delay}s`,
-    }}>
-      {children}
-    </div>
-  );
-};
-
-/* ─── Nav Data ─── */
-// ─── Inline SVG Icons ───
-const IconPalette = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12a4 4 0 0 0 8 0"/><path d="M9 9h.01M15 9h.01"/></svg>;
-const IconCart = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>;
-const IconStore = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>;
-const IconCalendar = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
-const IconGradCap = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>;
-const IconHandshake = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 7.65l.77.78 7.65 7.65 7.65-7.65.78-.78a5.4 5.4 0 0 0 0-7.65z"/></svg>;
-const IconStar = () => <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>;
-const IconSparkle = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>;
-const IconDiamond = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 22 9 18 21 6 21 2 9"/></svg>;
-const IconLayers = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 2 7 12 12 22 7"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>;
-const IconSearch = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>;
-const IconFolder = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>;
-const IconCoin = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v2m0 8v2m-4-6h2a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h2m2 0v2m0 8v2"/></svg>;
-const IconChat = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
-const IconClose = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
-const IconCheck = () => <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>;
-const IconCheckSm = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>;
-const IconParty = () => <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M5.8 11.3L2 22l10.7-3.79"/><path d="M4 3h.01M22 8h.01M15 2h.01M22 20h.01M18 2l-7.1 7.1"/><path d="M6.6 8.4l-4.2 4.2a1.41 1.41 0 0 0 0 2l7 7a1.41 1.41 0 0 0 2 0l4.2-4.2"/></svg>;
-const IconPaperclip = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>;
-const IconWarn = () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>;
-const IconClipboard = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>;
-const IconGear = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>;
-const IconRocket = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>;
-const IconMoon = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>;
-const IconSun = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>;
-
-const serviceDropdownItems = [
-  { label: "Portfolio Sites", icon: <IconPalette /> },
-  { label: "E-Commerce", icon: <IconCart /> },
-  { label: "Online Store", icon: <IconStore /> },
-  { label: "Booking Site", icon: <IconCalendar /> },
-  { label: "Education Websites", icon: <IconGradCap /> },
-  { label: "Associations", icon: <IconHandshake /> },
-  { label: "Clubs Sites", icon: <IconStar /> },
-];
-
-const navLinks = [
-  { label: "Services", href: "#services", hasDropdown: true },
-  { label: "AI Builder", href: "/ai-builder", isRoute: true },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Portfolio", href: "#portfolio" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "About Us", href: "#about" },
-  { label: "Contact Us", href: "#contact" },
-];
-
-/* ─── Site Data ─── */
-const features = [
-  { icon: <IconSparkle />, title: "Requirement-Based Order", desc: "Submit your website requirements and get a fully custom-built site tailored to your brand and goals.", bg: "#eef0ff" },
-  { icon: <IconDiamond />, title: "Expert Designers & Devs", desc: "Our team of skilled professionals brings your vision to life with pixel-perfect precision.", bg: "#e8f5f0" },
-  { icon: <IconLayers />, title: "100+ Premium Templates", desc: "Choose from a wide range of professionally crafted templates as your starting point.", bg: "#fff3e8" },
-  { icon: <IconSearch />, title: "SEO & Performance Ready", desc: "Every site we deliver is optimised for search engines and blazing-fast load times.", bg: "#f0eeff" },
-];
-
-
-
-const testimonials = [];
-
-const faqs = [
-  "How do I place a website order with Annek?",
-  "Can I use my own domain name?",
-  "How long does it take to build my website?",
-  "What types of websites does Annek build?",
-  "Does my website include hosting and maintenance?",
-];
-
-const faqAnswers = [
-  "Simply fill out our order form, describe your requirements in detail — industry, design preferences, features needed — and our team will get back to you within 24 hours with a quote and timeline.",
-  "Absolutely. We can connect your existing domain or help you register a new one as part of the order process. Domain setup is included in all our packages.",
-  "Timelines vary by project. Standard websites are typically delivered within a few business days, while more complex projects such as e-commerce stores or custom web apps may take 5–10 business days. You'll receive a clear timeline with your quote.",
-  "We build all types: business websites, portfolios, e-commerce stores, landing pages, booking sites, blogs, and custom web applications. Just describe what you need!",
-  "Yes. All websites are hosted on fast, secure servers. We also offer ongoing maintenance plans to keep your site updated, secure, and performing at its best.",
-];
-
-
-
-const categoryImageMap = {
-  "Booking Site": bookingImg, "E-Commerce": ecommerceImg, "Portfolio": portfolioImg,
-  "Business Site": businessImg, "Corporate": businessImg, "Restaurant": ecommerceImg,
-  "Education": educationImg, "Education Websites": educationImg,
-  "Associations": associationImg, "Association": associationImg,
-  "Club": clubsImg, "Clubs Sites": clubsImg, "Clubs": clubsImg,
-};
-
-/* ─── Order Form Data ─── */
-const pageOptions = ["Home", "About", "Services", "Contact", "Gallery", "Blog", "FAQ"];
-const featureOptions = [
-  "Contact Form", "WhatsApp Chat", "Booking System", "Payment Gateway",
-  "eCommerce", "User Login & Sign Up", "Blog", "Multi Language",
-  "Admin Dashboard", "SEO Setup (appear in Google searches)", "Analytics",
-];
-const maintenanceOptions = ["Ongoing Support", "Monthly Updates", "Security Backups", "Content Changes"];
-
-/* ─── Shared Styles ─── */
-const lbl = { display: "block", fontSize: 13, fontWeight: 600, color: "#333", marginBottom: 6 };
-const inp = {
-  width: "100%", padding: "12px 14px", borderRadius: 12,
-  border: "1.5px solid #e5e5e5", fontSize: 14, color: "#1a1a1a",
-  outline: "none", fontFamily: "'DM Sans', sans-serif",
-  transition: "border-color 0.2s", background: "#fafafa", boxSizing: "border-box",
-};
-
-/* ─── Checkbox Pill ─── */
-function CheckPill({ label, checked, onChange }) {
-  return (
-    <label style={{
-      display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
-      padding: "9px 16px", borderRadius: 12,
-      border: checked ? "2px solid #5c4ef8" : "1.5px solid #e5e5e5",
-      background: checked ? "#eef0ff" : "#fff",
-      fontSize: 14, fontWeight: 500, transition: "all 0.2s", userSelect: "none",
-    }}>
-      <input type="checkbox" style={{ accentColor: "#5c4ef8", width: 15, height: 15 }}
-        checked={checked} onChange={onChange} />
-      {label}
-    </label>
-  );
+    const els = document.querySelectorAll(".reveal:not(.in)");
+    if (!("IntersectionObserver" in window)) { els.forEach((el) => el.classList.add("in")); return undefined; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
 }
 
-function CheckRow({ label, checked, onChange }) {
-  return (
-    <label style={{
-      display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
-      padding: "10px 14px", borderRadius: 10,
-      border: checked ? "2px solid #5c4ef8" : "1.5px solid #e5e5e5",
-      background: checked ? "#eef0ff" : "#fafafa",
-      fontSize: 14, transition: "all 0.2s", userSelect: "none",
-    }}>
-      <input type="checkbox" style={{ accentColor: "#5c4ef8", width: 15, height: 15 }}
-        checked={checked} onChange={onChange} />
-      {label}
-    </label>
-  );
-}
-
-function YesNoBtn({ yes, no, val, setVal }) {
-  return (
-    <div style={{ display: "flex", gap: 10, marginTop: 6 }}>
-      {[{ lbl: yes || "Yes", v: true }, { lbl: no || "No", v: false }].map(({ lbl: l, v }) => (
-        <button key={l} type="button" onClick={() => setVal(v)} style={{
-          flex: 1, padding: "10px 16px", borderRadius: 10, fontSize: 14, fontWeight: 500,
-          cursor: "pointer", transition: "all 0.2s", fontFamily: "inherit",
-          border: val === v ? "2px solid #5c4ef8" : "1.5px solid #e5e5e5",
-          background: val === v ? "#eef0ff" : "#fafafa",
-          color: val === v ? "#5c4ef8" : "#555",
-        }}>{l}</button>
-      ))}
-    </div>
-  );
-}
-
-/* ─── Upload Box ─── */
-function UploadBox({ label, id, accept, multiple, val, setter }) {
-  return (
-    <div>
-      <label style={lbl}>{label}</label>
-      <label htmlFor={id} style={{
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        border: "2px dashed #c8c8f8", borderRadius: 12, padding: "18px 20px",
-        cursor: "pointer", background: "#fafafe", gap: 4, transition: "border-color 0.2s",
-      }}>
-        <input type="file" id={id} accept={accept} multiple={multiple} style={{ display: "none" }}
-          onChange={e => setter(e.target.files)} />
-        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}><IconFolder /></span>
-        <span style={{ fontSize: 13, color: val && val.length ? "#5c4ef8" : "#999" }}>
-          {val && val.length ? `${val.length} file(s) selected` : "Click to browse"}
-        </span>
-        <span style={{ fontSize: 11, color: "#ccc" }}>or drag & drop here</span>
-      </label>
-    </div>
-  );
-}
-
-/* ─── Pricing Note Banner ─── */
-function PricingNote() {
-  return (
-    <div style={{
-      background: "#fffbea", borderRadius: 12, padding: "12px 16px",
-      fontSize: 13, color: "#92620a", border: "1px solid #ffe9a0",
-      display: "flex", alignItems: "flex-start", gap: 8,
-    }}>
-      <span style={{ display: "flex", alignItems: "center", flexShrink: 0, color: "#92620a" }}><IconCoin /></span>
-      <div><strong>Pricing note:</strong> Selections here may affect your final quote. We'll include a full breakdown when we respond.</div>
-    </div>
-  );
-}
-
-/* ─── Feedback Widget ─── */
-function FeedbackWidget() {
-  const [open, setOpen] = useState(false);
-  const [fb, setFb] = useState({ name: "", email: "", message: "" });
-  const [rating, setRating] = useState(0);
-  const [hover, setHover] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(false);
-  const [error, setError] = useState("");
-
-  const submit = async () => {
-    if (!fb.message || !rating) { setError("Please add a rating and message."); return; }
-    setLoading(true); setError("");
-    try {
-      const res = await fetch(`${API}/feedback`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: fb.name, email: fb.email, rating, message: fb.message }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      setDone(true);
-    } catch { setError("Something went wrong. Please try again."); }
-    finally { setLoading(false); }
-  };
-
-  return (
-    <>
-      {/* Floating Button */}
-      <button onClick={() => setOpen(o => !o)} title="Give feedback" aria-label="Open feedback form" style={{
-        position: "fixed", bottom: 28, right: 28, zIndex: 998,
-        width: 56, height: 56, borderRadius: "50%",
-        background: "linear-gradient(135deg, #5c4ef8, #7c3aed)",
-        border: "none", cursor: "pointer", boxShadow: "0 8px 24px rgba(92,78,248,0.45)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: 24, transition: "transform 0.2s, box-shadow 0.2s",
-      }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-      >
-        {open ? <IconClose /> : <IconChat />}
-      </button>
-
-      {/* Feedback Panel */}
-      {open && (
-        <div style={{
-          position: "fixed", bottom: 96, right: 28, zIndex: 997,
-          width: 320, background: "#fff", borderRadius: 20,
-          boxShadow: "0 20px 60px rgba(0,0,0,0.18)", border: "1px solid #eee",
-          padding: "24px 24px 20px",
-          animation: "dropIn 0.2s ease",
-        }}>
-          {!done ? (
-            <>
-              <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 700, color: "#0e0e0e" }}>Share your feedback</h3>
-              <p style={{ margin: "0 0 16px", fontSize: 13, color: "#999" }}>We'd love to hear what you think!</p>
-
-              {/* Stars */}
-              <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
-                {[1,2,3,4,5].map(s => (
-                  <span key={s} onClick={() => setRating(s)}
-                    onMouseEnter={() => setHover(s)} onMouseLeave={() => setHover(0)}
-                    style={{ fontSize: 26, cursor: "pointer", color: s <= (hover || rating) ? "#f59e0b" : "#ddd", transition: "color 0.15s" }}>
-                    ★
-                  </span>
-                ))}
-              </div>
-
-              {/* Fields */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <input style={{ ...inp, fontSize: 13 }} value={fb.name}
-                  onChange={e => setFb(f => ({ ...f, name: e.target.value }))}
-                  placeholder="Your name (optional)" />
-                <input style={{ ...inp, fontSize: 13 }} type="email" value={fb.email}
-                  onChange={e => setFb(f => ({ ...f, email: e.target.value }))}
-                  placeholder="Email (optional)" />
-                <textarea style={{ ...inp, fontSize: 13, minHeight: 80, resize: "none" }}
-                  value={fb.message}
-                  onChange={e => setFb(f => ({ ...f, message: e.target.value }))}
-                  placeholder="Your feedback…" />
-              </div>
-
-              {error && <p style={{ fontSize: 12, color: "#e53e3e", marginTop: 8 }}>{error}</p>}
-
-              <button onClick={submit} disabled={loading} style={{
-                marginTop: 14, width: "100%", padding: "11px",
-                background: "linear-gradient(135deg, #5c4ef8, #7c3aed)",
-                color: "#fff", border: "none", borderRadius: 12,
-                fontSize: 14, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.7 : 1, fontFamily: "inherit", transition: "opacity 0.2s",
-              }}>
-                {loading ? "Sending…" : "Send Feedback ✦"}
-              </button>
-            </>
-          ) : (
-            <div style={{ textAlign: "center", padding: "12px 0" }}>
-              <div style={{ marginBottom: 10, display: "flex", justifyContent: "center" }}><IconCheck /></div>
-              <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 700, color: "#0e0e0e" }}>Thank you!</h3>
-              <p style={{ fontSize: 14, color: "#666", margin: 0 }}>Your feedback has been received.</p>
-              <button onClick={() => { setDone(false); setFb({ name:"",email:"",message:"" }); setRating(0); setOpen(false); }}
-                style={{ marginTop: 14, fontSize: 13, color: "#5c4ef8", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
-                Close
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-    </>
-  );
-}
-
-/* ─── Order Modal ─── */
-function OrderModal({ onClose, preset = "" }) {
-  const TOTAL = 7;
-  const [step, setStep] = useState(1);
-
-  // Step 1
-  const [contact, setContact] = useState({ name: "", email: "", company: "" });
-  // Step 2
-  const [pages, setPages] = useState([]);
-  const [otherPages, setOtherPages] = useState("");
-  // Step 3
-  const [logoFiles, setLogoFiles] = useState(null);
-  const [imgFiles, setImgFiles] = useState(null);
-  const [vidFiles, setVidFiles] = useState(null);
-  const [textContent, setTextContent] = useState("");
-  const [productDetails, setProductDetails] = useState("");
-  const [socialLinks, setSocialLinks] = useState("");
-  const [contactInfo, setContactInfo] = useState("");
-  // Step 4
-  const [colour, setColour] = useState("");
-  const [designStyle, setDesignStyle] = useState([]);
-  const [fonts, setFonts] = useState("");
-  const [theme, setTheme] = useState([]);
-  const [likedSites, setLikedSites] = useState("");
-  // Step 5
-  const [features5, setFeatures5] = useState([]);
-  const [otherFeatures, setOtherFeatures] = useState("");
-  // Step 6
-  const [buyDomain, setBuyDomain] = useState(null);
-  const [hasDomain, setHasDomain] = useState(null);
-  const [needHelp, setNeedHelp] = useState(null);
-  const [timeline, setTimeline] = useState("");
-  // Step 7
-  const [maintenance, setMaintenance] = useState([]);
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [submitError, setSubmitError] = useState("");
-
-  const toggle = (arr, setArr, v) =>
-    setArr(arr.includes(v) ? arr.filter(x => x !== v) : [...arr, v]);
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    setSubmitError("");
-    try {
-      const orderData = {
-        name: contact.name, email: contact.email, company: contact.company,
-        selectedPackage: preset,
-        pages, otherPages,
-        textContent, productDetails, socialLinks, contactInfo,
-        colour, designStyle, fonts, theme, likedSites,
-        features: features5, otherFeatures,
-        buyDomain, hasDomain, needHelp, timeline,
-        maintenance,
-      };
-      const formData = new FormData();
-      formData.append("data", JSON.stringify(orderData));
-      if (logoFiles?.[0]) formData.append("logo", logoFiles[0]);
-      if (imgFiles) Array.from(imgFiles).forEach(f => formData.append("images", f));
-      if (vidFiles) Array.from(vidFiles).forEach(f => formData.append("videos", f));
-
-      const res = await fetch(`${API}/orders`, {
-        method: "POST",
-        body: formData,
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Submission failed");
-      setSubmitted(true);
-    } catch (err) {
-      setSubmitError(err.message || "Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const stepTitles = [
-    "Contact Info", "Pages Needed", "Content Materials",
-    "Design Preferences", "Features Required", "Domain & Hosting",
-    "Maintenance & Support",
-  ];
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 999,
-      background: "rgba(10,10,20,0.65)", backdropFilter: "blur(8px)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 16,
-    }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} className="order-modal-content">
-        {/* Close */}
-        <button onClick={onClose} aria-label="Close order form" style={{
-          position: "absolute", top: 20, right: 20, background: "#f5f5f5",
-          border: "none", borderRadius: "50%", width: 36, height: 36,
-          fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center",
-          justifyContent: "center", color: "#555", lineHeight: 1,
-        }}>×</button>
-
-        {!submitted ? (
-          <>
-            {/* Header */}
-            <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 11, color: "#5c4ef8", fontWeight: 700, marginBottom: 6, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-                Order Form
-              </div>
-              <h2 style={{ fontSize: 22, fontWeight: 700, color: "#0e0e0e", letterSpacing: "-0.3px" }}>
-                {stepTitles[step - 1]}
-              </h2>
-              <p style={{ fontSize: 12, color: "#bbb", marginTop: 4 }}>Step {step} of {TOTAL}</p>
-            </div>
-
-            {/* Progress */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 28 }}>
-              {Array.from({ length: TOTAL }, (_, i) => (
-                <div key={i} style={{
-                  flex: 1, height: 4, borderRadius: 4,
-                  background: step > i ? "#5c4ef8" : "#eee",
-                  transition: "background 0.3s",
-                }} />
-              ))}
-            </div>
-
-            {preset && (
-              <div style={{ background: "#f0eeff", color: "#5c4ef8", borderRadius: 12, padding: "10px 14px", fontSize: 13, fontWeight: 600, marginBottom: 20 }}>
-                ✦ {preset}
-              </div>
-            )}
-
-            {/* ── STEP 1: Contact ── */}
-            {step === 1 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div className="modal-grid-2col">
-                  <div>
-                    <label style={lbl}>Full Name *</label>
-                    <input style={inp} value={contact.name}
-                      onChange={e => setContact(c => ({ ...c, name: e.target.value }))}
-                      placeholder="Your name" />
-                  </div>
-                  <div>
-                    <label style={lbl}>Email *</label>
-                    <input style={inp} type="email" value={contact.email}
-                      onChange={e => setContact(c => ({ ...c, email: e.target.value }))}
-                      placeholder="you@email.com" />
-                  </div>
-                </div>
-                <div>
-                  <label style={lbl}>Company / Brand Name</label>
-                  <input style={inp} value={contact.company}
-                    onChange={e => setContact(c => ({ ...c, company: e.target.value }))}
-                    placeholder="Your company (optional)" />
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }}
-                    onClick={() => { if (contact.name && contact.email) setStep(2); }}>
-                    Next →
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 2: Pages Needed ── */}
-            {step === 2 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <label style={lbl}>Select the pages you need:</label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 8 }}>
-                    {pageOptions.map(p => (
-                      <CheckPill key={p} label={p}
-                        checked={pages.includes(p)}
-                        onChange={() => toggle(pages, setPages, p)} />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label style={lbl}>Other (specify)</label>
-                  <input style={inp} value={otherPages} onChange={e => setOtherPages(e.target.value)}
-                    placeholder="e.g. Team, Events, Partners, Testimonials..." />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(1)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(3)}>Next →</button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 3: Content Materials ── */}
-            {step === 3 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div style={{ background: "#f0f0ff", borderRadius: 12, padding: "12px 16px", fontSize: 13, color: "#5c4ef8", border: "1px solid #ddd8ff", display: "flex", alignItems: "center", gap: 8 }}>
-                  <IconPaperclip /> Upload your existing materials. You can skip anything you don't have yet.
-                </div>
-                <UploadBox label="Logo" id="up-logo" accept="image/*,.svg" val={logoFiles} setter={setLogoFiles} />
-                <UploadBox label="Images / Photos" id="up-img" accept="image/*" multiple val={imgFiles} setter={setImgFiles} />
-                <UploadBox label="Videos" id="up-vid" accept="video/*" multiple val={vidFiles} setter={setVidFiles} />
-                {[
-                  { label: "Text / Content", val: textContent, set: setTextContent, ph: "Any text, taglines, headings, descriptions you'd like on the site..." },
-                  { label: "Product Details", val: productDetails, set: setProductDetails, ph: "Product names, descriptions, prices (for e-commerce)..." },
-                  { label: "Social Media Links", val: socialLinks, set: setSocialLinks, ph: "Instagram, Facebook, LinkedIn, TikTok, YouTube URLs..." },
-                  { label: "Contact Info", val: contactInfo, set: setContactInfo, ph: "Phone number, address, email, business hours..." },
-                ].map(({ label, val, set, ph }) => (
-                  <div key={label}>
-                    <label style={lbl}>{label}</label>
-                    <textarea style={{ ...inp, minHeight: 72, resize: "vertical" }}
-                      value={val} onChange={e => set(e.target.value)} placeholder={ph} />
-                  </div>
-                ))}
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(2)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(4)}>Next →</button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 4: Design Preferences ── */}
-            {step === 4 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <div>
-                  <label style={lbl}>Preferred Colour(s)</label>
-                  <input style={inp} value={colour} onChange={e => setColour(e.target.value)}
-                    placeholder="e.g. Navy blue & gold, pastel tones, monochrome black & white..." />
-                </div>
-                <div>
-                  <label style={lbl}>Design Style</label>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-                    {["Modern", "Simple / Minimal"].map(s => (
-                      <CheckPill key={s} label={s}
-                        checked={designStyle.includes(s)}
-                        onChange={() => toggle(designStyle, setDesignStyle, s)} />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label style={lbl}>Fonts / Typography Styles</label>
-                  <input style={inp} value={fonts} onChange={e => setFonts(e.target.value)}
-                    placeholder="e.g. Clean sans-serif, elegant serif, bold display font..." />
-                </div>
-                <div>
-                  <label style={lbl}>Theme Preference</label>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 6 }}>
-                    {[
-                    { key: "Dark Theme", icon: <IconMoon /> },
-                    { key: "Light Theme", icon: <IconSun /> },
-                  ].map(t => (
-                    <label key={t.key} style={{
-                      display: "flex", alignItems: "center", gap: 8, cursor: "pointer",
-                      padding: "9px 16px", borderRadius: 12,
-                      border: theme.includes(t.key) ? "2px solid #5c4ef8" : "1.5px solid #e5e5e5",
-                      background: theme.includes(t.key) ? "#eef0ff" : "#fff",
-                      fontSize: 14, fontWeight: 500, transition: "all 0.2s", userSelect: "none",
-                    }}>
-                      <input type="checkbox" style={{ accentColor: "#5c4ef8", width: 15, height: 15 }}
-                        checked={theme.includes(t.key)}
-                        onChange={() => toggle(theme, setTheme, t.key)} />
-                      <span style={{ display: "flex", alignItems: "center" }}>{t.icon}</span>
-                      {t.key}
-                    </label>
-                  ))}
-                  </div>
-                </div>
-                <div>
-                  <label style={lbl}>Websites whose design you like / want to draw inspiration from</label>
-                  <textarea style={{ ...inp, minHeight: 80, resize: "vertical" }}
-                    value={likedSites} onChange={e => setLikedSites(e.target.value)}
-                    placeholder="Paste links or describe designs you love (e.g. apple.com, airbnb.com)..." />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(3)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(5)}>Next →</button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 5: Features Required ── */}
-            {step === 5 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <PricingNote />
-                <div>
-                  <label style={lbl}>Select the features you need:</label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-                    {featureOptions.map(f => (
-                      <CheckRow key={f} label={f}
-                        checked={features5.includes(f)}
-                        onChange={() => toggle(features5, setFeatures5, f)} />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label style={lbl}>Other features</label>
-                  <input style={inp} value={otherFeatures} onChange={e => setOtherFeatures(e.target.value)}
-                    placeholder="Any other specific features or integrations you need..." />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(4)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(6)}>Next →</button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 6: Domain & Hosting ── */}
-            {step === 6 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <div>
-                  <label style={lbl}>Do you want to purchase a domain or choose the free version?</label>
-                  <YesNoBtn yes="Purchase Domain" no="Free Version" val={buyDomain} setVal={setBuyDomain} />
-                </div>
-                <div>
-                  <label style={lbl}>Do you already have a domain?</label>
-                  <YesNoBtn yes="Yes, I have one" no="No, I don't" val={hasDomain} setVal={setHasDomain} />
-                </div>
-                <div>
-                  <label style={lbl}>Do you need help buying a domain?</label>
-                  <YesNoBtn yes="Yes, please help" no="No, I'm fine" val={needHelp} setVal={setNeedHelp} />
-                </div>
-                <div>
-                  <label style={lbl}>Timeline</label>
-                  <input style={inp} value={timeline} onChange={e => setTimeline(e.target.value)}
-                    placeholder="e.g. ASAP, within 2 weeks, by end of month, no rush..." />
-                </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(5)}>← Back</button>
-                  <button className="btn-dark" style={{ padding: "12px 28px" }} onClick={() => setStep(7)}>Next →</button>
-                </div>
-              </div>
-            )}
-
-            {/* ── STEP 7: Maintenance & Support ── */}
-            {step === 7 && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <PricingNote />
-                <div>
-                  <label style={lbl}>Select maintenance & support options:</label>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 8 }}>
-                    {maintenanceOptions.map(opt => (
-                      <CheckRow key={opt} label={opt}
-                        checked={maintenance.includes(opt)}
-                        onChange={() => toggle(maintenance, setMaintenance, opt)} />
-                    ))}
-                  </div>
-                </div>
-                {submitError && (
-                  <div style={{ background: "#fff0f0", border: "1px solid #ffcccc", borderRadius: 10, padding: "12px 16px", fontSize: 13, color: "#c0392b", display: "flex", alignItems: "center", gap: 8 }}>
-                    <IconWarn /> {submitError}
-                  </div>
-                )}
-                <div style={{ display: "flex", justifyContent: "space-between", marginTop: 8 }}>
-                  <button className="btn-outline" style={{ padding: "12px 24px" }} onClick={() => setStep(6)}>← Back</button>
-                  <button className="btn-lime" style={{ padding: "12px 32px", fontSize: 15, opacity: loading ? 0.7 : 1 }}
-                    onClick={handleSubmit} disabled={loading}>
-                    {loading ? "Submitting…" : "Submit Order ✦"}
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        ) : (
-          <div style={{ textAlign: "center", padding: "20px 0 10px" }}>
-            <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}><IconParty /></div>
-            <h3 style={{ fontSize: 24, fontWeight: 600, color: "#0e0e0e", marginBottom: 12 }}>Order Received!</h3>
-            <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 28px" }}>
-              Thank you, <strong>{contact.name}</strong>! We've received your website order and will be in touch at{" "}
-              <strong>{contact.email}</strong> within 24 hours with a detailed quote and timeline.
-            </p>
-            <button className="btn-dark" onClick={onClose} style={{ padding: "12px 32px" }}>Close</button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Contact Form Component ─── */
-function ContactForm({ openOrder }) {
-  const [cf, setCf] = useState({ name: "", email: "", message: "" });
-  const [submitting, setSubmitting] = useState(false);
+function ContactForm() {
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = async () => {
-    if (!cf.name || !cf.email || !cf.message) {
-      setError("Please fill in all fields.");
-      return;
-    }
-    setError("");
-    setSubmitting(true);
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) return setError("Please fill in all fields.");
+    setSending(true); setError("");
     try {
-      const response = await fetch(`${API}/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cf),
-      });
-      if (response.ok) {
-        setSent(true);
-      } else {
-        const errData = await response.json();
-        setError(errData.error || "Failed to send message.");
-      }
+      const res = await fetch(`${API}/contact`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(out.error || "Failed to send message.");
+      setSent(true);
     } catch (err) {
-      console.error(err);
-      setError("Failed to connect to the server. Please try again.");
+      setError(err.message || "Could not reach the server. Please try again.");
     } finally {
-      setSubmitting(false);
+      setSending(false);
     }
   };
 
-  if (sent) return (
-    <div style={{ textAlign: "center", padding: "48px 0" }}>
-      <div style={{ marginBottom: 12, display: "flex", justifyContent: "center" }}><IconCheckSm /></div>
-      <div style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e" }}>Message sent!</div>
-      <div style={{ fontSize: 14, color: "#888", marginTop: 6 }}>We'll get back to you within 24 hours.</div>
-    </div>
-  );
+  if (sent) return <div className="ok-msg" role="status"><b>Message sent</b><span style={{ color: "#C9C3BA" }}>We'll get back to you within 24 hours.</span></div>;
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div className="modal-grid-2col">
-        <div>
-          <label style={lbl}>Name</label>
-          <input style={inp} value={cf.name} onChange={e => setCf(c => ({ ...c, name: e.target.value }))} placeholder="Your name" disabled={submitting} />
-        </div>
-        <div>
-          <label style={lbl}>Email</label>
-          <input style={inp} type="email" value={cf.email} onChange={e => setCf(c => ({ ...c, email: e.target.value }))} placeholder="you@email.com" disabled={submitting} />
-        </div>
+    <form className="dark-form" onSubmit={submit} noValidate>
+      <div className="form-row">
+        <label>Name<input autoComplete="name" value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></label>
+        <label>Email<input type="email" autoComplete="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} /></label>
       </div>
-      <div>
-        <label style={lbl}>Message</label>
-        <textarea style={{ ...inp, minHeight: 120, resize: "vertical" }}
-          value={cf.message} onChange={e => setCf(c => ({ ...c, message: e.target.value }))}
-          placeholder="How can we help you?" disabled={submitting} />
-      </div>
-      {error && <div style={{ color: "#dc2626", fontSize: 14 }}>{error}</div>}
-      <div className="contact-btn-group" style={{ display: "flex", gap: 12 }}>
-        <button className="btn-dark" style={{ flex: 1, opacity: submitting ? 0.7 : 1, cursor: submitting ? "not-allowed" : "pointer" }}
-          onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Sending..." : "Send Message"}
-        </button>
-        <button className="btn-outline" style={{ flex: 1 }} onClick={openOrder} disabled={submitting}>
-          Place an Order
-        </button>
-      </div>
-
-    </div>
+      <label>Message<textarea rows={5} value={form.message} onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} /></label>
+      {error && <p className="err" role="alert">{error}</p>}
+      <button type="submit" className="btn btn-orange btn-lg" disabled={sending}>{sending ? "Sending…" : "Send message"}</button>
+    </form>
   );
 }
 
-/* ─── Main App ─── */
 export default function App() {
-  const [scrolled, setScrolled] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
-  const [heroVisible, setHeroVisible] = useState(false);
-  const [showOrder, setShowOrder] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [portfolioProjects, setPortfolioProjects] = useState([]);
-  const [liveStats, setLiveStats] = useState({ orderCount: null, avgRating: null, industryCount: null });
-  const [liveReviews, setLiveReviews] = useState([]);
-  const [settings, setSettings] = useState({ testimonialsTitle: "Trusted by hundreds of businesses" });
-  const [activeSection, setActiveSection] = useState("home");
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [order, setOrder] = useState(null); // null = closed, string = selected package
+  const [settings, setSettings] = useState({});
   const [catalog, setCatalog] = useState(null);
-  const [ownProducts, setOwnProducts] = useState([]);
-  const [orderPreset, setOrderPreset] = useState("");
-  const hasCatalog = !!catalog?.categories?.some(c => !c.parent);
-  const hasProducts = ownProducts.length > 0;
-
-  const displayStats = [
-    {
-      value: portfolioProjects.length > 0
-        ? portfolioProjects.length.toLocaleString()
-        : "0",
-      label: "Websites delivered"
-    },
-    {
-      value: liveStats?.avgRating !== null && liveStats?.avgRating !== undefined
-        ? (Number(liveStats.avgRating) * 20).toFixed(0) + "%"
-        : "98%",
-      label: "Client satisfaction"
-    },
-    {
-      value: "24/7",
-      label: "Support & revisions"
-    }
-  ];
-
-  // Dynamic pricing — prices editable from admin settings
-  const displayPlans = [
-    {
-      name: "Starter", price: settings.starterPrice || "$75 - $80", period: "one-time",
-      tagline: "Perfect for small businesses getting online.", highlight: false,
-      features: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup", "1 round of revisions"],
-    },
-    {
-      name: "Growth", price: settings.growthPrice || "$100 - $120", period: "one-time",
-      tagline: "For businesses that need more power.", highlight: true, badge: "Most Popular",
-      features: ["Up to 15 pages", "Custom design (no templates)", "Blog or CMS integration", "Advanced SEO + sitemap", "Google Analytics setup", "3 rounds of revisions", "1 month free support"],
-    },
-    {
-      name: "Premium", price: settings.premiumPrice || "$150 - $170", period: "one-time",
-      tagline: "Full-featured sites with custom functionality.", highlight: false,
-      features: ["Unlimited pages", "E-commerce / bookings", "Payment gateway integration", "Custom animations & UI", "Performance optimisation", "Unlimited revisions", "3 months free support"],
-    },
-  ];
-
-  const displayReviews = [
-    ...(liveReviews || []).map(r => ({
-      quote: r.message,
-      name: r.name || "Anonymous Client",
-      role: "Verified Client",
-      initials: (r.name || "Anonymous").split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
-      color: ["#ff6b35", "#5c6ef8", "#2a9d8f", "#e76f51", "#264653", "#e9c46a"][(r.name || "Anonymous").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 6],
-      rating: r.rating || 5
-    })),
-    ...testimonials
-  ].slice(0, 6);
+  const [products, setProducts] = useState([]);
+  const [portfolio, setPortfolio] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [stats, setStats] = useState({});
+  const [filter, setFilter] = useState("All");
+  const [page, setPage] = useState("home");
 
   useEffect(() => {
-    setTimeout(() => setHeroVisible(true), 100);
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
-    const unsubAuth = onAuthStateChanged(auth, setUser);
-    fetch(`${API}/portfolio`)
-      .then(r => r.json())
-      .then(data => setPortfolioProjects(data.filter(p => p.visible)))
-      .catch(() => {});
-    fetch(`${API}/stats`)
-      .then(r => r.json())
-      .then(data => setLiveStats(data))
-      .catch(() => {});
-    fetch(`${API}/feedback`)
-      .then(r => r.json())
-      .then(data => setLiveReviews(data))
-      .catch(() => {});
-    fetch(`${API}/catalog`)
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => data && setCatalog(data))
-      .catch(() => {});
-    fetch(`${API}/products`)
-      .then(r => (r.ok ? r.json() : []))
-      .then(data => Array.isArray(data) && setOwnProducts(data))
-      .catch(() => {});
-    fetch(`${API}/settings`)
-      .then(r => r.json())
-      .then(data => {
-        if (data && data.testimonialsTitle) {
-          setSettings(data);
-        }
-      })
-      .catch(() => {});
-    return () => { window.removeEventListener("scroll", onScroll); unsubAuth(); };
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const unsub = onAuthStateChanged(auth, setUser);
+    const get = (path, set, ok = (d) => d) =>
+      fetch(`${API}${path}`).then((r) => (r.ok ? r.json() : null)).then((d) => { if (d && ok(d)) set(d); }).catch(() => {});
+    get("/settings", setSettings);
+    get("/catalog", setCatalog);
+    get("/products", setProducts, Array.isArray);
+    get("/portfolio", (d) => setPortfolio(d.filter((p) => p.visible !== false)), Array.isArray);
+    get("/feedback", setReviews, Array.isArray);
+    get("/stats", setStats);
+    return () => { window.removeEventListener("scroll", onScroll); unsub(); };
   }, []);
 
+  // Which section is on screen → page-level SEO tags.
   useEffect(() => {
-    const sections = ["services", "solutions", "how-it-works", "portfolio", "pricing", "products", "about", "contact"];
-    const observerOptions = {
-      root: null,
-      rootMargin: "-20% 0px -60% 0px",
-      threshold: 0
-    };
-
-    const observerCallback = (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const id = entry.target.getAttribute("id");
-          if (id === "services") setActiveSection("home"); // hero section
-          else if (id === "solutions" || id === "products") setActiveSection("services");
-          else if (id === "portfolio") setActiveSection("portfolio");
-          else if (id === "pricing") setActiveSection("pricing");
-          else if (id === "contact") setActiveSection("contact");
-          else if (id === "about" || id === "how-it-works") setActiveSection("home");
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-    sections.forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) setPage(SECTION_PAGE[e.target.id] || "home"); });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    ["top", "solutions", "products", "work", "pricing", "about", "contact"].forEach((id) => {
+      const el = document.getElementById(id); if (el) io.observe(el);
     });
+    return () => io.disconnect();
+  }, [catalog, products, portfolio]);
 
-    const handleScroll = () => {
-      if (window.scrollY < 200) {
-        setActiveSection("home");
-      }
-    };
-    window.addEventListener("scroll", handleScroll);
+  useReveal([catalog, products, portfolio, reviews]);
 
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [hasCatalog, hasProducts]);
+  const openOrder = useCallback((preset) => { setMenuOpen(false); setOrder(typeof preset === "string" ? preset : ""); }, []);
+  const closeOrder = useCallback(() => setOrder(null), []);
+  const go = (id) => { setMenuOpen(false); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); };
 
-  const filteredProjects = selectedCategory === "All"
-    ? portfolioProjects
-    : portfolioProjects.filter(p => p.category === selectedCategory);
-
-  const openOrder = (preset) => {
-    setOrderPreset(typeof preset === "string" ? preset : "");
-    setShowOrder(true); setMobileMenuOpen(false); setServicesOpen(false);
-  };
-
-  // Company details are editable in Admin › Settings (fallbacks = current details)
+  const isAdmin = !!user && ADMIN_EMAILS.includes((user.email || "").toLowerCase());
   const company = {
     email: settings.contactEmail || "annek.websitebuild.official@gmail.com",
     whatsapp: (settings.whatsappNumber || "94701269689").replace(/[^0-9]/g, ""),
-    phone: settings.contactPhone || "",
-    address: settings.address || "Mannar, Sri Lanka",
-    area: settings.serviceArea || "Serving Sri Lanka & clients worldwide",
+    phone: settings.contactPhone || "+94 70 126 9689",
+    address: settings.address || "Vankalai, Mannar, Sri Lanka",
+    area: settings.serviceArea || "Mannar, Sri Lanka · Serving worldwide",
     tagline: settings.companyTagline || "Web apps, mobile apps and custom software — built, customised and maintained for your business.",
-    about: settings.aboutText || "",
+    about: settings.aboutText || "Annek is a digital studio from Mannar, Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance.",
   };
 
-  const visibleNavLinks = [
-    ...(hasCatalog ? [{ label: "Solutions", href: "#solutions" }] : []),
-    ...(hasProducts ? [{ label: "Products", href: "#products" }] : []),
-    ...navLinks.filter(l => !l.hasDropdown),
+  const featured = catalog?.packages?.find((p) => p.highlighted) || catalog?.packages?.[0];
+  const categories = ["All", ...new Set(portfolio.map((p) => p.category).filter(Boolean))];
+  const shownWork = filter === "All" ? portfolio : portfolio.filter((p) => p.category === filter);
+  const websitePlans = [
+    { name: "Starter", price: settings.starterPrice || "$75 – $80", items: ["Up to 5 pages", "Mobile-responsive design", "Contact form", "Basic SEO setup"] },
+    { name: "Growth", price: settings.growthPrice || "$100 – $120", hot: true, items: ["Up to 15 pages", "Custom design", "Blog or CMS", "Advanced SEO + analytics"] },
+    { name: "Premium", price: settings.premiumPrice || "$150 – $170", items: ["Unlimited pages", "E-commerce / bookings", "Payment gateway", "Custom animations"] },
   ];
+  const shownReviews = reviews.slice(0, 6);
+  const reviewTitle = (settings.testimonialsTitle || "What our clients say").replace("{count}", String(stats.orderCount ?? ""));
+  const statItems = [
+    portfolio.length > 0 && [portfolio.length, "Projects showcased"],
+    stats.avgRating && [`${stats.avgRating}/5`, stats.reviewCount ? `Rating from ${stats.reviewCount} reviews` : "Average client rating"],
+    stats.industryCount > 0 && [stats.industryCount, "Industries served"],
+  ].filter(Boolean);
 
-  const scrollTo = (href, isRoute) => {
-    setMobileMenuOpen(false); setServicesOpen(false);
-    if (isRoute) return;
-    const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const NavItem = ({ link }) => {
-    if (link.isRoute) {
-      return (
-        <Link to={link.href} className="nav-link" style={{ textDecoration: "none" }}
-          onClick={() => { setMobileMenuOpen(false); setServicesOpen(false); }}>
-          {link.label}
-        </Link>
-      );
-    }
-    return (
-      <button className="nav-link" onClick={() => scrollTo(link.href)}>
-        {link.label}
-      </button>
-    );
-  };
+  const navItems = [
+    ["solutions", "Solutions"],
+    products.length > 0 && ["products", "Products"],
+    portfolio.length > 0 && ["work", "Portfolio"],
+    ["pricing", "Pricing"],
+    ["about", "About"],
+    ["contact", "Contact"],
+  ].filter(Boolean);
 
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Helvetica Neue', Arial, sans-serif", color: "#1a1a1a", overflowX: "hidden" }}>
-      <SEOMetaTags page={activeSection} overrides={settings} />
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body { background: #fff; }
+    <>
+      <SEOMetaTags page={page} overrides={settings} />
+      <a href="#main" className="sr-only">Skip to content</a>
 
-        .nav-link {
-          font-size: 16px; color: #333; text-decoration: none;
-          cursor: pointer; display: flex; align-items: center; gap: 4px;
-          padding: 7px 12px; border-radius: 8px;
-          transition: background 0.2s; font-weight: 500;
-          background: none; border: none; font-family: inherit;
-        }
-        .nav-link:hover { background: rgba(0,0,0,0.05); }
-
-        .btn-dark {
-          background: #1a1a1a; color: #fff; border: none;
-          padding: 14px 28px; border-radius: 100px;
-          font-size: 15px; font-weight: 500; cursor: pointer;
-          transition: transform 0.2s, background 0.2s; font-family: inherit;
-        }
-        .btn-dark:hover { background: #333; transform: scale(1.02); }
-
-        .btn-outline {
-          background: transparent; color: #1a1a1a;
-          border: 1.5px solid #1a1a1a; padding: 14px 28px;
-          border-radius: 100px; font-size: 15px; font-weight: 500;
-          cursor: pointer; transition: transform 0.2s, background 0.2s; font-family: inherit;
-        }
-        .btn-outline:hover { background: rgba(0,0,0,0.05); transform: scale(1.02); }
-
-        .btn-lime {
-          background: #d4f74b; color: #1a1a1a; border: none;
-          padding: 16px 36px; border-radius: 100px;
-          font-size: 16px; font-weight: 600; cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
-        }
-        .btn-lime:hover { transform: scale(1.04); box-shadow: 0 8px 24px rgba(212,247,75,0.5); }
-
-        .btn-white {
-          background: #fff; color: #1a1a1a; border: none;
-          padding: 14px 28px; border-radius: 100px;
-          font-size: 15px; font-weight: 600; cursor: pointer;
-          transition: transform 0.2s, box-shadow 0.2s; font-family: inherit;
-        }
-        .btn-white:hover { transform: scale(1.03); box-shadow: 0 8px 28px rgba(0,0,0,0.15); }
-
-        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
-
-        .faq-item { border-bottom: 1px solid #e5e5e5; cursor: pointer; transition: background 0.2s; }
-        .faq-item:hover { background: rgba(0,0,0,0.02); }
-
-        .ticker-track { display: flex; gap: 48px; animation: ticker 28s linear infinite; white-space: nowrap; }
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-
-        .reviews-marquee-container {
-          overflow: hidden;
-          position: relative;
-          width: 100%;
-          padding: 16px 0 24px;
-        }
-        .reviews-marquee-container::before,
-        .reviews-marquee-container::after {
-          background: linear-gradient(to right, #fff, transparent);
-          content: "";
-          height: 100%;
-          position: absolute;
-          width: 120px;
-          z-index: 2;
-          pointer-events: none;
-          top: 0;
-        }
-        .reviews-marquee-container::before {
-          left: 0;
-        }
-        .reviews-marquee-container::after {
-          right: 0;
-          transform: rotateZ(180deg);
-        }
-        .reviews-marquee-track {
-          display: flex;
-          gap: 24px;
-          width: max-content;
-          animation: marquee-scroll 50s linear infinite;
-        }
-        .reviews-marquee-track:hover {
-          animation-play-state: paused;
-        }
-        @keyframes marquee-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-
-        .portfolio-marquee-container {
-          overflow: hidden;
-          position: relative;
-          width: 100%;
-          padding: 16px 0 24px;
-        }
-        .portfolio-marquee-container::before,
-        .portfolio-marquee-container::after {
-          background: linear-gradient(to right, #fff, transparent);
-          content: "";
-          height: 100%;
-          position: absolute;
-          width: 120px;
-          z-index: 2;
-          pointer-events: none;
-          top: 0;
-        }
-        .portfolio-marquee-container::before {
-          left: 0;
-        }
-        .portfolio-marquee-container::after {
-          right: 0;
-          transform: rotateZ(180deg);
-        }
-        .portfolio-marquee-track {
-          display: flex;
-          gap: 24px;
-          width: max-content;
-          animation: portfolio-marquee-scroll 50s linear infinite;
-        }
-        .portfolio-marquee-track:hover {
-          animation-play-state: paused;
-        }
-        .portfolio-marquee-track .portfolio-card {
-          width: 350px;
-          flex-shrink: 0;
-        }
-        @keyframes portfolio-marquee-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-
-        input:focus, textarea:focus, select:focus {
-          border-color: #5c4ef8 !important; outline: none;
-          box-shadow: 0 0 0 3px rgba(92,78,248,0.1);
-        }
-
-        .portfolio-card {
-          border-radius: 24px; overflow: hidden; cursor: pointer;
-          transition: transform 0.35s ease, box-shadow 0.35s ease; position: relative;
-        }
-        .portfolio-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 24px 64px rgba(0,0,0,0.14); }
-        .portfolio-card:hover .portfolio-overlay { opacity: 1; }
-        .portfolio-overlay {
-          position: absolute; inset: 0; background: rgba(0,0,0,0.35);
-          display: flex; align-items: center; justify-content: center;
-          opacity: 0; transition: opacity 0.3s; border-radius: 24px;
-        }
-
-        .pricing-card {
-          border-radius: 28px; padding: 40px 36px;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          position: relative; overflow: hidden;
-        }
-        .pricing-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.12); }
-        .pricing-card.highlight { background: #1a1a1a; color: #fff; }
-        .pricing-card.highlight:hover { box-shadow: 0 24px 60px rgba(0,0,0,0.3); }
-
-        .services-dropdown {
-          position: absolute; top: calc(100% + 8px); left: 0;
-          background: #fff; border-radius: 18px;
-          box-shadow: 0 20px 56px rgba(0,0,0,0.13); border: 1px solid #eee;
-          padding: 8px; min-width: 230px; z-index: 200;
-          animation: dropIn 0.18s ease;
-        }
-        @keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-        .dropdown-item {
-          display: flex; align-items: center; gap: 10px;
-          width: 100%; text-align: left; padding: 10px 14px;
-          border-radius: 10px; border: none; background: transparent;
-          cursor: pointer; font-size: 15px; color: #333;
-          font-family: inherit; transition: background 0.15s;
-        }
-        .dropdown-item:hover { background: #f5f5ff; color: #5c4ef8; }
-
-        .mobile-menu {
-          display: none; position: fixed; inset: 0; top: 70px; z-index: 90;
-          background: rgba(255,255,255,0.98); backdrop-filter: blur(12px);
-          padding: 24px 24px 40px; flex-direction: column; gap: 4;
-          overflow-y: auto;
-        }
-        .mobile-menu.open { display: flex; }
-
-        .modal-grid-2col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-        }
-
-        .order-modal-content {
-          background: #fff;
-          border-radius: 28px;
-          width: 100%;
-          max-width: 640px;
-          max-height: 92vh;
-          overflow-y: auto;
-          padding: 40px 40px 36px;
-          box-shadow: 0 32px 80px rgba(0,0,0,0.22);
-          position: relative;
-        }
-
-        @media (max-width: 900px) {
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .features-grid { grid-template-columns: 1fr !important; }
-          .two-col { grid-template-columns: 1fr !important; }
-          .testimonials-grid { grid-template-columns: 1fr !important; }
-          .nav-links-desktop { display: none !important; }
-          .hero-cards {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 12px !important;
-            width: 100% !important;
-            padding: 0 16px !important;
-          }
-          .hero-cards > div {
-            width: 100% !important;
-            height: 130px !important;
-          }
-          .pricing-grid { grid-template-columns: 1fr !important; }
-          .steps-grid {
-            display: flex !important;
-            flex-direction: row !important;
-            overflow-x: auto !important;
-            scroll-snap-type: x mandatory !important;
-            gap: 16px !important;
-            padding: 8px 4px 16px !important;
-            scrollbar-width: none !important;
-          }
-          .steps-grid::-webkit-scrollbar {
-            display: none !important;
-          }
-          .steps-grid > div {
-            flex: 0 0 85% !important;
-            scroll-snap-align: start !important;
-          }
-          .hamburger { display: flex !important; }
-          .footer-grid { grid-template-columns: 1fr 1fr !important; }
-        }
-        @media (max-width: 768px) {
-          .nav-admin-btn { display: none !important; }
-        }
-        @media (max-width: 600px) {
-          .modal-grid-2col { grid-template-columns: 1fr !important; }
-          .order-modal-content { padding: 28px 24px 24px !important; max-height: 96vh !important; border-radius: 20px !important; }
-          .nav-order-btn { display: none !important; }
-        }
-        @media (max-width: 480px) {
-          .nav-username { display: none !important; }
-          .footer-grid { grid-template-columns: 1fr !important; }
-          .contact-btn-group { flex-direction: column !important; gap: 8px !important; }
-          .contact-btn-group button { width: 100% !important; }
-        }
-      `}</style>
-
-      {/* ── ORDER MODAL ── */}
-      {showOrder && <OrderModal preset={orderPreset} onClose={() => setShowOrder(false)} />}
-
-      {/* ── MAIN CONTENT ── */}
-      <main>
-      {/* ── MOBILE MENU ── */}
-      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#aaa", padding: "8px 12px", textTransform: "uppercase", letterSpacing: "0.07em" }}>Services</div>
-          {serviceDropdownItems.map(({ label, icon }) => (
-            <button key={label} style={{
-              display: "flex", alignItems: "center", gap: 10, width: "100%",
-              background: "none", border: "none", padding: "10px 12px",
-              fontSize: 16, color: "#333", cursor: "pointer", fontFamily: "inherit",
-              borderRadius: 10, textAlign: "left",
-            }} onClick={() => { setMobileMenuOpen(false); openOrder(); }}>
-              <span style={{ fontSize: 18 }}>{icon}</span> {label}
-            </button>
-          ))}
-        </div>
-        <div style={{ height: 1, background: "#eee", margin: "4px 0 8px" }} />
-        {visibleNavLinks.map(l => (
-          l.isRoute ? (
-            <Link key={l.label} to={l.href} style={{
-              display: "flex", alignItems: "center", gap: 10, width: "100%",
-              background: "none", border: "none", padding: "10px 12px",
-              fontSize: 16, color: "#333", cursor: "pointer", fontFamily: "inherit",
-              borderRadius: 10, textAlign: "left", textDecoration: "none",
-            }} onClick={() => setMobileMenuOpen(false)}>
-            {l.label}
-            </Link>
-          ) : (
-          <button key={l.label} className="nav-link"
-            style={{ fontSize: 18, padding: "13px 12px", justifyContent: "flex-start" }}
-            onClick={() => scrollTo(l.href)}>
-            {l.label}
+      <header className={`nav ${scrolled ? "scrolled" : ""}`}>
+        <div className="wrap nav-inner">
+          <button type="button" className="nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Annek — back to top">
+            <img src={logoImg} alt="Annek" width="82" height="38" fetchPriority="high" />
           </button>
-          )
-        ))}
-        <button className="btn-dark" style={{ width: "100%", marginTop: 8 }} onClick={openOrder}>
-          Order Now
-        </button>
-      </div>
-
-      {/* ── NAV ── */}
-      <nav style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? "rgba(255,255,255,0.97)" : "rgba(255,255,255,0.9)",
-        backdropFilter: "blur(14px)",
-        borderBottom: scrolled ? "1px solid rgba(0,0,0,0.08)" : "1px solid transparent",
-        transition: "all 0.3s", padding: "0 32px",
-      }}>
-        <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", alignItems: "center", height: 70, gap: 4 }}>
-          {/* Logo */}
-          <div style={{ marginRight: 20, cursor: "pointer", display: "flex", alignItems: "center" }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-            <img src={logoImg} alt="Annek - Custom Website Design & Development Services Logo" width={67} height={42} fetchPriority="high" style={{ height: 42, width: "auto", objectFit: "contain" }} />
-          </div>
-
-          {/* Desktop Links */}
-          <div className="nav-links-desktop" style={{ display: "flex", gap: 2, flex: 1, alignItems: "center" }}>
-            {/* Services with Dropdown */}
-            <div style={{ position: "relative" }}
-              onMouseEnter={() => setServicesOpen(true)}
-              onMouseLeave={() => setServicesOpen(false)}>
-              <button className="nav-link" onClick={() => scrollTo("#services")}>
-                Services <span style={{ fontSize: 11, opacity: 0.45 }}>▾</span>
-              </button>
-              {servicesOpen && (
-                <div className="services-dropdown">
-                  {serviceDropdownItems.map(({ label, icon }) => (
-                    <button key={label} className="dropdown-item" onClick={openOrder}>
-                      <span style={{ fontSize: 17 }}>{icon}</span> {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Other links */}
-            {visibleNavLinks.map(l => (
-              <NavItem key={l.label} link={l} />
-            ))}
-          </div>
-
-          {/* Right */}
-          <div style={{ display: "flex", gap: 12, alignItems: "center", marginLeft: "auto" }}>
+          <nav className="nav-links" aria-label="Main">
+            {navItems.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(e) => { e.preventDefault(); go(id); }}>{label}</a>)}
+          </nav>
+          <div className="nav-right">
             {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                {ADMIN_EMAILS.includes((user.email || "").toLowerCase()) && (
-                  <a href="/admin" className="nav-admin-btn" style={{
-                    display: "flex", alignItems: "center", gap: 6,
-                    background: "#1a1a1a", color: "#d4f74b",
-                    padding: "7px 16px", borderRadius: 100,
-                    fontSize: 13, fontWeight: 700, textDecoration: "none",
-                    border: "1.5px solid #333", transition: "background 0.2s",
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.background = "#333"}
-                    onMouseLeave={e => e.currentTarget.style.background = "#1a1a1a"}
-                  >
-                    ⚙ Admin Panel
-                  </a>
-                )}
-                {user.photoURL && <img src={user.photoURL} alt="" style={{ width: 30, height: 30, borderRadius: "50%", border: "2px solid #5c4ef8" }} />}
-                <span className="nav-username" style={{ fontSize: 14, fontWeight: 500, color: "#333" }}>{user.displayName?.split(" ")[0]}</span>
-                <button className="nav-link" style={{ fontWeight: 500, fontSize: 14 }} onClick={logOut}>Log Out</button>
+              <div className="nav-user hide-sm">
+                {isAdmin && <a href="/admin" className="btn btn-soft btn-sm">Admin</a>}
+                {user.photoURL && <img src={user.photoURL} alt="" referrerPolicy="no-referrer" />}
+                <button type="button" className="link-btn" style={{ color: "var(--ink)", fontWeight: 500 }} onClick={logOut}>Log out</button>
               </div>
             ) : (
-              <button className="nav-link" style={{ fontWeight: 500 }} onClick={signInWithGoogle}>Log In</button>
+              <button type="button" className="link-btn hide-sm" style={{ color: "var(--ink)", fontWeight: 500, padding: "10px 8px" }} onClick={signInWithGoogle}>Log in</button>
             )}
-            <button className="btn-dark nav-order-btn" style={{ padding: "10px 24px", fontSize: 15 }} onClick={openOrder}>
-              Order Now
-            </button>
-            {/* Hamburger */}
-            <button className="hamburger" aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen} style={{
-              display: "none", flexDirection: "column", gap: 5,
-              background: "none", border: "none", cursor: "pointer", padding: 6,
-            }} onClick={() => setMobileMenuOpen(o => !o)}>
-              {[0, 1, 2].map(i => (
-                <span key={i} style={{
-                  width: 22, height: 2, background: "#1a1a1a", borderRadius: 2, display: "block",
-                  transform: mobileMenuOpen
-                    ? i === 0 ? "rotate(45deg) translate(5px, 5px)"
-                    : i === 2 ? "rotate(-45deg) translate(5px, -5px)" : "scaleX(0)"
-                    : "none",
-                  transition: "transform 0.3s, opacity 0.3s",
-                  opacity: mobileMenuOpen && i === 1 ? 0 : 1,
-                }} />
-              ))}
+            <button type="button" className="btn btn-ink btn-sm" onClick={() => openOrder("")}>Start a project</button>
+            <button type="button" className="nav-burger" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} aria-controls="mobile-menu" onClick={() => setMenuOpen((o) => !o)}>
+              {menuOpen ? <IconClose /> : <IconMenu />}
             </button>
           </div>
         </div>
-      </nav>
+        {menuOpen && (
+          <nav id="mobile-menu" className="mobile-menu" aria-label="Mobile">
+            {navItems.map(([id, label]) => <a key={id} href={`#${id}`} onClick={(e) => { e.preventDefault(); go(id); }}>{label}</a>)}
+            {isAdmin && <a href="/admin">Admin panel</a>}
+            {user ? <button type="button" onClick={logOut}>Log out</button> : <button type="button" onClick={signInWithGoogle}>Log in</button>}
+          </nav>
+        )}
+      </header>
 
-      {/* ── HERO ── */}
-      <section id="services" style={{
-        background: "linear-gradient(160deg, #f0eeff 0%, #e8f0ff 40%, #f5f0ff 100%)",
-        minHeight: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        paddingTop: 100, paddingBottom: 60, paddingLeft: 24, paddingRight: 24,
-        textAlign: "center", position: "relative", overflow: "hidden",
-      }}>
-        <div style={{ position: "absolute", top: -100, right: -100, width: 500, height: 500, background: "radial-gradient(circle, rgba(120,100,255,0.13) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", bottom: -50, left: -50, width: 400, height: 400, background: "radial-gradient(circle, rgba(100,180,255,0.1) 0%, transparent 70%)", borderRadius: "50%", pointerEvents: "none" }} />
-
-        <div style={{ opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(24px)", transition: "opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            background: "rgba(255,255,255,0.75)", border: "1px solid rgba(120,100,255,0.25)",
-            borderRadius: 100, padding: "6px 18px", marginBottom: 32,
-            fontSize: 13, color: "#5c4ef8", fontWeight: 600,
-          }}>
-            <span>✦</span> Web apps · Mobile apps · Custom software
-          </div>
-        </div>
-
-        <h1 style={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(44px, 7vw, 88px)",
-          fontWeight: 300, lineHeight: 1.06, letterSpacing: "-3px", maxWidth: 880,
-          opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(32px)",
-          transition: "opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s", color: "#0e0e0e",
-        }}>
-          Your digital solution,{" "}<em style={{ fontStyle: "normal", fontWeight: 300 }}>built &amp; maintained</em>
-        </h1>
-
-        <p style={{
-          marginTop: 28, fontSize: 17, color: "#555", maxWidth: 540, lineHeight: 1.7,
-          opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(24px)",
-          transition: "opacity 0.8s ease 0.35s, transform 0.8s ease 0.35s",
-        }}>
-          Pick a ready-made app, website or software package — Annek customises it to your
-          business and keeps it secure and up to date with a monthly maintenance plan.
-        </p>
-
-        <div style={{
-          marginTop: 40, display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center",
-          opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(20px)",
-          transition: "opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s",
-        }}>
-          <button className="btn-dark" style={{ fontSize: 16, padding: "16px 36px" }} onClick={() => (hasCatalog ? scrollTo("#solutions") : openOrder())}>
-            {hasCatalog ? "Explore Solutions" : "Start Your Order"}
-          </button>
-          <button className="btn-outline" style={{ fontSize: 16, padding: "16px 36px" }} onClick={() => scrollTo("#portfolio")}>
-            View Portfolio
-          </button>
-        </div>
-
-        {/* Hero Cards */}
-        <div className="hero-cards" style={{
-          marginTop: 64, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap",
-          opacity: heroVisible ? 1 : 0, transform: heroVisible ? "translateY(0)" : "translateY(40px)",
-          transition: "opacity 1s ease 0.7s, transform 1s ease 0.7s",
-          maxWidth: 1100,
-        }}>
-          {[
-            { label: "Business Site", img: businessImg, desc: "Corporate" },
-            { label: "Portfolio", img: portfolioImg, desc: "Showcase" },
-            { label: "E-Commerce", img: ecommerceImg, desc: "Online Store" },
-            { label: "Booking Site", img: bookingImg, desc: "Appointments" },
-            { label: "Education", img: educationImg, desc: "Schools & Courses" },
-            { label: "Associations", img: associationImg, desc: "Organizations" },
-            { label: "Clubs Sites", img: clubsImg, desc: "Communities" },
-          ].map((c, i) => (
-            <div key={i} className="card-hover" style={{
-              borderRadius: 20, width: 155, height: 148,
-              position: "relative", overflow: "hidden", cursor: "pointer",
-              border: "1px solid rgba(255,255,255,0.5)", background: "#f0f0f0",
-              flexShrink: 0,
-            }} onClick={openOrder}>
-              <img src={c.img} alt={`${c.label} website design showcase`} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)" }} />
-              <div style={{ position: "absolute", top: 10, left: 10, background: "rgba(255,255,255,0.9)", borderRadius: 100, padding: "3px 10px", fontSize: 10, fontWeight: 700, color: "#333" }}>{c.desc}</div>
-              <div style={{ position: "absolute", bottom: 12, left: 12, fontSize: 12, fontWeight: 600, color: "#fff" }}>{c.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── TICKER ── */}
-      <div style={{ background: "#1a1a1a", padding: "14px 0", overflow: "hidden" }}>
-        <div className="ticker-track">
-          {[...Array(2)].map((_, ri) => (
-            <div key={ri} style={{ display: "flex", gap: 48 }}>
-              {["Mobile Applications", "Web Applications", "Custom Software", "E-Commerce", "Portfolio Sites", "Institute Platforms", "Monthly Maintenance", "Software Customisation", "SEO Optimised", "Fast Delivery"].map((t, i) => (
-                <span key={i} style={{ color: "#fff", fontSize: 14, fontWeight: 400, opacity: 0.8, letterSpacing: "0.05em" }}>
-                  {t} <span style={{ color: "#d4f74b", margin: "0 12px" }}>✦</span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── STATS ── */}
-      <section style={{ padding: "80px 24px", background: "#fff" }}>
-        <div className="stats-grid" style={{ maxWidth: 900, margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 32 }}>
-          {displayStats.map((s, i) => (
-            <FadeUp key={i} delay={i * 0.1}>
-              <div style={{ textAlign: "center" }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 48, fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e" }}>{s.value}</div>
-                <div style={{ fontSize: 14, color: "#888", marginTop: 4 }}>{s.label}</div>
+      <main id="main">
+        {/* HERO */}
+        <section id="top" className="hero">
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <span className="pill"><span className="dot" />{company.area}</span>
+              <h1>Apps, web apps &amp; software — <span>built and looked after.</span></h1>
+              <p className="lead">Pick a ready-made solution. We customise it to your business, launch it, and keep it secure and up to date with a monthly maintenance plan.</p>
+              <div className="hero-ctas">
+                <button type="button" className="btn btn-orange btn-lg" onClick={() => go("solutions")}>Explore solutions</button>
+                <button type="button" className="btn btn-line btn-lg" onClick={() => openOrder("")}>Tell us what you need</button>
               </div>
-            </FadeUp>
-          ))}
-        </div>
-      </section>
-
-      {/* ── SECTOR 1: CLIENT SERVICES & PACKAGES ── */}
-      {hasCatalog && (
-        <Suspense fallback={<div style={{ minHeight: 400 }} />}>
-          <ServicesCatalog catalog={catalog} onOrder={openOrder} />
-        </Suspense>
-      )}
-
-      {/* ── HOW IT WORKS ── */}
-      <section id="how-it-works" style={{ background: "#f0eeff", borderRadius: "32px 32px 0 0", padding: "80px 24px", margin: "0 16px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
-            <FadeUp>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 58px)", fontWeight: 300, letterSpacing: "-2px", lineHeight: 1.1, color: "#0e0e0e" }}>
-                Ordering your site is <em style={{ fontStyle: "italic" }}>simple & fast</em>
-              </h2>
-            </FadeUp>
-            <FadeUp delay={0.2}>
-              <p style={{ fontSize: 17, color: "#555", lineHeight: 1.65, marginBottom: 28 }}>
-                Describe your requirements once. Our experts handle design, development, and delivery — so you can focus on your business.
-              </p>
-              <button className="btn-dark" onClick={openOrder}>Place Your Order</button>
-            </FadeUp>
-          </div>
-          <div className="steps-grid" style={{ marginTop: 56, display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 24 }}>
-            {[
-              { step: "01", title: "Submit Requirements", desc: "Fill our simple order form with your business details, design preferences, and features needed.", icon: <IconClipboard /> },
-              { step: "02", title: "We Design & Build", desc: "Our team crafts your website with care, keeping you updated throughout the process.", icon: <IconGear /> },
-              { step: "03", title: "Review & Launch", desc: "Approve your site, request any revisions, and go live — all within your agreed timeline.", icon: <IconRocket /> },
-            ].map((s, i) => (
-              <FadeUp key={i} delay={i * 0.15}>
-                <div className="card-hover" style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(12px)", borderRadius: 20, padding: "32px 28px", border: "1px solid rgba(255,255,255,0.9)" }}>
-                  <div style={{ marginBottom: 12, width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}>{s.icon}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: "#5c4ef8", letterSpacing: "0.1em", marginBottom: 8 }}>STEP {s.step}</div>
-                  <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 10 }}>{s.title}</h3>
-                  <p style={{ fontSize: 14, color: "#666", lineHeight: 1.65 }}>{s.desc}</p>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FEATURES ── */}
-      <section style={{ padding: "80px 24px", background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 56 }}>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e" }}>
-                Everything you get with <em style={{ fontStyle: "italic" }}>every order</em>
-              </h2>
+              <ul className="hero-ticks"><li>Mobile apps</li><li>Web applications</li><li>Custom software</li><li>Monthly care</li></ul>
             </div>
-          </FadeUp>
-          <div className="features-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 20 }}>
-            {features.map((f, i) => (
-              <FadeUp key={i} delay={i * 0.1}>
-                <div className="card-hover" style={{ background: f.bg, borderRadius: 24, padding: "40px 36px", border: "1px solid rgba(0,0,0,0.04)" }}>
-                  <div style={{ marginBottom: 16, width: 48, height: 48, borderRadius: 14, background: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center", justifyContent: "center", color: "#5c4ef8" }}>{f.icon}</div>
-                  <h3 style={{ fontSize: 22, fontWeight: 600, marginBottom: 12, color: "#0e0e0e" }}>{f.title}</h3>
-                  <p style={{ fontSize: 15, color: "#666", lineHeight: 1.65 }}>{f.desc}</p>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PORTFOLIO ── */}
-      <section id="portfolio" style={{ padding: "80px 24px", background: "#fafafa" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <FadeUp>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 52, flexWrap: "wrap", gap: 20 }}>
-              <div>
-                <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 10 }}>✦ Our Work</div>
-                <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e", lineHeight: 1.1 }}>
-                  Sites we've <em style={{ fontStyle: "italic" }}>built & shipped</em>
-                </h2>
+            <div className="hero-art" aria-hidden="true">
+              <div className="hero-card" style={{ background: "#050505" }}>
+                <img src="/intro/annek-intro-poster.jpg" alt="" width="1280" height="720" style={{ objectFit: "contain" }} />
               </div>
-              <button className="btn-outline" onClick={openOrder}>Start Your Project →</button>
-            </div>
-          </FadeUp>
-          {/* Category Filter Tabs */}
-          {portfolioProjects.length > 0 && (
-            <FadeUp delay={0.05}>
-              <div className="portfolio-filters" style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 36, justifyContent: "center" }}>
-                {["All", ...new Set(portfolioProjects.map(p => p.category).filter(Boolean))].map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedCategory(cat)}
-                    style={{
-                      background: selectedCategory === cat ? "#5c4ef8" : "#f4f4f4",
-                      color: selectedCategory === cat ? "#fff" : "#555",
-                      border: "none",
-                      padding: "8px 18px",
-                      borderRadius: 100,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: "pointer",
-                      transition: "all 0.25s ease",
-                      boxShadow: selectedCategory === cat ? "0 4px 12px rgba(92, 78, 248, 0.25)" : "none"
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
+              <div className="hero-float">
+                {featured ? (
+                  <>
+                    <small>Featured package</small>
+                    <strong>{featured.name}</strong>
+                    <span>{money(featured.setupPrice, featured.currency)} setup + {money(featured.monthlyFee, featured.currency)}/mo</span>
+                  </>
+                ) : (
+                  <>
+                    <small>Every package</small>
+                    <strong>Built for you</strong>
+                    <span>Customised, launched and maintained by Annek.</span>
+                  </>
+                )}
               </div>
-            </FadeUp>
-          )}
-
-          <div className="portfolio-marquee-container">
-            <div className="portfolio-marquee-track">
-              {(() => {
-                let marqueeProjects = [...filteredProjects];
-                if (portfolioProjects.length === 0) {
-                  return <div style={{ textAlign: "center", color: "#bbb", padding: 40, fontSize: 15, width: "100%" }}>Loading portfolio…</div>;
-                }
-                if (filteredProjects.length === 0) {
-                  return <div style={{ textAlign: "center", color: "#888", padding: 40, fontSize: 15, width: "100%" }}>No projects found in this category.</div>;
-                }
-                while (marqueeProjects.length > 0 && marqueeProjects.length < 12) {
-                  marqueeProjects = [...marqueeProjects, ...filteredProjects];
-                }
-                const finalMarquee = [...marqueeProjects, ...marqueeProjects];
-                return finalMarquee.map((p, i) => {
-                  const optimizedImageUrl = p.imageUrl && p.imageUrl.includes('cloudinary.com')
-                    ? p.imageUrl.replace('/upload/', '/upload/w_600,h_400,c_fill,q_80,f_auto/')
-                    : p.imageUrl;
-                  return (
-                    <div key={i} className="portfolio-card" style={{ background: "#f0f0f0", position: "relative" }} onClick={openOrder}>
-                      <div style={{ width: "100%", height: 200, overflow: "hidden", borderRadius: "24px 24px 0 0" }}>
-                        <img src={optimizedImageUrl || categoryImageMap[p.category] || businessImg} 
-                          alt={`${p.title} - custom ${p.category || 'web design'} website build by Annek`}
-                          width={396}
-                          height={200}
-                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", transition: "transform 0.4s ease" }}
-                          onMouseEnter={e => e.target.style.transform = "scale(1.06)"}
-                          onMouseLeave={e => e.target.style.transform = "scale(1)"} />
-                      </div>
-                      <div className="portfolio-overlay" style={{ borderRadius: "24px 24px 0 0", height: 200, bottom: "auto" }}>
-                        <div style={{ background: "#fff", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 600, color: "#1a1a1a" }}>Order Similar ✦</div>
-                      </div>
-                      <div style={{ padding: "24px 28px 28px", background: "#fff", borderRadius: "0 0 24px 24px" }}>
-                        <div style={{ display: "inline-block", background: "#f4f4f4", borderRadius: 100, padding: "4px 14px", fontSize: 11, fontWeight: 700, color: p.accent || "#5c4ef8", marginBottom: 12, textTransform: "uppercase", letterSpacing: "0.06em" }}>{p.category}</div>
-                        <h3 style={{ fontSize: 18, fontWeight: 600, color: "#0e0e0e", marginBottom: 8 }}>{p.title}</h3>
-                        <p style={{ fontSize: 13, color: "#666", lineHeight: 1.6, marginBottom: 16, height: 62, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.desc}</p>
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {(p.tags || []).slice(0, 3).map(tag => (
-                            <span key={tag} style={{ background: "#f0f0f0", borderRadius: 100, padding: "4px 12px", fontSize: 11, fontWeight: 600, color: "#555" }}>{tag}</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                });
-              })()}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SOLUTIONS ── */}
-      <section style={{ background: "#e8f5f0", borderRadius: 32, margin: "0 16px", padding: "80px 48px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
-            <FadeUp>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 56px)", fontWeight: 300, letterSpacing: "-2px", lineHeight: 1.1, color: "#0e0e0e" }}>
-                Solutions built for <em>every business</em>
-              </h2>
-            </FadeUp>
-            <div>
-              {[
-                { title: "Grow with built-in SEO", desc: "Every Annek website ships with structured data, fast load times, and on-page SEO optimisation.", color: "#c8f0e0" },
-                { title: "Sell products online", desc: "We integrate secure payment gateways, product catalogues, and cart systems tailored to your store.", color: "#ffd6c8" },
-                { title: "Accept bookings 24/7", desc: "Automated appointment scheduling and calendar management built directly into your site.", color: "#e0d6ff" },
-              ].map((item, i) => (
-                <FadeUp key={i} delay={i * 0.15}>
-                  <div style={{ background: item.color, borderRadius: 16, padding: "20px 24px", marginBottom: 12, cursor: "pointer", transition: "transform 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.transform = "translateX(6px)"}
-                    onMouseLeave={e => e.currentTarget.style.transform = "translateX(0)"}>
-                    <h4 style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e", marginBottom: 4 }}>{item.title}</h4>
-                    <p style={{ fontSize: 13, color: "#555" }}>{item.desc}</p>
-                  </div>
-                </FadeUp>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── PRICING ── */}
-      <section id="pricing" style={{ padding: "100px 24px", background: "#fff" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 64 }}>
-              <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12 }}>✦ Transparent Pricing</div>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4vw, 58px)", fontWeight: 300, letterSpacing: "-2px", color: "#0e0e0e", marginBottom: 16 }}>
-                Simple, <em style={{ fontStyle: "italic" }}>honest pricing</em>
-              </h2>
-              <p style={{ fontSize: 16, color: "#777", maxWidth: 500, margin: "0 auto" }}>One-time website builds with no hidden fees. Want us to run it for you? Add a monthly maintenance plan.</p>
-            </div>
-          </FadeUp>
-          <div className="pricing-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, alignItems: "start" }}>
-            {displayPlans.map((plan, i) => (
-              <FadeUp key={i} delay={i * 0.1}>
-                <div className={`pricing-card ${plan.highlight ? "highlight" : ""}`}
-                  style={{ background: plan.highlight ? "#1a1a1a" : "#f7f7f7", border: plan.highlight ? "none" : "1.5px solid #eee" }}>
-                  {plan.badge && (
-                    <div style={{ display: "inline-block", background: "#d4f74b", borderRadius: 100, padding: "5px 16px", fontSize: 11, fontWeight: 700, color: "#1a1a1a", marginBottom: 20, letterSpacing: "0.04em" }}>{plan.badge}</div>
-                  )}
-                  <div style={{ marginBottom: plan.badge ? 0 : 20 }} />
-                  <div style={{ fontSize: 15, fontWeight: 600, color: plan.highlight ? "#fff" : "#0e0e0e", marginBottom: 8 }}>{plan.name}</div>
-                  <div style={{ fontSize: 11, color: plan.highlight ? "rgba(255,255,255,0.5)" : "#999", marginBottom: 24, lineHeight: 1.5 }}>{plan.tagline}</div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 32 }}>
-                    <span style={{ fontSize: 48, fontWeight: 300, letterSpacing: "-2px", color: plan.highlight ? "#fff" : "#0e0e0e", lineHeight: 1 }}>{plan.price}</span>
-                    <span style={{ fontSize: 13, color: plan.highlight ? "rgba(255,255,255,0.5)" : "#aaa" }}>{plan.period}</span>
-                  </div>
-                  <div style={{ height: 1, background: plan.highlight ? "rgba(255,255,255,0.1)" : "#e8e8e8", marginBottom: 28 }} />
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 36 }}>
-                    {plan.features.map((f, fi) => (
-                      <div key={fi} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                        <span style={{ fontSize: 13, color: plan.highlight ? "#d4f74b" : "#5c4ef8", flexShrink: 0, marginTop: 1 }}>✓</span>
-                        <span style={{ fontSize: 14, color: plan.highlight ? "rgba(255,255,255,0.8)" : "#555", lineHeight: 1.4 }}>{f}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <button className={plan.highlight ? "btn-lime" : "btn-dark"} style={{ width: "100%", padding: "14px", fontSize: 15 }} onClick={openOrder}>
-                    Get Started →
-                  </button>
-                </div>
-              </FadeUp>
-            ))}
-          </div>
-          <FadeUp delay={0.3}>
-            <div style={{ marginTop: 40, textAlign: "center", background: "#f0eeff", borderRadius: 20, padding: "24px 32px" }}>
-              <span style={{ fontSize: 15, color: "#555" }}>
-                Need something custom?{" "}
-                <button className="nav-link" style={{ display: "inline", color: "#5c4ef8", fontWeight: 600, padding: "0 4px" }} onClick={openOrder}>
-                  Tell us your requirements
-                </button>{" "}
-                and we'll send you a tailored quote within 24 hours.
-              </span>
-            </div>
-          </FadeUp>
-        </div>
-      </section>
-
-      {/* ── SECTOR 2: OWN PRODUCTS ── */}
-      {hasProducts && (
-        <Suspense fallback={<div style={{ minHeight: 400, background: "#0f0f12" }} />}>
-          <OwnProducts products={ownProducts} onOrder={openOrder} />
-        </Suspense>
-      )}
-
-      {/* ── TESTIMONIALS ── */}
-      {displayReviews.length > 0 && (
-        <section style={{ padding: "80px 0", background: "#fff", overflow: "hidden" }}>
-          <div style={{ maxWidth: 1100, margin: "0 auto", padding: "0 24px" }}>
-            <FadeUp>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", textAlign: "center", marginBottom: 52, color: "#0e0e0e" }}>
-                {(() => {
-                  const rawTitle = settings.testimonialsTitle || "Trusted by hundreds of businesses";
-                  const realCount = liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-                    ? liveStats.orderCount
-                    : 0;
-                  if (rawTitle.includes("{count}")) {
-                    return rawTitle.replace("{count}", realCount.toLocaleString());
-                  }
-                  return rawTitle
-                    .replace("500+", realCount.toLocaleString())
-                    .replace("hundreds", realCount.toLocaleString());
-                })()}
-              </h2>
-            </FadeUp>
-          </div>
-          <div className="reviews-marquee-container">
-            <div className="reviews-marquee-track">
-              {(() => {
-                let marqueeReviews = [...displayReviews];
-                while (marqueeReviews.length > 0 && marqueeReviews.length < 12) {
-                  marqueeReviews = [...marqueeReviews, ...displayReviews];
-                }
-                const finalMarquee = [...marqueeReviews, ...marqueeReviews];
-                return finalMarquee.map((t, i) => (
-                  <div key={i} className="card-hover" style={{
-                    background: "#fafafa", border: "1px solid #eee", borderRadius: 24,
-                    padding: "32px 28px", display: "flex", flexDirection: "column",
-                    justifyContent: "space-between", height: 220, width: 350, boxSizing: "border-box",
-                    flexShrink: 0
-                  }}>
-                    <div>
-                      {t.rating && (
-                        <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
-                          {[...Array(5)].map((_, starIdx) => (
-                            <span key={starIdx} style={{ color: starIdx < t.rating ? "#f59e0b" : "#ddd", fontSize: 16 }}>★</span>
-                          ))}
-                        </div>
-                      )}
-                      <p style={{ fontSize: 14, lineHeight: 1.6, color: "#333", marginBottom: 20, fontStyle: "italic", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
-                        "{t.quote}"
-                      </p>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: "auto" }}>
-                      <div style={{ width: 36, height: 36, borderRadius: "50%", background: t.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, color: "#fff", fontWeight: 700, flexShrink: 0 }}>
-                        {t.initials}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: "#0e0e0e" }}>{t.name}</div>
-                        <div style={{ fontSize: 11, color: "#888" }}>{t.role}</div>
-                      </div>
-                    </div>
-                  </div>
-                ));
-              })()}
+              <div className="hero-tag">Maintained monthly</div>
             </div>
           </div>
         </section>
-      )}
 
-      {/* ── FAQ ── */}
-      <section style={{ background: "#fff", padding: "40px 24px 80px" }}>
-        <div style={{ maxWidth: 900, margin: "0 auto" }}>
-          <FadeUp>
-            <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 3.5vw, 50px)", fontWeight: 300, letterSpacing: "-1.5px", marginBottom: 44, color: "#0e0e0e" }}>
-              Frequently asked questions
-            </h2>
-          </FadeUp>
-          {faqs.map((q, i) => (
-            <FadeUp key={i} delay={i * 0.07}>
-              <div className="faq-item" onClick={() => setOpenFaq(openFaq === i ? null : i)} style={{ padding: "24px 8px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 17, fontWeight: 400, color: "#0e0e0e", paddingRight: 16 }}>{q}</span>
-                  <span style={{ fontSize: 22, color: "#666", flexShrink: 0, transform: openFaq === i ? "rotate(45deg)" : "rotate(0)", transition: "transform 0.3s", display: "inline-block", lineHeight: 1 }}>+</span>
-                </div>
-                <div style={{
-                  maxHeight: openFaq === i ? "280px" : "0px",
-                  opacity: openFaq === i ? 1 : 0,
-                  overflow: "hidden",
-                  transition: "max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, margin-top 0.3s ease",
-                  marginTop: openFaq === i ? 16 : 0,
-                }}>
-                  <p style={{ fontSize: 15, color: "#666", lineHeight: 1.7, maxWidth: 680 }}>{faqAnswers[i]}</p>
-                </div>
-              </div>
-            </FadeUp>
-          ))}
+        <div className="strip" aria-hidden="true">
+          <div className="strip-track">{[...STRIP, ...STRIP].map((t, i) => <span key={i}>{t}</span>)}</div>
         </div>
-      </section>
 
-      {/* ── ABOUT US ── */}
-      <section id="about" style={{ background: "#f9f9fb", padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
-            <FadeUp>
-              <div>
-                <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>About Us</div>
-                <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 300, letterSpacing: "-1.5px", color: "#0e0e0e", marginBottom: 24 }}>
-                  We build websites that <em style={{ fontStyle: "italic" }}>work for you</em>
-                </h2>
-                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 20, whiteSpace: "pre-line" }}>
-                  {company.about || "Annek is a digital solutions company from Mannar, Sri Lanka. We build mobile applications, web applications and custom software from proven templates, customise them for each business, and keep them running with affordable monthly maintenance packages."}
-                </p>
-                <p style={{ fontSize: 16, color: "#555", lineHeight: 1.8, marginBottom: 32 }}>
-                  Founded with a simple mission — make professional web design accessible to everyone — our team of expert designers and developers has delivered over 1,200 websites across 40+ industries worldwide.
-                </p>
-                <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                  {[
-                    {
-                      val: liveStats?.orderCount !== null && liveStats?.orderCount !== undefined
-                        ? liveStats.orderCount.toLocaleString() + "+"
-                        : "1,200+",
-                      lab: "Sites Delivered",
-                      bg: "#eef0ff",
-                      col: "#5c4ef8"
-                    },
-                    {
-                      val: liveStats?.industryCount !== null && liveStats?.industryCount !== undefined
-                        ? (liveStats.industryCount || 40) + "+"
-                        : "40+",
-                      lab: "Industries Served",
-                      bg: "#e8f5f0",
-                      col: "#2a9d8f"
-                    },
-                    {
-                      val: liveStats?.avgRating !== null && liveStats?.avgRating !== undefined
-                        ? (Number(liveStats.avgRating) * 20).toFixed(0) + "%"
-                        : "98%",
-                      lab: "Client Satisfaction",
-                      bg: "#fff3e8",
-                      col: "#f57f17"
-                    },
-                  ].map(({ val, lab, bg, col }) => (
-                    <div key={lab} style={{ background: bg, borderRadius: 16, padding: "16px 24px", textAlign: "center" }}>
-                      <div style={{ fontSize: 28, fontWeight: 300, letterSpacing: "-1px", color: col }}>{val}</div>
-                      <div style={{ fontSize: 12, color: "#888", marginTop: 4 }}>{lab}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.2}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                {[
-                  { icon: "🎯", title: "Our Mission", desc: "To make professional web design accessible to every business — regardless of size or technical know-how." },
-                  { icon: "💡", title: "Our Approach", desc: "We listen first. Every site we build starts with a thorough understanding of your goals, your audience, and your brand." },
-                  { icon: "🚀", title: "Our Promise", desc: "Fast delivery, unlimited revisions, and ongoing support. We're not done until you're thrilled with the result." },
-                ].map((v, i) => (
-                  <div key={i} className="card-hover" style={{ background: "#fff", borderRadius: 20, padding: "24px 28px", border: "1px solid #eee", display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <span style={{ fontSize: 28, flexShrink: 0 }}>{v.icon}</span>
-                    <div>
-                      <div style={{ fontSize: 16, fontWeight: 600, color: "#0e0e0e", marginBottom: 6 }}>{v.title}</div>
-                      <div style={{ fontSize: 14, color: "#777", lineHeight: 1.65 }}>{v.desc}</div>
-                    </div>
+        <Solutions catalog={catalog} onOrder={openOrder} />
+
+        {/* HOW IT WORKS */}
+        <section className="section tint" aria-labelledby="how-title">
+          <div className="wrap">
+            <h2 className="h2 reveal" id="how-title" style={{ marginBottom: 48 }}>How it works</h2>
+            <ol className="steps">
+              {STEPS.map(([t, d], i) => (
+                <li key={t} className="reveal"><span className="n" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span><h3>{t}</h3><p>{d}</p></li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <Products products={products} onOrder={openOrder} />
+
+        {/* PORTFOLIO */}
+        {portfolio.length > 0 && (
+          <section id="work" className="section tint" aria-labelledby="work-title">
+            <div className="wrap">
+              <div className="head-row reveal">
+                <div><div className="eyebrow">Portfolio</div><h2 className="h2" id="work-title">Recent work</h2></div>
+                {categories.length > 2 && (
+                  <div className="filters" role="group" aria-label="Filter projects">
+                    {categories.map((c) => <button key={c} type="button" className="chip" aria-pressed={filter === c} onClick={() => setFilter(c)}>{c}</button>)}
                   </div>
+                )}
+              </div>
+              <div className="grid-4">
+                {shownWork.map((w) => (
+                  <article key={w._id} className="work reveal">
+                    <div className="work-img">
+                      {w.imageUrl ? <img src={w.imageUrl} alt={`${w.title} website`} loading="lazy" decoding="async" width="600" height="450" /> : <span aria-hidden="true">{w.title?.[0]}</span>}
+                    </div>
+                    <span className="cat">{w.category}</span>
+                    <h3>{w.title}</h3>
+                    {w.desc && <p>{w.desc}</p>}
+                  </article>
                 ))}
               </div>
-            </FadeUp>
-          </div>
-        </div>
-      </section>
-
-      {/* ── CONTACT US ── */}
-      <section id="contact" style={{ background: "#fff", padding: "100px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <FadeUp>
-            <div style={{ textAlign: "center", marginBottom: 64 }}>
-              <div style={{ fontSize: 13, color: "#5c4ef8", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16 }}>Contact Us</div>
-              <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 300, letterSpacing: "-1.5px" }}>
-                Get in touch
-              </h2>
-              <p style={{ fontSize: 16, color: "#888", marginTop: 16, maxWidth: 440, margin: "16px auto 0" }}>
-                Have questions? We'd love to hear from you. Send us a message and we'll respond within 24 hours.
-              </p>
             </div>
-          </FadeUp>
-          <div className="two-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 56 }}>
-            <FadeUp>
-              <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-                {[
-                  {
-                    icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="4" width="20" height="16" rx="2" />
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                      </svg>
-                    ),
-                    label: "Email",
-                    value: company.email,
-                    sub: "We reply within 24 hours",
-                    href: `mailto:${company.email}`
-                  },
-                  {
-                    icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#5c4ef8">
-                        <path d="M12.031 0C5.393 0 .012 5.382.012 12.018c0 2.12.553 4.183 1.602 5.992L0 24l6.135-1.61c1.748.953 3.714 1.458 5.89 1.458 6.637 0 12.018-5.383 12.018-12.02C24.043 5.382 18.667 0 12.031 0zm0 22.006c-1.8 0-3.56-.48-5.112-1.392l-.367-.218-3.799.995.995-3.69-.239-.379a9.986 9.986 0 0 1-1.529-5.3c0-5.503 4.48-9.983 9.99-9.983 2.668 0 5.176 1.04 7.059 2.925a9.92 9.92 0 0 1 2.924 7.064c.005 5.508-4.475 9.98-9.97 9.98zm5.289-7.212c-.29-.145-1.716-.848-1.983-.945-.266-.097-.46-.145-.653.145-.193.29-.747.945-.916 1.138-.169.193-.338.217-.628.072-.29-.145-1.226-.452-2.336-1.442-.864-.77-1.448-1.72-1.617-2.01-.169-.29-.018-.447.127-.591.13-.13.29-.338.435-.507.145-.169.193-.29.29-.483.097-.193.048-.362-.024-.507-.072-.145-.653-1.573-.895-2.153-.235-.565-.473-.488-.65-.497-.168-.008-.362-.008-.555-.008-.193 0-.507.072-.773.362-.266.29-.723 1.014-.723 2.472s1.05 2.872 1.196 3.065c.145.193 2.062 3.148 4.996 4.413.698.302 1.243.482 1.668.617.702.222 1.341.19 1.846.115.56-.084 1.716-.7 1.958-1.376.242-.676.242-1.255.169-1.376-.073-.12-.266-.193-.556-.338z" />
-                      </svg>
-                    ),
-                    label: "WhatsApp",
-                    value: company.phone || `+${company.whatsapp}`,
-                    sub: "Mon–Fri, 9am – 6pm",
-                    href: `https://wa.me/${company.whatsapp}`
-                  },
-                  {
-                    icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="2" y1="12" x2="22" y2="12" />
-                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                      </svg>
-                    ),
-                    label: "Website",
-                    value: "www.annek.tech",
-                    sub: "Browse our full portfolio",
-                    href: "https://www.annek.tech"
-                  },
-                  {
-                    icon: (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c4ef8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                    ),
-                    label: "Location",
-                    value: company.address,
-                    sub: company.area
-                  }
-                ].map((c, i) => (
-                  <div key={i} style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 14, background: "#eef0ff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      {c.icon}
-                    </div>
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <div style={{ fontSize: 11, color: "#bbb", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 2 }}>{c.label}</div>
-                      <div style={{ marginBottom: 2 }}>
-                        {c.href ? (
-                          <a href={c.href} target={c.href.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer"
-                            style={{ fontSize: "clamp(14px, 4vw, 16px)", fontWeight: 600, color: "#0e0e0e", textDecoration: "none", transition: "color 0.2s", display: "inline-block", wordBreak: "break-word", overflowWrap: "anywhere" }}
-                            onMouseEnter={e => e.target.style.color = "#5c4ef8"}
-                            onMouseLeave={e => e.target.style.color = "#0e0e0e"}>
-                            {c.value}
-                          </a>
-                        ) : (
-                          <span style={{ fontSize: "clamp(14px, 4vw, 16px)", fontWeight: 600, color: "#0e0e0e", wordBreak: "break-word", overflowWrap: "anywhere" }}>{c.value}</span>
-                        )}
-                      </div>
-                      <div style={{ fontSize: 13, color: "#999" }}>{c.sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </FadeUp>
-            <FadeUp delay={0.15}>
-              <ContactForm openOrder={openOrder} />
-            </FadeUp>
-          </div>
-        </div>
-      </section>
+          </section>
+        )}
 
-      {/* ── CTA ── */}
-      <section style={{ background: "#1a5c44", padding: "100px 24px", marginTop: 0, textAlign: "center" }}>
-        <FadeUp>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 16, fontWeight: 600 }}>
-            Ready to get started?
-          </p>
-          <h2 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(36px, 4.5vw, 64px)", fontWeight: 300, letterSpacing: "-2px", color: "#fff", marginBottom: 16 }}>
-            Start your digital solution today
-          </h2>
-          <p style={{ fontSize: 16, color: "rgba(255,255,255,0.7)", marginBottom: 40 }}>
-            Unlimited revisions · Expert support
-          </p>
-          <div style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-            <button className="btn-lime" style={{ fontSize: 17, padding: "18px 48px" }} onClick={openOrder}>
-              Start Your Order ✦
-            </button>
-            <button className="btn-white" style={{ fontSize: 16 }} onClick={() => scrollTo("#pricing")}>
-              View Pricing
-            </button>
-          </div>
-        </FadeUp>
-      </section>
-      </main>
-
-      {/* ── FOOTER ── */}
-      <footer style={{ background: "#111", padding: "56px 32px 40px", color: "#888" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div className="footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: 40, marginBottom: 48 }}>
-            <div>
-              <img src={logoImg} alt="Annek - Professional Website Builder Logo" style={{ height: 36, width: "auto", objectFit: "contain", marginBottom: 16 }} />
-              <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, maxWidth: 240 }}>
-                {company.tagline}
-              </p>
+        {/* WEBSITE PRICING */}
+        <section id="pricing" className="section" aria-labelledby="pricing-title">
+          <div className="wrap pricing">
+            <div className="pricing-intro reveal">
+              <div className="eyebrow" style={{ marginBottom: 0 }}>Website builds</div>
+              <h2 className="h2" id="pricing-title">Just need a website?</h2>
+              <p className="lead">One-time builds with no hidden fees. Add a monthly maintenance plan any time.</p>
             </div>
-            {[
-              { title: "Services", links: ["Mobile Applications", "Web Applications", "Custom Software", "Maintenance Packages", "Our Products"] },
-              { title: "Company", links: ["About Us", "How It Works", "Portfolio", "Pricing"] },
-              { title: "Support", links: ["Contact Us", "FAQ", "Privacy Policy", "Terms"] },
-            ].map(col => (
-              <div key={col.title}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#fff", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 16 }}>{col.title}</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  {col.links.map(l => (
-                    <a key={l} style={{ fontSize: 13, color: "#666", textDecoration: "none", cursor: "pointer", transition: "color 0.2s" }}
-                      onMouseEnter={e => e.target.style.color = "#fff"}
-                      onMouseLeave={e => e.target.style.color = "#666"}>{l}</a>
-                  ))}
+            <div className="grid-3" style={{ gap: 16 }}>
+              {websitePlans.map((p) => (
+                <div key={p.name} className={`card web-plan reveal ${p.hot ? "hot" : ""}`}>
+                  <b>{p.name}</b>
+                  <div className="price">{p.price}</div>
+                  <small className="meta">one-time</small>
+                  <ul className="ticks">{p.items.map((i) => <li key={i}>{i}</li>)}</ul>
+                  <button type="button" className={`btn btn-block btn-sm ${p.hot ? "btn-orange" : "btn-line"}`} onClick={() => openOrder(`Website: ${p.name}`)}>Get started</button>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div style={{ height: 1, background: "#222", marginBottom: 28 }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-            <div style={{ fontSize: 13 }}>© 2026 Annek. All rights reserved.</div>
-            <div style={{ display: "flex", gap: 20, fontSize: 13 }}>
-              {["Privacy", "Terms", "Contact"].map(l => (
-                <a key={l} style={{ color: "#555", textDecoration: "none", cursor: "pointer", transition: "color 0.2s" }}
-                  onMouseEnter={e => e.target.style.color = "#fff"}
-                  onMouseLeave={e => e.target.style.color = "#555"}>{l}</a>
               ))}
             </div>
           </div>
+        </section>
+
+        {/* REVIEWS */}
+        {shownReviews.length > 0 && (
+          <section className="section tint" aria-labelledby="reviews-title">
+            <div className="wrap">
+              <h2 className="h2 reveal" id="reviews-title" style={{ marginBottom: 40 }}>{reviewTitle}</h2>
+              <div className="reviews">
+                {shownReviews.map((r) => (
+                  <figure key={r._id} className="card review reveal" style={{ margin: 0 }}>
+                    <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating || 5)}</div>
+                    <blockquote>“{r.message}”</blockquote>
+                    <footer>— {r.name || "Verified client"}</footer>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ABOUT + FAQ */}
+        <section id="about" className="section" aria-labelledby="about-title">
+          <div className="wrap about">
+            <div className="about-copy reveal">
+              <div className="eyebrow" style={{ marginBottom: 0 }}>About Annek</div>
+              <h2 className="h2" id="about-title">A digital studio from Mannar, building for businesses everywhere.</h2>
+              <p className="lead" style={{ whiteSpace: "pre-line" }}>{company.about}</p>
+              {statItems.length > 0 && (
+                <div className="stats">{statItems.map(([v, l]) => <div key={l} className="stat"><b>{v}</b><span>{l}</span></div>)}</div>
+              )}
+            </div>
+            <div className="faq reveal">
+              <h3 className="sub-h" style={{ marginTop: 0 }}>Frequently asked questions</h3>
+              {FAQS.map(([q, a]) => <details key={q}><summary>{q}</summary><p>{a}</p></details>)}
+            </div>
+          </div>
+        </section>
+
+        {/* CONTACT */}
+        <section id="contact" className="section" style={{ paddingTop: 0 }} aria-labelledby="contact-title">
+          <div className="wrap">
+            <div className="contact reveal">
+              <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+                <h2 className="h2" id="contact-title">Let's build <span>your</span> next app.</h2>
+                <p style={{ color: "#C9C3BA", lineHeight: 1.6 }}>Tell us about your idea. We reply within 24 hours.</p>
+                <div className="contact-lines">
+                  <a href={`mailto:${company.email}`}><IconMail size={18} />{company.email}</a>
+                  <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer"><IconWhatsApp size={18} />WhatsApp {company.phone}</a>
+                  <span><IconPin size={18} />{company.address}</span>
+                </div>
+                <button type="button" className="btn btn-orange" style={{ alignSelf: "flex-start", marginTop: 8 }} onClick={() => openOrder("")}>Start a project</button>
+              </div>
+              <ContactForm />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="footer">
+        <div className="wrap footer-inner">
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 360 }}>
+            <img src={logoImg} alt="Annek" width="73" height="34" loading="lazy" />
+            <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.6 }}>{company.tagline}</p>
+          </div>
+          <nav aria-label="Footer">
+            {navItems.map(([id, label]) => <button key={id} type="button" onClick={() => go(id)}>{label}</button>)}
+          </nav>
+          <small>© {new Date().getFullYear()} Annek</small>
         </div>
       </footer>
 
-      {/* ── ADMIN SHORTCUT (only for admin) ── */}
-      {user && ADMIN_EMAILS.includes((user.email || "").toLowerCase()) && (
-        <a href="/admin" title="Go to Admin Panel" style={{
-          position: "fixed", bottom: 28, left: 28, zIndex: 998,
-          background: "#1a1a1a", color: "#d4f74b",
-          padding: "10px 18px", borderRadius: 100,
-          fontSize: 13, fontWeight: 700, textDecoration: "none",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
-          display: "flex", alignItems: "center", gap: 6,
-          transition: "transform 0.2s, box-shadow 0.2s",
-        }}
-          onMouseEnter={e => { e.currentTarget.style.transform = "scale(1.05)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(0,0,0,0.35)"; }}
-          onMouseLeave={e => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.25)"; }}
-        >
-          ⚙ Admin Panel
-        </a>
-      )}
-
-      {/* ── WHATSAPP BUTTON ── */}
-      <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer"
-        title="Chat on WhatsApp"
-        style={{
-          position: "fixed", bottom: 96, right: 28, zIndex: 998,
-          width: 56, height: 56, borderRadius: "50%",
-          background: "linear-gradient(135deg, #25d366, #128c7e)",
-          boxShadow: "0 8px 24px rgba(37,211,102,0.45)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          textDecoration: "none", transition: "transform 0.2s, box-shadow 0.2s",
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = "scale(1.1)"}
-        onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}
-      >
-        {/* WhatsApp SVG icon */}
-        <svg viewBox="0 0 32 32" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 3C9.373 3 4 8.373 4 15c0 2.385.668 4.61 1.832 6.504L4 29l7.697-1.807A12.94 12.94 0 0016 28c6.627 0 12-5.373 12-12S22.627 3 16 3z" fill="#fff"/>
-          <path d="M22.003 19.44c-.32-.16-1.89-.932-2.183-1.04-.293-.107-.507-.16-.72.16-.214.32-.828 1.04-1.015 1.254-.187.213-.373.24-.694.08-.32-.16-1.352-.499-2.574-1.588-.952-.85-1.594-1.899-1.781-2.22-.187-.32-.02-.493.14-.652.144-.143.32-.373.48-.56.16-.186.213-.32.32-.533.107-.214.053-.4-.027-.56-.08-.16-.72-1.733-.987-2.373-.26-.624-.524-.54-.72-.55l-.614-.01c-.213 0-.56.08-.853.4-.293.32-1.12 1.093-1.12 2.666s1.147 3.093 1.307 3.307c.16.213 2.254 3.44 5.46 4.826.764.33 1.36.527 1.824.674.766.244 1.464.21 2.016.127.615-.092 1.89-.773 2.156-1.52.267-.746.267-1.386.187-1.52-.08-.133-.293-.213-.614-.373z" fill="#25d366"/>
-        </svg>
-      </a>
-
-      {/* ── FEEDBACK WIDGET ── */}
+      {isAdmin && <a href="/admin" className="fab-admin">Admin panel</a>}
+      <a href={`https://wa.me/${company.whatsapp}`} target="_blank" rel="noopener noreferrer" className="fab fab-wa" aria-label="Chat on WhatsApp"><IconWhatsApp /></a>
       <FeedbackWidget />
-    </div>
+
+      {order !== null && (
+        <Suspense fallback={null}>
+          <OrderModal preset={order} onClose={closeOrder} />
+        </Suspense>
+      )}
+    </>
   );
 }

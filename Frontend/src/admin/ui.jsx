@@ -6,7 +6,7 @@ const label = { fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, d
 
 export function Btn({ kind = "primary", children, style, ...props }) {
   const kinds = {
-    primary: { background: C.accent, color: "#fff" },
+    primary: { background: "#16130F", color: "#fff" },
     soft: { background: C.accentSoft, color: C.accent },
     ghost: { background: "#f3f4f6", color: "#555" },
     danger: { background: C.dangerSoft, color: C.danger },
@@ -87,7 +87,7 @@ export function EntityForm({ title, fields, initial, onSave, onCancel, children 
   };
 
   return (
-    <form onSubmit={submit} style={{ background: "#f8f7ff", border: "1.5px solid #e0dcff", borderRadius: 16, padding: 20, marginBottom: 20 }}>
+    <form onSubmit={submit} style={{ background: "#FFF8F3", border: "1.5px solid #FDE3D0", borderRadius: 16, padding: 20, marginBottom: 20 }}>
       <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14, color: C.text }}>{title}</h3>
       {error && <Notice notice={{ type: "error", message: error }} />}
       <div className="admin-form-grid">

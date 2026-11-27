@@ -1,8 +1,8 @@
 /* Non-component helpers shared by the admin editors. */
 
 export const C = {
-  accent: "#5c4ef8",
-  accentSoft: "#f0eeff",
+  accent: "#B8460B",
+  accentSoft: "#FFF1E8",
   danger: "#dc2626",
   dangerSoft: "#fef2f2",
   border: "#eee",
