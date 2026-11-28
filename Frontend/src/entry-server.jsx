@@ -5,7 +5,7 @@ import { renderToString } from "react-dom/server";
 import { StaticRouter } from "react-router-dom";
 import { AppRoutes } from "./Root.jsx";
 
-export { PAGES } from "./seo/pages.js";
+export { PAGES, projectPage } from "./seo/pages.js";
 export { buildHead, headToHtml, privateHead } from "./seo/head.js";
 export { EMPTY_DATA, prerenderSafe, publicFeedback, publicPortfolio } from "./site/data.js";
 

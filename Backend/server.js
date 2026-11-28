@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const ordersRouter = require("./routes/orders");
 const feedbackRouter = require("./routes/feedback");
 const portfolioRouter = require("./routes/portfolio");
+const adminPortfolioRouter = require("./routes/adminPortfolio");
 const contactRouter = require("./routes/contact");
 const settingsRouter = require("./routes/settings");
 const catalogRouter = require("./routes/catalog");
@@ -49,6 +50,7 @@ app.use("/api/catalog", catalogRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/solutions", solutionsRouter);
 app.use("/api/admin/solutions", adminSolutionsRouter);
+app.use("/api/admin/portfolio", adminPortfolioRouter);
 app.use("/api/inquiries", inquiriesRouter);
 app.use("/api/google-reviews", googleReviewsRouter);
 

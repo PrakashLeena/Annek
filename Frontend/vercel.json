@@ -60,6 +60,10 @@
     {
       "source": "/admin/:path*",
       "destination": "/app.html"
+    },
+    {
+      "source": "/portfolio/:slug",
+      "destination": "/project.html"
     }
   ],
   "redirects": [

@@ -234,3 +234,55 @@ export const HASH_REDIRECTS = {
 export const pageByPath = (path) => Object.values(PAGES).find((p) => p.path === path) || null;
 
 for (const [key, page] of Object.entries(PAGES)) page.key = key;
+
+/* ── Portfolio project pages (/portfolio/<slug>), built from API data ── */
+
+export const PROJECT_TYPES = { mobile: "Mobile App", web: "Web Application", software: "Custom Software" };
+
+/* Cloudinary cover cropped to the 1200×630 social card; other hosts are used as they are. */
+export function socialImage(url) {
+  if (typeof url !== "string" || !url) return null;
+  if (url.startsWith("/")) return `${SITE}${url}`; // social cards need absolute URLs
+  if (!url.includes("res.cloudinary.com/") || !url.includes("/image/upload/")) return url;
+  return url.replace("/upload/", "/upload/c_fill,g_auto,w_1200,h_630,f_jpg,q_auto/");
+}
+
+const clip = (text, max) => {
+  const s = String(text || "").replace(/\s+/g, " ").trim();
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), max - 20)).replace(/[\s,.;:]+$/, "")}…`;
+};
+
+/** Page entry (same shape as PAGES) for one project. `p` is the API detail or card. */
+export function projectPage(p) {
+  const kind = PROJECT_TYPES[p.type] || p.category || "Project";
+  const suffix = " | Annek Portfolio";
+  const name = clip(p.title, 60 - suffix.length);
+  const description = clip(p.summary || `${p.title}: a ${kind.toLowerCase()} project by Annek, a software development company in Sri Lanka.`, 155);
+  const cover = (p.images && p.images[0]) || p.imageUrl || "";
+  const path = `/portfolio/${p.slug}`;
+  return {
+    key: `portfolio/${p.slug}`,
+    path,
+    parent: "portfolio",
+    crumb: p.title,
+    h1: p.title,
+    title: `${name}${suffix}`,
+    description,
+    image: cover ? { url: socialImage(cover), width: cover.includes("res.cloudinary.com/") ? "1200" : null, height: cover.includes("res.cloudinary.com/") ? "630" : null, alt: `${p.title}, ${kind} by Annek` } : null,
+    schema: () => [{
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      "@id": `${SITE}${path}#project`,
+      name: p.title,
+      description,
+      url: `${SITE}${path}`,
+      ...(cover ? { image: socialImage(cover) } : {}),
+      creator: { "@type": "Organization", "@id": ORG_ID, name: "Annek", url: `${SITE}/` },
+      genre: kind,
+      ...(p.year ? { dateCreated: String(p.year) } : {}),
+      ...(p.techStack && p.techStack.length ? { keywords: p.techStack.join(", ") } : {}),
+    }],
+  };
+}

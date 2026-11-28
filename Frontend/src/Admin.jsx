@@ -7,6 +7,7 @@ import logoImg from "./images/annek-logo.webp";
 const CatalogTab = lazy(() => import("./admin/CatalogTab.jsx"));
 const ProductsTab = lazy(() => import("./admin/ProductsTab.jsx"));
 const SolutionsTab = lazy(() => import("./admin/SolutionsTab.jsx"));
+const PortfolioTab = lazy(() => import("./admin/PortfolioTab.jsx"));
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || "").split(",").map(e => e.trim()).filter(Boolean);
 
 const STATUS_COLORS = {
@@ -142,135 +143,6 @@ function OrdersTab() {
           </div>
         ))
       }
-    </div>
-  );
-}
-
-/* ─── Portfolio Tab ─── */
-function PortfolioTab() {
-  const [items, setItems] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState({ title: "", category: "", desc: "", accent: "#F26A1B", tags: "", visible: true });
-  const [imgFile, setImgFile] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  const fetchPortfolio = async () => {
-    try {
-      setItems(await adminFetch("/portfolio"));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchPortfolio();
-  }, []);
-
-  const openNew = () => { setForm({ title:"", category:"", desc:"", accent:"#F26A1B", tags:"", visible:true }); setImgFile(null); setEditing(null); setShowForm(true); };
-  const openEdit = (item) => {
-    setForm({ title:item.title, category:item.category, desc:item.desc, accent:item.accent, tags:item.tags?.join(", ")||"", visible:item.visible });
-    setImgFile(null); setEditing(item._id); setShowForm(true);
-  };
-
-  const save = async () => {
-    setSaving(true);
-    const fd = new FormData();
-    fd.append("data", JSON.stringify({ ...form, tags: form.tags.split(",").map(t=>t.trim()).filter(Boolean) }));
-    if (imgFile) fd.append("image", imgFile);
-    const url = editing ? `/portfolio/${editing}` : "/portfolio";
-    const method = editing ? "PUT" : "POST";
-    try {
-      const item = await adminFetch(url, { method, body: fd });
-      if (editing) setItems(it => it.map(x => x._id === editing ? item : x));
-      else setItems(it => [item, ...it]);
-      setShowForm(false);
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
-    }
-    setSaving(false);
-  };
-
-  const remove = async (id) => {
-    if (!window.confirm("Delete this portfolio item?")) return;
-    try { await adminFetch(`/portfolio/${id}`, { method: "DELETE" }); }
-    catch (err) { alert(err.message); return; }
-    setItems(it => it.filter(x => x._id !== id));
-  };
-
-  const inpStyle = { width: "100%", padding: "10px 14px", borderRadius: 10, border: "1.5px solid #e5e5e5", fontSize: 14, fontFamily: "inherit", boxSizing: "border-box", background: "#fafafa" };
-
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: "#16130F" }}>Portfolio <span style={{ fontSize: 14, color: "#888", fontWeight: 400 }}>({items.length} projects)</span></h2>
-        <button onClick={openNew} style={{ background: "#16130F", color: "#fff", border: "none", borderRadius: 12, padding: "10px 22px", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>+ Add Project</button>
-      </div>
-
-      {/* Form */}
-      {showForm && (
-        <div style={{ background: "#FFF8F3", border: "1.5px solid #FDE3D0", borderRadius: 16, padding: 24, marginBottom: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: "#16130F" }}>{editing ? "Edit Project" : "New Project"}</h3>
-          <div className="admin-form-grid">
-            {[["title","Title *"],["category","Category *"],["desc","Description"],["tags","Tags (comma separated)"]].map(([k,l]) => (
-              <div key={k} style={{ gridColumn: k === "desc" || k === "tags" ? "1/-1" : "auto" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>{l}</label>
-                {k === "desc" ? <textarea style={{ ...inpStyle, minHeight: 72, resize: "vertical" }} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} /> : <input style={inpStyle} value={form[k]} onChange={e => setForm(f=>({...f,[k]:e.target.value}))} />}
-              </div>
-            ))}
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>Accent Colour</label>
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                <input type="color" value={form.accent} onChange={e => setForm(f=>({...f,accent:e.target.value}))} style={{ width: 44, height: 36, border: "none", borderRadius: 8, cursor: "pointer" }} />
-                <span style={{ fontSize: 13, color: "#555" }}>{form.accent}</span>
-              </div>
-            </div>
-            <div>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" }}>Image</label>
-              <input type="file" accept="image/*" onChange={e => setImgFile(e.target.files[0])} style={{ fontSize: 13 }} />
-              {imgFile && <span style={{ fontSize: 12, color: "#B8460B" }}>{imgFile.name}</span>}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <input type="checkbox" id="vis" checked={form.visible} onChange={e => setForm(f=>({...f,visible:e.target.checked}))} style={{ accentColor: "#F26A1B", width: 16, height: 16 }} />
-              <label htmlFor="vis" style={{ fontSize: 14, color: "#333", cursor: "pointer" }}>Visible on site</label>
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-            <button onClick={save} disabled={saving} style={{ background: "#16130F", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: saving?"not-allowed":"pointer", opacity: saving?0.7:1, fontFamily:"inherit" }}>
-              {saving ? "Saving…" : editing ? "Save Changes" : "Create"}
-            </button>
-            <button onClick={() => setShowForm(false)} style={{ background: "#f3f4f6", color: "#555", border: "none", borderRadius: 10, padding: "10px 20px", fontSize: 14, cursor: "pointer", fontFamily:"inherit" }}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px,1fr))", gap: 16 }}>
-        {items.map(item => (
-          <div key={item._id} style={{ background: "#fff", borderRadius: 16, border: `2px solid ${item.visible ? "#eee" : "#ffdede"}`, overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
-            {item.imageUrl ? <img src={item.imageUrl} alt={item.title} style={{ width: "100%", height: 140, objectFit: "cover" }} /> : <div style={{ height: 140, background: `${item.accent}22`, display:"flex",alignItems:"center",justifyContent:"center",fontSize:32 }}>🖼️</div>}
-            <div style={{ padding: "16px 18px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                <div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: item.accent, textTransform: "uppercase", letterSpacing: "0.06em" }}>{item.category}</span>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: "#16130F", marginTop: 2 }}>{item.title}</div>
-                </div>
-                {!item.visible && <span style={{ fontSize: 11, background: "#fef2f2", color: "#dc2626", padding: "2px 8px", borderRadius: 100, fontWeight: 700 }}>Hidden</span>}
-              </div>
-              <p style={{ fontSize: 13, color: "#666", marginBottom: 12, lineHeight: 1.5 }}>{item.desc}</p>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 14 }}>
-                {item.tags?.map(t => <span key={t} style={{ background: "#f3f4f6", borderRadius: 100, padding: "2px 10px", fontSize: 11, color: "#555" }}>{t}</span>)}
-              </div>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={() => openEdit(item)} style={{ flex: 1, background: "#FFF1E8", color: "#B8460B", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, cursor: "pointer", fontWeight: 600, fontFamily:"inherit" }}>✏️ Edit</button>
-                <button onClick={() => remove(item._id)} style={{ flex: 1, background: "#fef2f2", color: "#dc2626", border: "none", borderRadius: 8, padding: "8px", fontSize: 13, cursor: "pointer", fontWeight: 600, fontFamily:"inherit" }}>🗑 Delete</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { SiteDataProvider } from './site/SiteData.jsx'
 import Layout from './site/Layout.jsx'
 import NotFound from './NotFound.jsx'
 import SolutionsPage from './site/SolutionsPage.jsx'
+import ProjectRoute from './pages/ProjectPage.jsx'
 import {
   Home, ServicesPage, ProductsPage, PortfolioPage, ReviewsPage, PricingPage, AboutPage, FaqPage, ContactPage,
 } from './pages/SitePages.jsx'
@@ -21,6 +22,7 @@ export function AppRoutes({ initialData }) {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/portfolio/:slug" element={<ProjectRoute />} />
           <Route path="/reviews" element={<ReviewsPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/about" element={<AboutPage />} />
