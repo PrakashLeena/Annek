@@ -7,6 +7,7 @@ import { useSiteData } from "../site/SiteData";
 import { STRIP, companyInfo } from "../site/content";
 import { money } from "../utils/format";
 import { HASH_REDIRECTS, PAGES } from "../seo/pages";
+import useSeo from "../seo/useSeo";
 import {
   PageHero, MoreLink, Related, ServiceCards, HowItWorks, PortfolioTeaser, PortfolioGrid, WebsitePlans,
   MaintenancePlans, ReviewsTeaser, ReviewsFull, FaqList, AboutTeaser, AboutFull, ContactBlock,
@@ -24,6 +25,7 @@ function useHashRedirect() {
 }
 
 export function Home() {
+  useSeo("home", useSiteData());
   useHashRedirect();
   const { settings, catalog, products, openOrder } = useSiteData();
   const company = companyInfo(settings);
@@ -105,6 +107,7 @@ export function Home() {
 }
 
 export function ServicesPage() {
+  useSeo("services", useSiteData());
   const { catalog, openOrder } = useSiteData();
   return (
     <>
@@ -117,6 +120,7 @@ export function ServicesPage() {
 }
 
 export function ProductsPage() {
+  useSeo("products", useSiteData());
   const { products, openOrder } = useSiteData();
   return (
     <>
@@ -130,6 +134,7 @@ export function ProductsPage() {
 }
 
 export function PortfolioPage() {
+  useSeo("portfolio", useSiteData());
   return (
     <>
       <PageHero page={PAGES.portfolio} />
@@ -140,6 +145,7 @@ export function PortfolioPage() {
 }
 
 export function ReviewsPage() {
+  useSeo("reviews", useSiteData());
   return (
     <>
       <PageHero page={PAGES.reviews} />
@@ -150,6 +156,7 @@ export function ReviewsPage() {
 }
 
 export function PricingPage() {
+  useSeo("pricing", useSiteData());
   return (
     <>
       <PageHero page={PAGES.pricing} />
@@ -169,6 +176,7 @@ export function PricingPage() {
 }
 
 export function AboutPage() {
+  useSeo("about", useSiteData());
   return (
     <>
       <PageHero page={PAGES.about} />
@@ -179,6 +187,7 @@ export function AboutPage() {
 }
 
 export function FaqPage() {
+  useSeo("faq", useSiteData());
   return (
     <>
       <PageHero page={PAGES.faq} />
@@ -191,6 +200,7 @@ export function FaqPage() {
 }
 
 export function ContactPage() {
+  useSeo("contact", useSiteData());
   return (
     <>
       <PageHero page={PAGES.contact} />

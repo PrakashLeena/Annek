@@ -6,14 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <!-- Primary SEO -->
-    <title>Annek | Software Development Company in Sri Lanka</title>
-    <meta name="description"
-      content="Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond." />
-    <meta name="keywords"
-      content="software development company, software development company sri lanka, software company sri lanka, custom software development, custom software development sri lanka, web application development sri lanka, mobile app development sri lanka, software maintenance and support, annek" />
+    <!-- Per page SEO: title, description, robots, canonical, Open Graph, Twitter and JSON-LD.
+         Filled from src/seo/pages.js by scripts/prerender.mjs at build time and by useSeo() in the browser. -->
+    <!--seo:head-->
     <meta name="author"         content="Annek" />
-    <meta name="robots"         content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="theme-color"    content="#FFFFFF" />
     <meta name="color-scheme"   content="light" />
 
@@ -26,29 +22,6 @@
     <meta name="geo.region" content="LK-42" />
     <meta name="ICBM" content="8.9810, 79.9044" />
     <meta name="geo.position" content="8.9810;79.9044" />
-
-    <!-- Canonical -->
-    <link rel="canonical" href="https://annek.tech/" />
-
-    <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
-    <meta property="og:type"          content="website" />
-    <meta property="og:site_name"     content="Annek" />
-    <meta property="og:title"         content="Annek | Software Development Company in Sri Lanka" />
-    <meta property="og:description"   content="Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond." />
-    <meta property="og:url"           content="https://annek.tech/" />
-    <meta property="og:image"         content="https://annek.tech/og-image.png" />
-    <meta property="og:image:width"   content="1200" />
-    <meta property="og:image:height"  content="630" />
-    <meta property="og:image:alt"     content="Annek logo" />
-    <meta property="og:locale"        content="en_US" />
-    <meta property="og:image:type"    content="image/png" />
-
-    <!-- Twitter / X Cards -->
-    <meta name="twitter:card"          content="summary_large_image" />
-    <meta name="twitter:title"         content="Annek | Software Development Company in Sri Lanka" />
-    <meta name="twitter:description"   content="Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond." />
-    <meta name="twitter:image"         content="https://annek.tech/og-image.png" />
-    <meta name="twitter:image:alt"     content="Annek logo" />
 
     <!-- Additional -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -71,8 +44,6 @@
     <link rel="preload" as="image" href="/preloader/annek-a-840.webp"
           imagesrcset="/preloader/annek-a-420.webp 420w, /preloader/annek-a-840.webp 840w"
           imagesizes="(max-width: 600px) 45vw, 420px" fetchpriority="high" />
-    <!-- Hero image -->
-    <link rel="preload" as="image" href="/intro/annek-intro-poster.jpg" />
 
     <!-- Performance: Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -91,306 +62,12 @@
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
     </noscript>
 
-    <!-- JSON-LD: Organization -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "@id": "https://annek.tech/#organization",
-      "name": "Annek",
-      "url": "https://annek.tech",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://annek.tech/logo.png",
-        "width": 468,
-        "height": 217
-      },
-      "description": "Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond.",
-      "contactPoint": [
-        {
-          "@type": "ContactPoint",
-          "contactType": "customer service",
-          "email": "info@annek.tech",
-          "availableLanguage": [
-            "English",
-            "Tamil",
-            "Sinhala"
-          ],
-          "telephone": "+94701269689"
-        }
-      ],
-      "sameAs": [
-        "https://wa.me/94701269689"
-      ]
-    }
-    </script>
-
-    <!-- JSON-LD: WebSite -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "@id": "https://annek.tech/#website",
-      "name": "Annek",
-      "url": "https://annek.tech",
-      "description": "Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond."
-    }
-    </script>
-
-    <!-- JSON-LD: Service -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      "name": "Software Development",
-      "description": "Custom software, web applications and mobile apps designed, built and maintained for businesses by Annek, a software development company in Sri Lanka.",
-      "provider": {
-        "@type": "Organization",
-        "name": "Annek",
-        "url": "https://annek.tech"
-      },
-      "serviceType": [
-        "Custom Software Development",
-        "Web Application Development",
-        "Mobile App Development",
-        "Software Maintenance and Support"
-      ],
-      "areaServed": [
-        {
-          "@type": "Country",
-          "name": "Sri Lanka"
-        },
-        {
-          "@type": "Place",
-          "name": "Worldwide"
-        }
-      ],
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Annek software development services",
-        "itemListElement": [
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Custom Software Development",
-              "description": "Business software for billing, stock, records and automation, built around how your business works."
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Web Application Development",
-              "description": "Web applications with admin panels that run in any browser, from ready made solutions or built from scratch."
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Mobile App Development",
-              "description": "Mobile apps for Android and iPhone, published to the Play Store and App Store."
-            }
-          },
-          {
-            "@type": "Offer",
-            "itemOffered": {
-              "@type": "Service",
-              "name": "Software Maintenance and Support",
-              "description": "Monthly plans covering hosting, security updates, backups and changes."
-            }
-          },
-          {
-            "@type": "Offer",
-            "name": "Starter Website Package",
-            "description": "Up to 5 pages, mobile responsive, contact form, basic SEO. Perfect for small businesses.",
-            "price": "75",
-            "priceCurrency": "USD",
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": "75",
-              "priceCurrency": "USD",
-              "unitText": "one time"
-            }
-          },
-          {
-            "@type": "Offer",
-            "name": "Growth Website Package",
-            "description": "Up to 15 pages, custom design, blog/CMS, advanced SEO, analytics. Most popular.",
-            "price": "100",
-            "priceCurrency": "USD",
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": "100",
-              "priceCurrency": "USD",
-              "unitText": "one time"
-            }
-          },
-          {
-            "@type": "Offer",
-            "name": "Premium Website Package",
-            "description": "Unlimited pages, ecommerce, payment gateway, custom animations, unlimited revisions.",
-            "price": "150",
-            "priceCurrency": "USD",
-            "priceSpecification": {
-              "@type": "UnitPriceSpecification",
-              "price": "150",
-              "priceCurrency": "USD",
-              "unitText": "one time"
-            }
-          }
-        ]
-      }
-    }
-    </script>
-
-    <!-- JSON-LD: FAQ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What does Annek do?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Annek is a software development company in Sri Lanka. We build custom software, web applications and mobile apps for businesses, from idea to launch, and keep them secure and up to date with monthly maintenance."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What does a monthly maintenance plan cover?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Hosting, security updates, backups, small content changes and support. Each package lists exactly what is included, and you can add more care any time."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can you customise a template for my business?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. Every template is a starting point. We add your brand, content, features and integrations so it fits how your business works."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How long does delivery take?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Standard websites take a few business days. Apps, web applications and custom software usually take one to four weeks depending on features. You get a clear timeline with your quote."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do you build Android and iPhone apps?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. We build mobile apps for Android and iPhone and help you publish them on the Play Store and App Store."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I use my own domain?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Absolutely. We can connect a domain you already own or help you register a new one."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How do I place an order?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Choose a package or press “Start a project”, answer a few questions, and we reply within 24 hours with a quote and timeline."
-          }
-        }
-      ]
-    }
-    </script>
-
-    <!-- JSON-LD: LocalBusiness -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "Annek",
-      "image": "https://annek.tech/logo.png",
-      "description": "Annek is a software development company in Sri Lanka building custom software, web applications and mobile apps for businesses, from idea to launch and beyond.",
-      "url": "https://annek.tech",
-      "telephone": "+94701269689",
-      "email": "info@annek.tech",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Vankalai",
-        "addressRegion": "Northern Province",
-        "postalCode": "41000",
-        "addressCountry": "Sri Lanka"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": "8.9810",
-        "longitude": "79.9044"
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "00:00",
-        "closes": "23:59"
-      }
-    }
-    </script>
-
-    <!-- JSON-LD: BreadcrumbList -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://annek.tech/"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Services",
-          "item": "https://annek.tech/#services"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "Portfolio",
-          "item": "https://annek.tech/#portfolio"
-        },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": "Pricing",
-          "item": "https://annek.tech/#pricing"
-        }
-      ]
-    }
-    </script>
-
     <!-- Annek preloader CSS: inlined from src/preloader/ by vite-plugin-preloader.js -->
     <!--preloader:css-->
   </head>
   <body>
     <!--preloader:html-->
-    <div id="root"></div>
+    <div id="root"><!--app--></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

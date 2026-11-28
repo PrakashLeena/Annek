@@ -8,53 +8,30 @@ import SolutionCard from "./SolutionCard.jsx";
 import InquiryForm from "./InquiryForm.jsx";
 import { IconClose } from "./icons";
 import { CATEGORY_INFO, cld, cldSrcSet, videoEmbed, videoPoster } from "../utils/media";
+import { PAGES } from "../seo/pages";
+import useSeo from "../seo/useSeo";
+import { useSiteData } from "./SiteData";
 
 const API = import.meta.env.VITE_API_URL || "/api";
-const SITE = "https://annek.tech";
 
 export default function SolutionsPage() {
   const { category } = useParams();
-  const info = CATEGORY_INFO[category];
-  if (!info) return <NotFound />;
+  const page = PAGES[`solutions/${category}`];
+  if (!page || !CATEGORY_INFO[category]) return <NotFound />;
+  const info = { ...CATEGORY_INFO[category], ...page };
   return <Showcase key={info.slug} info={info} />;
 }
 
-/** Sets title, description and canonical for this page; restores them on leave. */
-function usePageMeta(title, description, path) {
-  useEffect(() => {
-    const set = (sel, attr, value, create) => {
-      let el = document.head.querySelector(sel);
-      let made = false;
-      if (!el && create) { el = create(); document.head.appendChild(el); made = true; }
-      if (!el) return () => {};
-      const prev = el.getAttribute(attr);
-      el.setAttribute(attr, value);
-      return () => { if (made) el.remove(); else if (prev === null) el.removeAttribute(attr); else el.setAttribute(attr, prev); };
-    };
-    const meta = (name) => () => { const m = document.createElement("meta"); m.setAttribute("name", name); return m; };
-    const prevTitle = document.title;
-    document.title = title;
-    const undo = [
-      set('meta[name="description"]', "content", description, meta("description")),
-      set('link[rel="canonical"]', "href", SITE + path, () => { const l = document.createElement("link"); l.rel = "canonical"; return l; }),
-      set('meta[property="og:url"]', "content", SITE + path),
-      set('meta[property="og:title"]', "content", title),
-      set('meta[property="og:description"]', "content", description),
-      set('meta[name="twitter:title"]', "content", title),
-      set('meta[name="twitter:description"]', "content", description),
-    ];
-    return () => { document.title = prevTitle; undo.forEach((f) => f()); };
-  }, [title, description, path]);
-}
-
 function Showcase({ info }) {
-  const [items, setItems] = useState(null); // null = loading
+  // Solutions published at build time (pre-rendered page) show at once; the live list replaces them.
+  const prefetched = useSiteData().solutions?.[info.slug];
+  const [items, setItems] = useState(prefetched?.length ? prefetched : null); // null = loading
   const [failed, setFailed] = useState(false);
   const [open, setOpen] = useState(null);
   const [preset, setPreset] = useState(null); // { title } preselected in the inquiry form
   const lastCard = useRef(null);
 
-  usePageMeta(info.seoTitle, info.seoDescription, `/solutions/${info.slug}`);
+  useSeo(info.key, { solutions: { [info.slug]: items || [] } });
 
   useEffect(() => {
     let alive = true;
@@ -94,7 +71,7 @@ function Showcase({ info }) {
           <div className="wrap">
             <Link to="/services" className="sol-back">← All services</Link>
             <div className="eyebrow">{info.label}</div>
-            <h1 className="h2">{info.title}</h1>
+            <h1 className="h2">{info.h1}</h1>
             <p className="lead">{info.intro}</p>
             <nav className="sol-cats-sm" aria-label="Solution categories">
               {Object.values(CATEGORY_INFO).map((c) => (
