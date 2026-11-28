@@ -113,6 +113,19 @@ for (const page of Object.values(PAGES)) {
 // Shell for everything else (/admin, unknown paths → branded 404). Never indexed.
 await writeFile(resolve(DIST, "app.html"), fill(template, headToHtml(privateHead("Annek", "noindex")), '<div id="root"></div>'));
 
+// sitemap.xml: every indexable pre-rendered page (real URLs only, no #, no admin, no 404).
+const today = new Date().toISOString().slice(0, 10);
+const indexable = written.filter(({ head }) => head.meta.some(([, k, v]) => k === "robots" && v && !v.includes("noindex")));
+const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${indexable.map(({ head }) => `  <url>
+    <loc>${head.canonical}</loc>
+    <lastmod>${today}</lastmod>
+  </url>`).join("\n")}
+</urlset>
+`;
+await writeFile(resolve(DIST, "sitemap.xml"), sitemap);
+
 await rm(SSR, { recursive: true, force: true });
-console.log(`[prerender] ${written.length} pages + app.html (data: ${OFFLINE ? "offline" : API})`);
+console.log(`[prerender] ${written.length} pages + app.html, sitemap.xml with ${indexable.length} URLs (data: ${OFFLINE ? "offline" : API})`);
 for (const { page, head } of written) console.log(`  ${page.path.padEnd(22)} ${head.title}`);
