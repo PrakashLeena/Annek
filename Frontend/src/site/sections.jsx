@@ -1,7 +1,7 @@
 /* Page sections. Most come in a short form (home page) and a full form (their own page). */
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Marquee from "./Marquee";
+import AutoScroller from "./AutoScroller";
 import GoogleRatingBadge from "./GoogleRatingBadge";
 import { GoogleSummary, GoogleReviewCard, WriteReviewButton, Stars } from "./GoogleReviews";
 import { IconMail, IconPin, IconWhatsApp, IconPhone, IconGlobe, IconCode } from "./icons";
@@ -135,7 +135,7 @@ export function PortfolioTeaser() {
           <div><div className="eyebrow">Portfolio</div><h2 className="h2" id="work-title">Recent work</h2></div>
         </div>
       </div>
-      <Marquee label="Portfolio projects" items={portfolio} keyOf={(w) => w._id} renderItem={(w) => <WorkCard w={w} />} />
+      <AutoScroller label="Portfolio projects" items={portfolio} keyOf={(w) => w._id} renderItem={(w) => <WorkCard w={w} />} />
       <div className="wrap"><MoreLink to="/portfolio">View full portfolio</MoreLink></div>
     </section>
   );
@@ -250,7 +250,7 @@ export function ReviewsTeaser() {
         <RatingSummary />
       </div>
       {shown.length > 0 && (
-        <Marquee label="Client ratings" reverse items={shown} keyOf={(r) => r._id}
+        <AutoScroller label="Client ratings" reverse items={shown} keyOf={(r) => r._id}
           renderItem={(r) => (r._google ? <GoogleReviewCard review={r} /> : <Testimonial r={r} />)} />
       )}
       <div className="wrap"><MoreLink to="/reviews">Read all reviews</MoreLink></div>
