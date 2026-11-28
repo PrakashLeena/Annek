@@ -1,7 +1,7 @@
 /* Google rating badge for Trusted By. The rating and count are typed into Admin > Settings
    (googleRating, googleReviewCount); no Google API is called. Hidden unless both are valid. */
 
-import { GOOGLE_REVIEW_URL, parseGoogleRating } from "../utils/googleRating";
+import { GOOGLE_PROFILE_URL, GOOGLE_REVIEW_URL, parseGoogleRating } from "../utils/googleRating";
 
 const LETTERS = [["G", "#4285F4"], ["o", "#EA4335"], ["o", "#FBBC05"], ["g", "#4285F4"], ["l", "#34A853"], ["e", "#EA4335"]];
 
@@ -29,7 +29,7 @@ export default function GoogleRatingBadge({ settings }) {
       </div>
       <div className="g-badge-actions">
         <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener" className="btn btn-orange btn-sm">Write a review</a>
-        <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noopener" className="btn btn-soft btn-sm">See our reviews on Google</a>
+        <a href={GOOGLE_PROFILE_URL} target="_blank" rel="noopener noreferrer" className="btn btn-soft btn-sm">See all reviews on Google</a>
       </div>
     </div>
   );

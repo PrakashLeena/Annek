@@ -4,7 +4,7 @@
    and a short notice about how Google handles reviews. All review text is rendered as React
    text nodes, so it is escaped. */
 
-import { GOOGLE_REVIEW_URL } from "../utils/googleRating";
+import { GOOGLE_PROFILE_URL, GOOGLE_REVIEW_URL } from "../utils/googleRating";
 
 const UGC_POLICY_URL = "https://support.google.com/contributionpolicy/answer/7422880";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -64,7 +64,7 @@ export function GoogleSummary({ data }) {
       </div>
       <div className="g-summary-actions">
         <WriteReviewButton />
-        {has && data.googleMapsUri && <a href={data.googleMapsUri} {...ext} className="btn btn-soft btn-sm">See all reviews on Google</a>}
+        <a href={(has && data.googleMapsUri) || GOOGLE_PROFILE_URL} {...ext} className="btn btn-soft btn-sm">See all reviews on Google</a>
       </div>
       {has && (
         <p className="g-note">
