@@ -1,86 +1,9 @@
-# Robots.txt — annek.tech
-# Last updated: 2026-11-27
+# robots.txt for annek.tech
+# The sitemap is generated at build time from src/seo/pages.js (scripts/prerender.mjs).
 
 User-agent: *
 Allow: /
 Disallow: /admin
-Disallow: /admin/
 Disallow: /api/
-Disallow: /_next/
-Disallow: /private/
-Disallow: /*.json$
-Disallow: /.git/
-Disallow: /node_modules/
 
-# Allow CSS and JS for rendering
-Allow: /*.css$
-Allow: /*.js$
-
-# No crawl delay for major crawlers
-User-agent: Googlebot
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Crawl-delay: 0
-
-User-agent: Bingbot
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Crawl-delay: 1
-
-User-agent: Yandexbot
-Allow: /
-Disallow: /admin
-Disallow: /api/
-Crawl-delay: 2
-
-User-agent: facebookexternalhit
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: LinkedInBot
-Allow: /
-
-# AI crawlers — allow for GEO/AIO visibility
-User-agent: GPTBot
-Allow: /
-
-User-agent: ChatGPT-User
-Allow: /
-
-User-agent: Google-Extended
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-# Block known bad bots
-User-agent: MJ12bot
-Disallow: /
-
-User-agent: AhrefsBot
-Disallow: /
-
-User-agent: SemrushBot
-Disallow: /
-
-User-agent: DotBot
-Disallow: /
-
-User-agent: BLEXBot
-Disallow: /
-
-User-agent: PetalBot
-Disallow: /
-
-# Sitemaps
 Sitemap: https://annek.tech/sitemap.xml

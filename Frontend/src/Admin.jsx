@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { auth, signInWithGoogle, logOut, onAuthStateChanged } from "./firebase";
 import { adminFetch } from "./utils/adminApi";
+import { usePrivateHead } from "./seo/useSeo";
 import logoImg from "./images/annek-logo.webp";
 
 const CatalogTab = lazy(() => import("./admin/CatalogTab.jsx"));
@@ -700,6 +701,7 @@ function CommentsTab() {
 
 /* ─── Main Admin Panel ─── */
 export default function Admin() {
+  usePrivateHead("Admin | Annek", "noindex, nofollow");
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [tab, setTab] = useState("orders");

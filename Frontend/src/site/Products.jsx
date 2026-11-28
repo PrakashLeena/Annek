@@ -8,17 +8,18 @@ const STATUS = { live: ["Live", "live"], beta: ["Beta", "soon"], "coming-soon": 
 const INTERVAL = { month: "/ month", year: "/ year", "one-time": "one time", free: "" };
 const LINKS = [["web", "Open web app"], ["android", "Android"], ["ios", "iPhone"], ["windows", "Windows"], ["mac", "macOS"]];
 
-export default function Products({ products, onOrder }) {
+export default function Products({ products, onOrder, limit, title = "Apps & software made by Annek", eyebrow = "Our products", more = null }) {
   const [open, setOpen] = useState(null);
   if (!products?.length) return null;
+  const shown = limit ? products.slice(0, limit) : products;
 
   return (
-    <section id="products" className="section" aria-labelledby="products-title">
+    <section className="section" aria-labelledby="products-title">
       <div className="wrap">
-        <div className="eyebrow reveal">Our products</div>
-        <h2 className="h2 reveal" id="products-title" style={{ marginBottom: 40 }}>Apps &amp; software made by Annek</h2>
+        {eyebrow && <div className="eyebrow reveal">{eyebrow}</div>}
+        <h2 className="h2 reveal" id="products-title" style={{ marginBottom: 40 }}>{title}</h2>
         <div className="grid-2">
-          {products.map((p) => {
+          {shown.map((p) => {
             const [typeLabel, Icon] = TYPE[p.type] || TYPE.web;
             const [statusLabel, statusClass] = STATUS[p.status] || STATUS.live;
             const links = LINKS.filter(([k]) => p.links?.[k]);
@@ -63,6 +64,7 @@ export default function Products({ products, onOrder }) {
             );
           })}
         </div>
+        {more}
       </div>
     </section>
   );

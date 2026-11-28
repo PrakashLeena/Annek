@@ -1,5 +1,7 @@
 // Google rating badge data, typed into Admin > Settings (no Google API).
 export const GOOGLE_REVIEW_URL = "https://g.page/r/CauKhIX6AGnKEAI/review";
+// Annek's Google Business profile (opens the reviews on Google Search).
+export const GOOGLE_PROFILE_URL = "https://g.page/r/CauKhIX6AGnKEAI/";
 
 export function parseGoogleRating(settings) {
   const rating = Number.parseFloat(settings?.googleRating);

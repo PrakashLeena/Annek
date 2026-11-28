@@ -4,12 +4,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { money } from "../utils/format";
 import { IconPhone, IconGlobe, IconCode } from "./icons";
+import { SERVICES } from "./content";
 
-const CORE = [
-  { icon: IconPhone, slug: "mobile", title: "Mobile Applications", text: "Ecommerce, marketing and business apps for Android and iPhone, built from proven templates and customised for you." },
-  { icon: IconGlobe, slug: "web", title: "Web Applications", text: "Ecommerce, portfolio, institute and industry platforms that run in any browser, with an admin panel you control." },
-  { icon: IconCode, slug: "software", title: "Custom Software", text: "Software shaped around how your business works: billing, stock, records and automation." },
-];
+const ICONS = { mobile: IconPhone, web: IconGlobe, software: IconCode };
+const CORE = SERVICES.map((s) => ({ ...s, icon: ICONS[s.slug] }));
 
 function Package({ p, catName, plan, onOrder }) {
   return (
@@ -27,7 +25,7 @@ function Package({ p, catName, plan, onOrder }) {
   );
 }
 
-export default function Solutions({ catalog, onOrder }) {
+export default function Solutions({ catalog, onOrder, showMaintenance = true }) {
   const { categories = [], templates = [], packages = [], maintenancePlans = [] } = catalog || {};
   const mains = categories.filter((c) => !c.parent);
   const [mainId, setMainId] = useState("");
@@ -132,7 +130,7 @@ export default function Solutions({ catalog, onOrder }) {
           <p className="tab-desc">Packages for this category are being prepared. <button type="button" className="link-btn" onClick={() => onOrder(`Enquiry: ${active.name}`)}>Tell us what you need</button> and we'll send a quote.</p>
         )}
 
-        {maintenancePlans.length > 0 && (
+        {showMaintenance && maintenancePlans.length > 0 && (
           <div className="maint">
             <h3 className="sub-h" style={{ marginTop: 0 }}>Monthly maintenance plans</h3>
             <div className="grid-3">
