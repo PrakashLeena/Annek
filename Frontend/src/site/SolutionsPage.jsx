@@ -92,7 +92,7 @@ function Showcase({ info }) {
       <main id="main">
         <section className="section sol-hero">
           <div className="wrap">
-            <Link to="/#solutions" className="sol-back">← All services</Link>
+            <Link to="/services" className="sol-back">← All services</Link>
             <div className="eyebrow">{info.label}</div>
             <h1 className="h2">{info.title}</h1>
             <p className="lead">{info.intro}</p>
