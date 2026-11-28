@@ -79,7 +79,11 @@
       "destination": "/api"
     },
     {
-      "source": "/(.*)",
+      "source": "/admin",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/admin/:path*",
       "destination": "/app.html"
     }
   ]

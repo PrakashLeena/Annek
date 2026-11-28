@@ -1,5 +1,5 @@
-/* Shown for any path that isn't a real page. Vercel still answers 200 (SPA rewrite),
-   so this page tells search engines not to index it. */
+/* Shown for any path that isn't a real page. Vercel serves dist/404.html for those with a real
+   HTTP 404 status (scripts/prerender.mjs); noindex is kept as a second guard. */
 import { usePrivateHead } from "./seo/useSeo";
 import "./site/site.css";
 import logoImg from "./images/annek-logo.webp";

@@ -63,8 +63,11 @@ for (const url of urls) {
   rows.push({ path, title, t: title?.length, d: desc?.length, canonical, h1: h1s.length, og: ogUrl === canonical ? "yes" : "NO", ld: types.join(", ") });
 }
 
-const shell = await readFile(resolve(DIST, "app.html"), "utf8");
-if (!/<meta name="robots" content="noindex/.test(shell)) problems.push("app.html (admin and 404 fallback) is not noindex");
+for (const f of ["404.html", "app.html"]) {
+  const shell = await readFile(resolve(DIST, f), "utf8");
+  if (!/<meta name="robots" content="noindex/.test(shell)) problems.push(`${f} is not noindex`);
+  if (/<link rel="canonical"/.test(shell)) problems.push(`${f} has a canonical`);
+}
 
 console.log("| Path | Title | Title chars | Description chars | Canonical | H1 | og:url = canonical | JSON-LD |");
 console.log("|---|---|---|---|---|---|---|---|");

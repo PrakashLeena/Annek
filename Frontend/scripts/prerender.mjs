@@ -1,7 +1,7 @@
 /* Build step 3 of 3 (see package.json "build"):
      1. vite build                    → dist/ (client app, index.html with the preloader inlined)
      2. vite build --ssr              → dist-ssr/entry-server.js
-     3. node scripts/prerender.mjs    → one HTML file per public page, plus app.html and sitemap.xml
+     3. node scripts/prerender.mjs    → one HTML file per public page, plus 404.html, app.html and sitemap.xml
 
    For every page in src/seo/pages.js it writes dist/<path>/index.html with that page's head
    (title, description, canonical, Open Graph, Twitter, JSON-LD) and its pre-rendered body.
@@ -110,8 +110,12 @@ for (const page of Object.values(PAGES)) {
   written.push({ page, head });
 }
 
-// Shell for everything else (/admin, unknown paths → branded 404). Never indexed.
-await writeFile(resolve(DIST, "app.html"), fill(template, headToHtml(privateHead("Annek", "noindex")), '<div id="root"></div>'));
+// Not pre-rendered, rendered in the browser. Neither is ever indexed.
+//   404.html  Vercel serves it with a real HTTP 404 for any path without a file; the app shows the branded 404.
+//   app.html  the shell vercel.json rewrites /admin to.
+const shell = '<div id="root"></div>';
+await writeFile(resolve(DIST, "404.html"), fill(template, headToHtml(privateHead("Page Not Found | Annek Software Development", "noindex")), shell));
+await writeFile(resolve(DIST, "app.html"), fill(template, headToHtml(privateHead("Admin | Annek", "noindex, nofollow")), shell));
 
 // sitemap.xml: every indexable pre-rendered page (real URLs only, no #, no admin, no 404).
 const today = new Date().toISOString().slice(0, 10);
@@ -127,5 +131,5 @@ ${indexable.map(({ head }) => `  <url>
 await writeFile(resolve(DIST, "sitemap.xml"), sitemap);
 
 await rm(SSR, { recursive: true, force: true });
-console.log(`[prerender] ${written.length} pages + app.html, sitemap.xml with ${indexable.length} URLs (data: ${OFFLINE ? "offline" : API})`);
+console.log(`[prerender] ${written.length} pages + 404.html + app.html, sitemap.xml with ${indexable.length} URLs (data: ${OFFLINE ? "offline" : API})`);
 for (const { page, head } of written) console.log(`  ${page.path.padEnd(22)} ${head.title}`);
