@@ -1,101 +1,18 @@
 /* Admin › Solutions — pre-designed solutions shown on /solutions/:category.
    Photos and videos upload straight from the browser to Cloudinary with a signature
    from the API (Vercel functions cannot take large request bodies). */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { adminFetch } from "../utils/adminApi";
 import { C, inp } from "./helpers";
 import { Btn, Card, Notice } from "./ui";
 import SolutionCard from "../site/SolutionCard.jsx";
-import { CATEGORY_INFO, cld, videoEmbed } from "../utils/media";
+import { CATEGORY_INFO, cld } from "../utils/media";
+import { Counter, ImagesField, Toggle, UploadStatus, VideoField } from "./mediaFields";
+import { EDITOR_CSS, HTTPS, hint, label, useMediaUploads } from "./mediaUpload";
 
 const TABS = Object.values(CATEGORY_INFO);
 const MAX_IMAGES = 8;
-const IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
-const VIDEO_TYPES = ["video/mp4", "video/webm"];
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
-const MAX_SOURCE_IMAGE_BYTES = 40 * 1024 * 1024; // before resizing
-const HTTPS = /^https:\/\/[^\s<>"']+$/i;
-
-const label = { fontSize: 12, fontWeight: 600, color: "#555", marginBottom: 5, display: "block" };
-const hint = { fontSize: 11, color: C.muted, marginTop: 4, display: "block" };
-const mb = (n) => `${(n / 1024 / 1024).toFixed(1)} MB`;
-
-/* ── Uploading ─────────────────────────────────────────────── */
-
-/** Resizes to max 1920px on the long side and re-encodes (WebP, JPEG fallback). */
-async function shrinkImage(file) {
-  const bitmap = await createImageBitmap(file).catch(() => null);
-  if (!bitmap) throw new Error(`${file.name}: could not read this image.`);
-  const scale = Math.min(1, 1920 / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * scale);
-  const h = Math.round(bitmap.height * scale);
-  const canvas = document.createElement("canvas");
-  canvas.width = w; canvas.height = h;
-  canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
-  bitmap.close?.();
-  const toBlob = (type, q) => new Promise((r) => canvas.toBlob(r, type, q));
-  let blob = await toBlob("image/webp", 0.85);
-  if (!blob || blob.type !== "image/webp") blob = await toBlob("image/jpeg", 0.85);
-  if (!blob) throw new Error(`${file.name}: could not compress this image.`);
-  // Keep the original if it was already small enough and our version is not smaller.
-  if (scale === 1 && file.size <= blob.size && file.size <= MAX_IMAGE_BYTES) return file;
-  const ext = blob.type === "image/webp" ? "webp" : "jpg";
-  return new File([blob], file.name.replace(/\.[^.]+$/, "") + "." + ext, { type: blob.type });
-}
-
-/** Signed direct upload to Cloudinary with progress; resolves to the https URL. */
-async function directUpload(file, kind, onProgress) {
-  const sig = await adminFetch("/admin/solutions/upload-signature", { method: "POST", body: { kind } });
-  const fd = new FormData();
-  fd.append("file", file);
-  fd.append("api_key", sig.apiKey);
-  fd.append("timestamp", String(sig.timestamp));
-  fd.append("signature", sig.signature);
-  fd.append("folder", sig.folder);
-  fd.append("allowed_formats", sig.allowedFormats);
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", sig.uploadUrl);
-    xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
-    xhr.onload = () => {
-      let data = null;
-      try { data = JSON.parse(xhr.responseText); } catch { /* not JSON */ }
-      if (xhr.status >= 200 && xhr.status < 300 && data?.secure_url) resolve(data.secure_url);
-      else reject(new Error(data?.error?.message || `Upload failed (${xhr.status}).`));
-    };
-    xhr.onerror = () => reject(new Error("Upload failed. Check your connection and try again."));
-    xhr.send(fd);
-  });
-}
-
-const discard = (urls) => {
-  if (urls.length) adminFetch("/admin/solutions/discard-uploads", { method: "POST", body: { urls } }).catch(() => {});
-};
-
-/* ── Small controls ────────────────────────────────────────── */
-
-function Counter({ value, max }) {
-  const n = value.length;
-  return <span style={{ fontSize: 11, color: n > max ? C.danger : C.muted, fontWeight: 600 }} aria-live="polite">{n}/{max}</span>;
-}
-
-function Toggle({ checked, onChange, label: text, disabled }) {
-  return (
-    <label style={{ display: "inline-flex", alignItems: "center", gap: 8, cursor: disabled ? "default" : "pointer", fontSize: 13, color: "#333" }}>
-      <input type="checkbox" role="switch" checked={checked} disabled={disabled} onChange={(e) => onChange(e.target.checked)} style={{ width: 16, height: 16, accentColor: C.accent }} />
-      {text}
-    </label>
-  );
-}
-
-function Progress({ value }) {
-  return (
-    <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(value * 100)} style={{ height: 6, background: "#eee", borderRadius: 6, overflow: "hidden" }}>
-      <div style={{ width: `${Math.round(value * 100)}%`, height: "100%", background: C.accent, transition: "width .2s" }} />
-    </div>
-  );
-}
+const BASE = "/admin/solutions";
 
 /* ── Editor ────────────────────────────────────────────────── */
 
@@ -109,70 +26,13 @@ function SolutionEditor({ doc, category, onSaved, onCancel }) {
     liveUrl: doc?.liveUrl || "",
     published: doc?.published ?? false,
   }));
-  const [videoMode, setVideoMode] = useState(() => (doc?.video && !doc.video.includes("res.cloudinary.com") ? "url" : "upload"));
-  const [uploads, setUploads] = useState([]); // [{ id, name, progress, error }]
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const sessionUploads = useRef([]); // URLs uploaded while this editor was open
+  const media = useMediaUploads(BASE);
   const isWeb = category === "web";
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-  const busy = uploads.some((u) => u.progress < 1 && !u.error);
+  const set = (k, v) => setForm((f) => ({ ...f, [k]: typeof v === "function" ? v(f[k]) : v }));
 
-  const track = (name) => {
-    const id = Math.random().toString(36).slice(2);
-    setUploads((u) => [...u, { id, name, progress: 0, error: null }]);
-    return {
-      progress: (p) => setUploads((u) => u.map((x) => (x.id === id ? { ...x, progress: p } : x))),
-      fail: (msg) => setUploads((u) => u.map((x) => (x.id === id ? { ...x, error: msg } : x))),
-      done: () => setUploads((u) => u.filter((x) => x.id !== id)),
-    };
-  };
-
-  const addImages = async (files) => {
-    setError(null);
-    const room = MAX_IMAGES - form.images.length;
-    const list = [...files].slice(0, Math.max(0, room));
-    if (files.length > room) setError(`Only ${MAX_IMAGES} images per solution. ${files.length - room} not added.`);
-    await Promise.all(list.map(async (file) => {
-      const t = track(file.name);
-      try {
-        if (!IMAGE_TYPES.includes(file.type)) throw new Error(`${file.name}: use JPG, PNG or WebP.`);
-        if (file.size > MAX_SOURCE_IMAGE_BYTES) throw new Error(`${file.name}: file is too large (${mb(file.size)}).`);
-        const small = await shrinkImage(file);
-        if (small.size > MAX_IMAGE_BYTES) throw new Error(`${file.name}: still ${mb(small.size)} after compressing (max 5 MB).`);
-        const url = await directUpload(small, "image", t.progress);
-        sessionUploads.current.push(url);
-        setForm((f) => (f.images.length >= MAX_IMAGES ? f : { ...f, images: [...f.images, url] }));
-        t.done();
-      } catch (err) { t.fail(err.message); }
-    }));
-  };
-
-  const addVideo = async (file) => {
-    setError(null);
-    if (!file) return;
-    const t = track(file.name);
-    try {
-      if (!VIDEO_TYPES.includes(file.type)) throw new Error(`${file.name}: use MP4 or WebM.`);
-      if (file.size > MAX_VIDEO_BYTES) throw new Error(`${file.name}: ${mb(file.size)} is over the 100 MB limit.`);
-      const url = await directUpload(file, "video", t.progress);
-      sessionUploads.current.push(url);
-      set("video", url);
-      t.done();
-    } catch (err) { t.fail(err.message); }
-  };
-
-  const moveImage = (i, d) => setForm((f) => {
-    const images = [...f.images];
-    const j = i + d;
-    if (j < 0 || j >= images.length) return f;
-    [images[i], images[j]] = [images[j], images[i]];
-    return { ...f, images };
-  });
-  const makeCover = (i) => setForm((f) => ({ ...f, images: [f.images[i], ...f.images.filter((_, k) => k !== i)] }));
-  const removeImage = (i) => setForm((f) => ({ ...f, images: f.images.filter((_, k) => k !== i) }));
-
-  const cancel = () => { discard(sessionUploads.current); onCancel(); };
+  const cancel = () => { media.finish([]); onCancel(); };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -190,17 +50,13 @@ function SolutionEditor({ doc, category, onSaved, onCancel }) {
         ? await adminFetch(`/admin/solutions/${doc._id}`, { method: "PATCH", body })
         : await adminFetch("/admin/solutions", { method: "POST", body });
       // Files uploaded in this session but removed before saving are not used anywhere.
-      const kept = new Set([...(saved.images || []), saved.video].filter(Boolean));
-      discard(sessionUploads.current.filter((u) => !kept.has(u)));
-      sessionUploads.current = [];
+      media.finish([...(saved.images || []), saved.video]);
       onSaved(doc ? "Solution updated." : "Solution created.");
     } catch (err) {
       setError(err.message);
       setSaving(false);
     }
   };
-
-  const embed = videoEmbed(form.video);
 
   return (
     <form onSubmit={submit} style={{ background: "#FFF8F3", border: "1.5px solid #FDE3D0", borderRadius: 16, padding: 20, marginBottom: 20 }}>
@@ -223,70 +79,9 @@ function SolutionEditor({ doc, category, onSaved, onCancel }) {
             <textarea id="sol-desc" rows={6} style={{ ...inp, resize: "vertical" }} value={form.description} maxLength={5000} onChange={(e) => set("description", e.target.value)} />
           </div>
 
-          {/* Images */}
-          <div>
-            <span style={label}>Images ({form.images.length}/{MAX_IMAGES}). The first one is the cover.</span>
-            {form.images.length > 0 && (
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 10px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 10 }}>
-                {form.images.map((src, i) => (
-                  <li key={src} style={{ background: "#fff", border: `1.5px solid ${i === 0 ? C.accent : C.border}`, borderRadius: 10, overflow: "hidden" }}>
-                    <img src={cld(src, 300)} alt={`Image ${i + 1}`} style={{ width: "100%", height: 86, objectFit: "cover", display: "block" }} />
-                    <div style={{ display: "flex", gap: 2, padding: 4, flexWrap: "wrap", alignItems: "center" }}>
-                      {i === 0
-                        ? <span style={{ fontSize: 11, fontWeight: 700, color: C.accent, padding: "0 4px" }}>Cover</span>
-                        : <button type="button" className="sol-mini" onClick={() => makeCover(i)}>Set cover</button>}
-                      <span style={{ flex: 1 }} />
-                      <button type="button" className="sol-mini" aria-label={`Move image ${i + 1} left`} disabled={i === 0} onClick={() => moveImage(i, -1)}>◀</button>
-                      <button type="button" className="sol-mini" aria-label={`Move image ${i + 1} right`} disabled={i === form.images.length - 1} onClick={() => moveImage(i, 1)}>▶</button>
-                      <button type="button" className="sol-mini danger" aria-label={`Remove image ${i + 1}`} onClick={() => removeImage(i)}>✕</button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {form.images.length < MAX_IMAGES && (
-              <input type="file" accept={IMAGE_TYPES.join(",")} multiple aria-label="Add images" style={{ fontSize: 13 }}
-                onChange={(e) => { addImages(e.target.files); e.target.value = ""; }} />
-            )}
-            <span style={hint}>JPG, PNG or WebP. Resized to 1920px and compressed before upload, max 5 MB each.</span>
-          </div>
-
-          {/* Video */}
-          <div>
-            <span style={label}>Video (optional)</span>
-            <div role="radiogroup" aria-label="Video source" style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-              {[["upload", "Upload a file"], ["url", "Paste a link"]].map(([k, l]) => (
-                <button key={k} type="button" role="radio" aria-checked={videoMode === k} className={`sol-pill ${videoMode === k ? "on" : ""}`} onClick={() => setVideoMode(k)}>{l}</button>
-              ))}
-            </div>
-            {videoMode === "upload" ? (
-              <>
-                {form.video && !embed && <video src={form.video} controls preload="metadata" style={{ width: "100%", maxHeight: 220, borderRadius: 10, background: "#000", marginBottom: 6 }} />}
-                <input type="file" accept={VIDEO_TYPES.join(",")} aria-label="Upload video" style={{ fontSize: 13 }} onChange={(e) => { addVideo(e.target.files[0]); e.target.value = ""; }} />
-                <span style={hint}>MP4 or WebM, up to 100 MB.</span>
-              </>
-            ) : (
-              <>
-                <input type="url" style={inp} placeholder="https://www.youtube.com/watch?v=… or https://vimeo.com/…" value={form.video} onChange={(e) => set("video", e.target.value)} aria-label="Video link" />
-                <span style={hint}>{form.video && !embed ? "Not a YouTube or Vimeo link: it will play as a video file." : "YouTube and Vimeo links are embedded."}</span>
-              </>
-            )}
-            {form.video && <button type="button" className="sol-mini danger" style={{ marginTop: 6 }} onClick={() => set("video", "")}>Remove video</button>}
-          </div>
-
-          {uploads.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }} aria-live="polite">
-              {uploads.map((u) => (
-                <div key={u.id} style={{ fontSize: 12, color: u.error ? C.danger : "#444" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, marginBottom: 4 }}>
-                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.error || `Uploading ${u.name}`}</span>
-                    {u.error ? <button type="button" className="sol-mini" onClick={() => setUploads((x) => x.filter((y) => y.id !== u.id))}>Dismiss</button> : <span>{Math.round(u.progress * 100)}%</span>}
-                  </div>
-                  {!u.error && <Progress value={u.progress} />}
-                </div>
-              ))}
-            </div>
-          )}
+          <ImagesField images={form.images} onChange={(v) => set("images", v)} max={MAX_IMAGES} media={media} onError={setError} what="solution" />
+          <VideoField value={form.video} onChange={(v) => set("video", v)} media={media} />
+          <UploadStatus media={media} />
 
           <div>
             <label htmlFor="sol-live" style={label}>Live demo link{isWeb ? "" : " (optional)"}</label>
@@ -307,7 +102,7 @@ function SolutionEditor({ doc, category, onSaved, onCancel }) {
       </div>
 
       <div style={{ display: "flex", gap: 10, marginTop: 16, alignItems: "center", flexWrap: "wrap" }}>
-        <Btn type="submit" disabled={saving || busy}>{saving ? "Saving…" : busy ? "Uploading…" : "Save"}</Btn>
+        <Btn type="submit" disabled={saving || media.busy}>{saving ? "Saving…" : media.busy ? "Uploading…" : "Save"}</Btn>
         <Btn kind="ghost" onClick={cancel} disabled={saving}>Cancel</Btn>
       </div>
     </form>
@@ -433,13 +228,3 @@ export default function SolutionsTab() {
     </div>
   );
 }
-
-const EDITOR_CSS = `
-.sol-editor { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 24px; align-items: start; }
-.sol-pill { border: 1.5px solid #e5e5e5; background: #fff; color: #444; border-radius: 999px; padding: 6px 14px; font: 600 13px inherit; font-family: inherit; cursor: pointer; }
-.sol-pill.on { background: ${C.accentSoft}; border-color: ${C.accentSoft}; color: ${C.accent}; }
-.sol-mini { border: 0; background: #f3f4f6; color: #444; border-radius: 6px; padding: 3px 7px; font: 600 11px inherit; font-family: inherit; cursor: pointer; }
-.sol-mini:disabled { opacity: .4; cursor: default; }
-.sol-mini.danger { background: ${C.dangerSoft}; color: ${C.danger}; }
-@media (max-width: 900px) { .sol-editor { grid-template-columns: 1fr; } }
-`;

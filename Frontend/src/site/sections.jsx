@@ -1,12 +1,14 @@
 /* Page sections. Most come in a short form (home page) and a full form (their own page). */
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Marquee from "./Marquee";
+import AutoScroller from "./AutoScroller";
 import GoogleRatingBadge from "./GoogleRatingBadge";
 import { GoogleSummary, GoogleReviewCard, WriteReviewButton, Stars } from "./GoogleReviews";
 import { IconMail, IconPin, IconWhatsApp, IconPhone, IconGlobe, IconCode } from "./icons";
 import { parseGoogleRating } from "../utils/googleRating";
 import { money } from "../utils/format";
+import { cld, cldSrcSet } from "../utils/media";
+import { PROJECT_TYPES } from "../seo/pages";
 import { useSiteData } from "./SiteData";
 import { FAQS, SERVICES, STEPS, companyInfo, websitePlans } from "./content";
 
@@ -92,18 +94,21 @@ export function HowItWorks({ id }) {
   );
 }
 
-function WorkCard({ w, eager = false }) {
+/* A portfolio card: the whole card links to the project page. */
+export function WorkCard({ w, eager = false, tabIndex }) {
+  const kind = PROJECT_TYPES[w.type];
   return (
-    <article className="work">
+    <Link to={`/portfolio/${w.slug}`} className="work" draggable={false} tabIndex={tabIndex}>
       <div className="work-img">
         {w.imageUrl
-          ? <img src={w.imageUrl} alt={`${w.title}, ${w.category || "project"} built by Annek`} loading={eager ? undefined : "lazy"} decoding="async" width="600" height="450" />
+          ? <img src={cld(w.imageUrl, 600)} srcSet={cldSrcSet(w.imageUrl, [300, 600, 900])} sizes="(max-width: 640px) 90vw, 380px"
+              alt={`${w.title}, ${kind || w.category || "project"} built by Annek`} loading={eager ? undefined : "lazy"} decoding="async" width="600" height="450" draggable={false} />
           : <span aria-hidden="true">{w.title?.[0]}</span>}
       </div>
-      {w.category && <span className="cat">{w.category}</span>}
+      {(kind || w.category) && <span className="cat">{kind || w.category}</span>}
       <h3>{w.title}</h3>
-      {w.desc && <p>{w.desc}</p>}
-    </article>
+      {(w.summary || w.desc) && <p>{w.summary || w.desc}</p>}
+    </Link>
   );
 }
 
@@ -130,7 +135,7 @@ export function PortfolioTeaser() {
           <div><div className="eyebrow">Portfolio</div><h2 className="h2" id="work-title">Recent work</h2></div>
         </div>
       </div>
-      <Marquee label="Portfolio projects" items={portfolio} keyOf={(w) => w._id} renderItem={(w) => <WorkCard w={w} />} />
+      <AutoScroller label="Portfolio projects" items={portfolio} keyOf={(w) => w._id} renderItem={(w) => <WorkCard w={w} />} />
       <div className="wrap"><MoreLink to="/portfolio">View full portfolio</MoreLink></div>
     </section>
   );
@@ -245,7 +250,7 @@ export function ReviewsTeaser() {
         <RatingSummary />
       </div>
       {shown.length > 0 && (
-        <Marquee label="Client ratings" reverse items={shown} keyOf={(r) => r._id}
+        <AutoScroller label="Client ratings" reverse items={shown} keyOf={(r) => r._id}
           renderItem={(r) => (r._google ? <GoogleReviewCard review={r} /> : <Testimonial r={r} />)} />
       )}
       <div className="wrap"><MoreLink to="/reviews">Read all reviews</MoreLink></div>

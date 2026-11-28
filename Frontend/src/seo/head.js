@@ -48,6 +48,7 @@ export function buildHead(page, ctx = {}) {
     breadcrumb(page),
   ].filter(Boolean);
 
+  const image = page.image || OG_IMAGE;
   return {
     title,
     canonical: url,
@@ -61,16 +62,16 @@ export function buildHead(page, ctx = {}) {
       ["property", "og:title", title],
       ["property", "og:description", description],
       ["property", "og:url", url],
-      ["property", "og:image", OG_IMAGE.url],
-      ["property", "og:image:type", "image/png"],
-      ["property", "og:image:width", OG_IMAGE.width],
-      ["property", "og:image:height", OG_IMAGE.height],
-      ["property", "og:image:alt", OG_IMAGE.alt],
+      ["property", "og:image", image.url],
+      ["property", "og:image:type", image === OG_IMAGE ? "image/png" : null],
+      ["property", "og:image:width", image.width],
+      ["property", "og:image:height", image.height],
+      ["property", "og:image:alt", image.alt],
       ["name", "twitter:card", "summary_large_image"],
       ["name", "twitter:title", title],
       ["name", "twitter:description", description],
-      ["name", "twitter:image", OG_IMAGE.url],
-      ["name", "twitter:image:alt", OG_IMAGE.alt],
+      ["name", "twitter:image", image.url],
+      ["name", "twitter:image:alt", image.alt],
     ],
     jsonLd,
     preload: page.preload || [],

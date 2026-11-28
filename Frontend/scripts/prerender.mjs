@@ -3,8 +3,9 @@
      2. vite build --ssr              → dist-ssr/entry-server.js
      3. node scripts/prerender.mjs    → one HTML file per public page, plus 404.html, app.html and sitemap.xml
 
-   For every page in src/seo/pages.js it writes dist/<path>/index.html with that page's head
-   (title, description, canonical, Open Graph, Twitter, JSON-LD) and its pre-rendered body.
+   For every page in src/seo/pages.js, and every published portfolio project (/portfolio/<slug>),
+   it writes dist/<path>/index.html with that page's head (title, description, canonical, Open
+   Graph, Twitter, JSON-LD) and its pre-rendered body.
 
    Public data (settings, portfolio, testimonials, solutions) is read from the live API once, so
    the HTML shows real content. If the API can't be reached the pages are still built, just
@@ -22,7 +23,8 @@ const OFFLINE = process.env.PRERENDER_OFFLINE === "1";
 const API = (process.env.PRERENDER_API_URL || "https://annek.tech/api").replace(/\/+$/, "");
 
 const ssr = await import(pathToFileURL(resolve(SSR, "entry-server.js")).href);
-const { render, PAGES, buildHead, headToHtml, privateHead, EMPTY_DATA, prerenderSafe, publicFeedback, publicPortfolio } = ssr;
+const { render, PAGES, projectPage, buildHead, headToHtml, privateHead, EMPTY_DATA, prerenderSafe, publicFeedback, publicPortfolio } = ssr;
+const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/; // also keeps every project path inside dist/
 
 // A slow or broken API must not stall the deploy: after 3 failures in a row the rest is skipped.
 let failuresInARow = 0;
@@ -62,6 +64,11 @@ async function loadData() {
   const mobile = await getJson("/solutions?category=mobile", isArr);
   const web = await getJson("/solutions?category=web", isArr);
   const software = await getJson("/solutions?category=software", isArr);
+  // Every published project's page data. If a detail can't be loaded the card data is used.
+  const projects = {};
+  for (const card of (portfolio || []).filter((c) => c && typeof c.slug === "string" && SLUG.test(c.slug))) {
+    projects[card.slug] = (await getJson(`/portfolio/${card.slug}`, isObj)) || card;
+  }
   return prerenderSafe({
     ...EMPTY_DATA,
     ...(settings && { settings }),
@@ -71,6 +78,7 @@ async function loadData() {
     ...(feedback && { feedback: publicFeedback(feedback) }),
     ...(stats && { stats }),
     solutions: { mobile: mobile || [], web: web || [], software: software || [] },
+    projects,
   });
 }
 
@@ -94,15 +102,14 @@ const template = await readFile(resolve(DIST, "index.html"), "utf8");
 const data = await loadData();
 const written = [];
 
-for (const page of Object.values(PAGES)) {
-  // Each page only carries the solutions it shows.
-  const pageData = { ...data, solutions: page.category ? { [page.category]: data.solutions[page.category] || [] } : {} };
+async function writePage(page, pageData) {
   const head = buildHead(page, pageData);
   const body = render(page.path, pageData);
   const html = fill(
     template,
     headToHtml(head),
-    `<div id="root" data-path="${page.path}">${body}</div>\n    <script>window.__ANNEK_DATA__=${scriptJson(pageData)}</script>`,
+    `<div id="root" data-path="${page.path}">${body}</div>
+    <script>window.__ANNEK_DATA__=${scriptJson(pageData)}</script>`,
   );
   const file = page.path === "/" ? resolve(DIST, "index.html") : resolve(DIST, `.${page.path}`, "index.html");
   await mkdir(dirname(file), { recursive: true });
@@ -110,12 +117,24 @@ for (const page of Object.values(PAGES)) {
   written.push({ page, head });
 }
 
-// Not pre-rendered, rendered in the browser. Neither is ever indexed.
-//   404.html  Vercel serves it with a real HTTP 404 for any path without a file; the app shows the branded 404.
-//   app.html  the shell vercel.json rewrites /admin to.
+for (const page of Object.values(PAGES)) {
+  // Each page only carries the data it shows.
+  await writePage(page, { ...data, projects: {}, solutions: page.category ? { [page.category]: data.solutions[page.category] || [] } : {} });
+}
+for (const project of Object.values(data.projects)) {
+  await writePage(projectPage(project), { ...data, solutions: {}, projects: { [project.slug]: project } });
+}
+
+// Not pre-rendered, rendered in the browser.
+//   404.html      Vercel serves it with a real HTTP 404 for any path without a file; the app shows the branded 404.
+//   app.html      the shell vercel.json rewrites /admin to (noindex).
+//   project.html  the shell vercel.json rewrites /portfolio/<slug> to when that project has no built page yet
+//                 (published after the last deploy, or an old slug). The browser loads it, sets its head,
+//                 redirects old slugs and shows the 404 (noindex) for unknown ones.
 const shell = '<div id="root"></div>';
 await writeFile(resolve(DIST, "404.html"), fill(template, headToHtml(privateHead("Page Not Found | Annek Software Development", "noindex")), shell));
 await writeFile(resolve(DIST, "app.html"), fill(template, headToHtml(privateHead("Admin | Annek", "noindex, nofollow")), shell));
+await writeFile(resolve(DIST, "project.html"), fill(template, headToHtml({ title: "Portfolio | Annek Software Development", canonical: null, meta: [], jsonLd: [], preload: [] }), shell));
 
 // sitemap.xml: every indexable pre-rendered page (real URLs only, no #, no admin, no 404).
 const today = new Date().toISOString().slice(0, 10);
@@ -131,5 +150,5 @@ ${indexable.map(({ head }) => `  <url>
 await writeFile(resolve(DIST, "sitemap.xml"), sitemap);
 
 await rm(SSR, { recursive: true, force: true });
-console.log(`[prerender] ${written.length} pages + 404.html + app.html, sitemap.xml with ${indexable.length} URLs (data: ${OFFLINE ? "offline" : API})`);
-for (const { page, head } of written) console.log(`  ${page.path.padEnd(22)} ${head.title}`);
+console.log(`[prerender] ${written.length} pages + 404.html + app.html + project.html, sitemap.xml with ${indexable.length} URLs (data: ${OFFLINE ? "offline" : API})`);
+for (const { page, head } of written) console.log(`  ${page.path.padEnd(34)} ${head.title}`);

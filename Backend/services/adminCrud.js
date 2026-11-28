@@ -13,8 +13,8 @@ const upload = multer({
 
 const PROTECTED_FIELDS = ["_id", "__v", "createdAt", "updatedAt", "slug"];
 
-/** Accepts JSON bodies or multipart bodies with a `data` JSON field. */
-function readBody(req) {
+/** Accepts JSON bodies or multipart bodies with a `data` JSON field. `keep`: protected fields this caller may set. */
+function readBody(req, { keep = [] } = {}) {
   let body = req.body || {};
   if (typeof body.data === "string") {
     try { body = JSON.parse(body.data); } catch { const e = new Error("Invalid data payload."); e.status = 400; throw e; }
@@ -26,7 +26,7 @@ function readBody(req) {
     const e = new Error("Invalid payload."); e.status = 400; throw e;
   }
   const clean = { ...body };
-  PROTECTED_FIELDS.forEach((k) => delete clean[k]);
+  PROTECTED_FIELDS.filter((k) => !keep.includes(k)).forEach((k) => delete clean[k]);
   // Normalise list fields given as "a, b, c" or newline text.
   for (const key of ["features", "tags"]) {
     if (typeof clean[key] === "string") {

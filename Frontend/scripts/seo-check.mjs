@@ -19,6 +19,7 @@ const fileFor = (path) => resolve(DIST, path === "/" ? "index.html" : `.${path}/
 const sitemap = await readFile(resolve(DIST, "sitemap.xml"), "utf8");
 const urls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 const problems = [];
+const warnings = [];
 const rows = [];
 const seenTitle = new Map();
 const seenDesc = new Map();
@@ -52,7 +53,12 @@ for (const url of urls) {
   for (const k of ["twitter:card", "twitter:title", "twitter:description", "twitter:image"]) ok(head.includes(`name="${k}"`), `missing ${k}`);
   ok(html.includes('id="annek-preloader"'), "preloader not inlined");
   ok(/<div id="root" data-path="[^"]+">\s*<[a-z]/.test(html), "body not pre-rendered");
-  for (const [k, v] of [["title", title], ["description", desc], ["H1", h1s[0]]]) ok(!(v && DASH.test(v)), `dash in ${k}: ${v}`);
+  for (const [k, v] of [["title", title], ["description", desc], ["H1", h1s[0]]]) {
+    if (!(v && DASH.test(v))) continue;
+    // Project names and summaries are typed in Admin › Portfolio: report, don't fail.
+    if (path.startsWith("/portfolio/")) warnings.push(`${path}: dash in ${k} (from Admin › Portfolio): ${v}`);
+    else problems.push(`${path}: dash in ${k}: ${v}`);
+  }
   ok(!/mannar/i.test(html), 'contains "Mannar"');
   ok(!/AggregateRating|"@type":"Review"/.test(html), "rating or review markup");
   ok(!/g-review|userRatingCount|"google":\{/.test(html), "Google review content baked into the HTML");
@@ -63,15 +69,17 @@ for (const url of urls) {
   rows.push({ path, title, t: title?.length, d: desc?.length, canonical, h1: h1s.length, og: ogUrl === canonical ? "yes" : "NO", ld: types.join(", ") });
 }
 
-for (const f of ["404.html", "app.html"]) {
+for (const f of ["404.html", "app.html", "project.html"]) {
   const shell = await readFile(resolve(DIST, f), "utf8");
-  if (!/<meta name="robots" content="noindex/.test(shell)) problems.push(`${f} is not noindex`);
+  // project.html is the shell for projects published after the last build: the browser sets its robots.
+  if (f !== "project.html" && !/<meta name="robots" content="noindex/.test(shell)) problems.push(`${f} is not noindex`);
   if (/<link rel="canonical"/.test(shell)) problems.push(`${f} has a canonical`);
 }
 
 console.log("| Path | Title | Title chars | Description chars | Canonical | H1 | og:url = canonical | JSON-LD |");
 console.log("|---|---|---|---|---|---|---|---|");
 for (const r of rows) console.log(`| \`${r.path}\` | ${r.title} | ${r.t} | ${r.d} | ${r.canonical} | ${r.h1} | ${r.og} | ${r.ld} |`);
+if (warnings.length) console.warn(`\n${warnings.length} warning(s):\n${warnings.map((w) => `  ${w}`).join("\n")}`);
 if (problems.length) {
   console.error(`\n${problems.length} problem(s):\n${problems.map((p) => `  ${p}`).join("\n")}`);
   process.exit(1);
