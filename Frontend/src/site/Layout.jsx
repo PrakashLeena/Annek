@@ -114,7 +114,7 @@ export default function Layout() {
             {nav.map((p) => <Link key={p.path} to={p.path}>{p.nav}</Link>)}
             <Link to={PAGES.faq.path}>{PAGES.faq.nav}</Link>
           </nav>
-          <small>© {new Date().getFullYear()} Annek</small>
+          <small suppressHydrationWarning>© {new Date().getFullYear()} Annek</small>
         </div>
       </footer>
 

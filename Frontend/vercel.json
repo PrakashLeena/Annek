@@ -55,13 +55,18 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ],
   "redirects": [
     {
       "source": "/home",
       "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/solutions",
+      "destination": "/services",
       "permanent": true
     }
   ]

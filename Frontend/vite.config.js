@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 import preloader from "./vite-plugin-preloader.js";
 // import { visualizer } from "rollup-plugin-visualizer";
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   plugins: [
     react(),
     // Inlines src/preloader/* into index.html (see src/preloader/README.md)
@@ -15,7 +15,8 @@ export default defineConfig({
   build: {
     target: "es2020",
     minify: "esbuild",
-    rollupOptions: {
+    // The SSR build (scripts/prerender.mjs) keeps plain file names: dist-ssr/entry-server.js.
+    rollupOptions: isSsrBuild ? {} : {
       output: {
         // Granular code-splitting for better caching
         manualChunks: (id) => {
@@ -84,4 +85,4 @@ export default defineConfig({
   css: {
     devSourcemap: true,
   },
-});
+}));

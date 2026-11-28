@@ -116,7 +116,7 @@ function Showcase({ info }) {
         <div className="wrap footer-inner">
           <img src={logoImg} alt="Annek" width="73" height="34" loading="lazy" />
           <nav aria-label="Footer"><Link to="/">Home</Link>{Object.values(CATEGORY_INFO).map((c) => <Link key={c.slug} to={`/solutions/${c.slug}`}>{c.label}</Link>)}</nav>
-          <small>© {new Date().getFullYear()} Annek</small>
+          <small suppressHydrationWarning>© {new Date().getFullYear()} Annek</small>
         </div>
       </footer>
 

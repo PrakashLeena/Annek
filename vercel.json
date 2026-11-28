@@ -66,6 +66,11 @@
       ],
       "destination": "https://annek.tech/$1",
       "permanent": true
+    },
+    {
+      "source": "/solutions",
+      "destination": "/services",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -75,7 +80,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ]
 }
